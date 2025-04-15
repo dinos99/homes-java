@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import homes.comm.constants.EnumError;
 import homes.comm.vo.AccessTokenVo;
 import homes.comm.vo.ApiResponseVo;
 import homes.comm.vo.ErrorInfoVo;
@@ -60,9 +61,8 @@ public class JsonUtil {
 		String json = "" ; 
 
         ErrorInfoVo errorVo = new ErrorInfoVo() ; 
-        errorVo.setHttpSttusCd(HttpStatus.OK.value()) ;
-        errorVo.setHttpSttusCdnm(HttpStatus.OK.getReasonPhrase()) ; 
-        errorVo.setErrorMessage("OK") ; 
+        errorVo.setHttpSttusCd(EnumError.HTTP_OK.getSttusCd()) ; 
+        errorVo.setErrorMessage(EnumError.HTTP_OK.getMessage()) ;
         
 		ApiResponseVo respVo = new ApiResponseVo() ;
 		respVo.setErrorVo(errorVo);
@@ -81,5 +81,52 @@ public class JsonUtil {
 		return json ; 
 		
 	}
+	public static String getJson( Object resultVo ) {
+		String json = "" ; 
+
+        ErrorInfoVo errorVo = new ErrorInfoVo() ; 
+        errorVo.setHttpSttusCd(EnumError.HTTP_OK.getSttusCd()) ; 
+        errorVo.setErrorMessage(EnumError.HTTP_OK.getMessage()) ;
+        
+		ApiResponseVo respVo = new ApiResponseVo() ;
+		respVo.setErrorVo(errorVo);
+		respVo.setTokenVo(null);
+		respVo.setResponseVo(resultVo);
+		
+        ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			json = mapper.writeValueAsString(respVo);
+		} catch (JsonProcessingException e) {
+			Log.error("*** Json parsing ") ; 
+			json = getErrorJsonStr() ; 
+		}
+		
+		return json ; 
+		
+	}
 	
+	public static String getJson(int code, Object resultVo) {
+		String json = "" ; 
+
+		EnumError error = EnumError.getStatusFromCode(code) ;
+		ErrorInfoVo errorVo = new ErrorInfoVo() ;  
+		errorVo.setHttpSttusCd(error.getSttusCd());
+		errorVo.setErrorMessage(error.getMessage());
+		ApiResponseVo respVo = new ApiResponseVo() ;
+		respVo.setErrorVo(errorVo);
+		respVo.setTokenVo(null);
+		respVo.setResponseVo(resultVo);
+		
+        ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			json = mapper.writeValueAsString(respVo);
+		} catch (JsonProcessingException e) {
+			Log.error("*** Json parsing ") ; 
+			json = getErrorJsonStr() ; 
+		}
+		
+		return json ; 
+	}
 }

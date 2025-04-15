@@ -36,4 +36,5 @@
 		FROM   TB_CM_COMMUSER
 		WHERE  USER_NO = #{userNo}
     </select>
+    
 </mapper>

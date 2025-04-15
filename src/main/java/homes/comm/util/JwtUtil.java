@@ -142,6 +142,8 @@ public class JwtUtil {
     	tokenVo.setRole(role);
     	tokenVo.setIssuedAt(issuedAt);
     	tokenVo.setExpiration(expiration);
+    	tokenVo.setIssdt(DateTimeUtil.toGMTString(issuedAt));
+    	tokenVo.setExpdt(DateTimeUtil.toGMTString(expiration));
     	tokenVo.setAccessToken(accessToken);
     	
     	return tokenVo ; 

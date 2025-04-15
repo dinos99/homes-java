@@ -20,4 +20,7 @@ public class AccessTokenVo {
 	
 	private String accessToken ; 
 	
+	private String issdt ; 
+	private String expdt ; 
+	
 }

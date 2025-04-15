@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data 
 public class ApiResponseVo {
+	
 	@JsonProperty("token")
 	private AccessTokenVo tokenVo ;
 
