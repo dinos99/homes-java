@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class AccessTokenVo {
 	
-	private long userNo ; 
-	private String userNm ;
+	private long userno ; 
+	private String usernm ;
 	private String email ; 
 	private String role ; 
 	
@@ -19,8 +19,5 @@ public class AccessTokenVo {
 	private Date expiration ;
 	
 	private String accessToken ; 
-	
-	private String issdt ; 
-	private String expdt ; 
 	
 }

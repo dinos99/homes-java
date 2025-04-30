@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.popup.mapper.PopupMapper">
+
+    <select id="selectChernmCount" parameterType="popVo" resultType="int">
+		SELECT /* homes.popup.vo.selectChernmCount 공통팝업(담당자조회) 전체카운트 조회 */
+		       COUNT(1) AS TOTAL_COUNT
+		FROM   tb_cm_commuser 
+		WHERE  USER_NM LIKE CONCAT(#{usernm}, '%') 
+		LIMIT  #{stno}, #{edno}
+    </select>    
+    
+    <select id="selectChernmList" parameterType="popVo" resultType="commonMap">
+		SELECT /* homes.popup.vo.selectChernmList 공통팝업(담당자조회) */
+		       USER_NO                                                                  AS USERNO
+		       , USER_NM                                                                  AS USERNM
+		       , USER_ROLE                                                                AS USER_ROLE
+		       , CASE WHEN USER_ROLE = 'ADM001' THEN '총괄관리자' ELSE '관리자' END       AS USER_ROLENM
+		       , USER_STTUS                                                               AS USER_STTUS
+		       , CASE WHEN USER_STTUS = 'UST001' THEN '승인' ELSE '' END                  AS USER_STTUSNM
+		FROM   tb_cm_commuser 
+		WHERE  USER_NM LIKE CONCAT(#{usernm}, '%') 
+		LIMIT  #{stno}, #{edno}
+    </select>
+    
+</mapper>

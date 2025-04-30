@@ -17,14 +17,15 @@ import homes.security.dto.HomesUserInfoDto;
 import homes.security.mapper.CommUserMapper;
 import homes.security.vo.CommUserVo;
 import homes.security.vo.LoginRequestVo;
+import homes.security.vo.UpdateLoginInfoReqVo;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
-	private final Logger Log = LogManager.getLogger(AuthServiceImpl.class) ; 
+//	private final Logger Log = LogManager.getLogger(AuthServiceImpl.class) ; 
 	
     private final JwtUtil jwtUtil;
 //    private final PasswordEncoder encoder  ; 
@@ -36,7 +37,7 @@ public class AuthServiceImpl implements AuthService {
     public AccessTokenVo Login(LoginRequestVo paramVo) {
 
         String password = paramVo.getPassword();
-        Log.info("*** user password: {}", password) ;
+//        Log.info("*** user password: {}", password) ;
         
         try {
             password = URLDecoder.decode(new String(Base64.getDecoder().decode(password.getBytes()), "utf-8"), "utf-8") ;
@@ -52,23 +53,36 @@ public class AuthServiceImpl implements AuthService {
         }
         
         HomesUserInfoDto.builder()
-        				.userNo(commUserVo.getUserNo())
+        				.userno(commUserVo.getUserno())
         				.email(commUserVo.getEmail())
-        				.name(commUserVo.getUserNm())
+        				.name(commUserVo.getUsernm())
+        				.arcode(commUserVo.getArcode())
         				.role(commUserVo.getUserRole())
         				.build() ; 
         
         String accessToken = jwtUtil.createAccessToken(HomesUserInfoDto.builder()
-				.userNo(commUserVo.getUserNo())
+				.userno(commUserVo.getUserno())
 				.email(commUserVo.getEmail())
-				.name(commUserVo.getUserNm())
+				.name(commUserVo.getUsernm())
 				.role(commUserVo.getUserRole())
 				.build());
-        
+
+        /* 사용자 정보 ( 최종로그인시간, accessToken 업데이트 ) */
+        UpdateLoginInfoReqVo upVo = new UpdateLoginInfoReqVo() ; 
+        upVo.setUserNo(commUserVo.getUserno());
+        upVo.setAccessToken(accessToken);
+    	commUserMapper.updateUserLogininfo(upVo) ;
+        /* 사용자 로그인이력 추가할것 */ 
+    	
         AccessTokenVo tokenVo = jwtUtil.getTokenInfo(accessToken) ;
-        tokenVo.setUserNm(commUserVo.getUserNm());
+        tokenVo.setUsernm(commUserVo.getUsernm());
         return tokenVo ;
     }
-    
-    
+
+	@Override
+	@Transactional(readOnly = true)
+	public CommUserVo slectUserInfo(Long userno) {
+        return commUserMapper.findCommUserByUserNo(userno) ;
+	}
+        
 }

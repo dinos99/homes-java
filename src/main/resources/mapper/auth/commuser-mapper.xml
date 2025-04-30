@@ -15,12 +15,13 @@
 		       , LOGIN_FAILR_CO   /* 로그인_실패_회수 */
 		       , LOGIN_TY         /* 로그인_유형 */
 		       , IF_USER_ID       /* 로그인 API 사용자 ID */ 
+		       , '1171000000'     AS ARCODE
 		FROM   TB_CM_COMMUSER
 		WHERE  EMAIL = #{email}
 		AND    PASSWORD = PASSWORD(#{password}) ; 
     </select>
     
-    <select id="findCommUserByUserNo" parameterType="string" resultType="homes.security.vo.CommUserVo">
+    <select id="findCommUserByUserNo" parameterType="long" resultType="homes.security.vo.CommUserVo">
     	SELECT /* homes.security.mapper.CommUserMapper.findCommUserByUserNo 사용자번호로 사용자 정보조회 */
     	       USER_NO            /* 사용자_번호 */  
     	       , EMAIL            /* 이메일 */ 
@@ -32,9 +33,17 @@
 		       , PASSWORD_CHG_DT  /* 비밀번호_변경_일시 */
 		       , LOGIN_FAILR_CO   /* 로그인_실패_회수 */
 		       , LOGIN_TY         /* 로그인_유형 */
-		       , IF_USER_ID       /* 로그인 API 사용자 ID */ 
+		       , IF_USER_ID       /* 로그인 API 사용자 ID */  
+		       , '1171000000'     AS ARCODE
 		FROM   TB_CM_COMMUSER
 		WHERE  USER_NO = #{userNo}
     </select>
+    
+    <update id="updateUserLogininfo" parameterType="homes.security.vo.UpdateLoginInfoReqVo">
+    	UPDATE TB_CM_COMMUSER /* homes.security.mapper.CommUserMapper.updateUserLogininfo 사용자 로그인정보 조회 */
+    	SET    LAST_LOGIN_DT = now() 
+    	       , ACCESS_TOKEN = #{accessToken}
+		WHERE  USER_NO = #{userNo}
+    </update>
     
 </mapper>

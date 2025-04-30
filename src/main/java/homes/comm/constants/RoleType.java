@@ -1,4 +1,4 @@
-package homes.constants;
+package homes.comm.constants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -10,11 +10,12 @@ import lombok.Setter;
 @Setter
 @Builder
 public class HomesUserInfoDto {
-    private long     userNo ;
-    private String   email ;
-    private String   name ;
+    private long   userno ;
+    private String email ;
+    private String name ;
+    private String arcode ; 
 //    private String   password ;
-    private String   role;
+    private String role;
 }
 
 

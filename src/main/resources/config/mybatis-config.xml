@@ -9,8 +9,16 @@
 		<setting name="callSettersOnNulls" value="true"/>
 		<setting name="jdbcTypeForNull" value="NULL"/>
 	</settings>
+	
+	<typeAliases>
+		<typeAlias type="homes.comm.vo.CommonMap" alias="commonMap" />
+		<typeAlias type="homes.comm.vo.CommReqVo" alias="commVo" />
+		<typeAlias type="homes.popup.vo.PopCommReqVo" alias="popVo" />
+	</typeAliases>
+	
     <mappers>
-<!--         <mapper resource="admn/user/mapper/admin-mapper.xml"/> -->
         <mapper resource="mapper/auth/commuser-mapper.xml"/>
+        <mapper resource="mapper/popup/popup-mapper.xml"/>
+        <mapper resource="mapper/common/common-mapper.xml"/>
     </mappers>
 </configuration>

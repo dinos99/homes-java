@@ -3,7 +3,6 @@ package homes.comm.util;
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.Iterator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,13 +35,6 @@ public class JwtUtil {
     	String secretKey = PropertyUtil.getStringVal("secret") ;        /* Secret Key */
     	long   expTime   = PropertyUtil.getLongVal("expiration_time") ; /* 토큰 만료시간 */ 
 
-/*
-    	System.out.println("********************************************************************") ; 
-    	System.out.println("*** secretKey: " +  secretKey) ; 
-    	System.out.println("*** expTime  : " +  expTime) ; 
-    	System.out.println("********************************************************************") ; 
-*/ 
-    	
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = expTime ; 
@@ -65,7 +57,7 @@ public class JwtUtil {
      */
     private String createToken(HomesUserInfoDto member, long expireTime) {
         Claims claims = Jwts.claims();
-        claims.put("userNo", member.getUserNo());
+        claims.put("userno", member.getUserno());
         claims.put("email" , member.getEmail());
         claims.put("role"  , member.getRole());
 
@@ -86,7 +78,7 @@ public class JwtUtil {
      * @return User ID
      */
     public Long getUserId(String token) {
-        return parseClaims(token).get("userNo", Long.class);
+        return parseClaims(token).get("userno", Long.class);
     }
     /**
      * JWT 검증
@@ -98,15 +90,22 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-        	Log.info("Invalid JWT Token", e);
+        	Log.error("Invalid JWT Token", e);
+        	return false ;
+//        	throw new HomesException(EnumError.INVALID_TOKEN.getSttusCd()) ; 
         } catch (ExpiredJwtException e) {
-        	Log.info("Expired JWT Token", e);
+        	Log.error("Expired JWT Token", e);
+        	return false ;
+//        	throw new HomesException(EnumError.TOKEN_EXPIRED.getSttusCd()) ;
         } catch (UnsupportedJwtException e) {
-        	Log.info("Unsupported JWT Token", e);
+        	Log.error("Unsupported JWT Token", e);
+        	return false ;
+//        	throw new HomesException(EnumError.UNSUPPORTED_TOKEN.getSttusCd()) ;
         } catch (IllegalArgumentException e) {
-        	Log.info("JWT claims string is empty.", e);
+        	Log.error("JWT claims string is empty.", e);
+        	return false ;
+//        	throw new HomesException(EnumError.UNSUPPORTED_TOKEN.getSttusCd()) ;
         }
-        return false;
     }
     
 
@@ -131,19 +130,17 @@ public class JwtUtil {
     	Log.debug("*** expiration: {}", expiration);
     	
     	Claims claim  = parseClaims( accessToken ) ; 
-    	long   userNo = claim.get("userNo", Long.class) ; 
+    	long   userno = claim.get("userno", Long.class) ; 
     	String email  = claim.get("email" , String.class) ;
     	String role   = claim.get("role"  , String.class) ; 
     	
     	AccessTokenVo tokenVo = new AccessTokenVo() ; 
 
-    	tokenVo.setUserNo(userNo);
+    	tokenVo.setUserno(userno);
     	tokenVo.setEmail(email);
     	tokenVo.setRole(role);
     	tokenVo.setIssuedAt(issuedAt);
     	tokenVo.setExpiration(expiration);
-    	tokenVo.setIssdt(DateTimeUtil.toGMTString(issuedAt));
-    	tokenVo.setExpdt(DateTimeUtil.toGMTString(expiration));
     	tokenVo.setAccessToken(accessToken);
     	
     	return tokenVo ; 

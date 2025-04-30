@@ -129,4 +129,28 @@ public class JsonUtil {
 		
 		return json ; 
 	}
+	
+	public static String getJson(int code) {
+		String json = "" ; 
+
+		EnumError error = EnumError.getStatusFromCode(code) ;
+		ErrorInfoVo errorVo = new ErrorInfoVo() ;  
+		errorVo.setHttpSttusCd(error.getSttusCd());
+		errorVo.setErrorMessage(error.getMessage());
+		ApiResponseVo respVo = new ApiResponseVo() ;
+		respVo.setErrorVo(errorVo);
+		respVo.setTokenVo(null);
+		respVo.setResponseVo(null);
+		
+        ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			json = mapper.writeValueAsString(respVo);
+		} catch (JsonProcessingException e) {
+			Log.error("*** Json parsing ") ; 
+			json = getErrorJsonStr() ; 
+		}
+		
+		return json ; 
+	}
 }

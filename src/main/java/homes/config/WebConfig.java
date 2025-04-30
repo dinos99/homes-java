@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import homes.comm.interceptor.LoggerInterceptor;
+import homes.comm.interceptor.ApiAuthInterceptor;
 import lombok.RequiredArgsConstructor;
  
 
@@ -15,11 +15,13 @@ public class WebConfig implements WebMvcConfigurer   {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoggerInterceptor())
+        registry.addInterceptor(new ApiAuthInterceptor())
 //        registry.addInterceptor(jwtTokenInterceptor)
         	.addPathPatterns("/**") 
         	.excludePathPatterns(
-        			"/auth/sign-in/"); 
+        			"/favicon.ico",
+        			"/api/error",
+        			"/auth/sign-in"); 
     }
     
 

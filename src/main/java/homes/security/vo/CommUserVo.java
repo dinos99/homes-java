@@ -11,13 +11,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CommUserVo {
 	/* 사용자 번호 */ 
-	private long userNo ;
+	private long userno ;
 	
 	/* 사용자 이메일 */
 	private String email ;
 	
 	/* 사용자 명 */ 
-	private String userNm ;
+	private String usernm ;
 	
 	/* 사용자 업무 권한 */ 
 	private String userRole ;
@@ -41,6 +41,10 @@ public class CommUserVo {
 	private String loginTy ; 
 	
 	/* 로그인 API 연계 ID */
-	private String ifUserId ; 
+	private String ifUserId ;
+	
+	private String accessToken ; 
+	
+	private String arcode ; 
 	
 }

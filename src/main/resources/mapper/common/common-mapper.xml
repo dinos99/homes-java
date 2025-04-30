@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.comm.mapper.CommonMapper">
+
+    <select id="selectSidoList" parameterType="commVo" resultType="commonMap">
+		SELECT /* homes.common.mapper.CommonMapper.selectSidoList 시도목록 조회 */
+		       AREACD                                                                   AS ARCODE
+		       , AREANM                                                                 AS ARNAME
+		       , AREA_FULLNM                                                            AS ARFULLNM
+		       , CASE WHEN SIDOCD = SUBSTR(#{arcode}, 1, 2) THEN 'selected' ELSE '' END AS SELECTED
+		FROM   TB_CM_COAREACODE
+		WHERE  SGGCD = '000' 
+		AND    USE_YN = 'Y'
+		ORDER  BY ORDR ASC 
+    </select>
+    
+    <select id="selectSggList" parameterType="commVo" resultType="commonMap">
+		SELECT /* homes.common.mapper.CommonMapper.selectSggList 시군구 조회 */
+		       AREACD                                                                       AS ARCODE
+		       , AREANM                                                                     AS ARNAME
+		       , AREA_FULLNM                                                                AS ARFULLNM
+		       , SDSGGCD                                                                    AS SDSGGCD
+		       , CASE WHEN SDSGGCD = SUBSTR(#{arcode}, 1, 5) THEN 'selected' ELSE '' END AS SELECTED
+		FROM   TB_CM_COAREACODE
+		WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
+		AND    SGGCD != '000' 
+		AND    EMDCD = '000'
+		AND    USE_YN = 'Y'
+		ORDER  BY AREACD ASC 
+    </select>
+    
+    <select id="selectEmdList" parameterType="commVo" resultType="commonMap">
+		SELECT /* homes.common.mapper.CommonMapper.selectEmdList 읍면동 조회 */
+		       AREACD                                                                       AS ARCODE
+		       , AREANM                                                                     AS ARNAME
+		       , AREA_FULLNM                                                                AS ARFULLNM
+		       , SDSGGCD                                                                    AS SDSGGCD
+		       , CASE WHEN SDSGGCD = SUBSTR(#{arcode}, 1, 5) THEN 'selected' ELSE '' END AS SELECTED
+		FROM   TB_CM_COAREACODE
+		WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
+		AND    SDSGGCD = SUBSTR(#{arcode}, 1, 5)
+		AND    EMDCD != '000'
+		AND    USE_YN = 'Y'
+		ORDER  BY AREACD ASC 
+    </select>
+    
+</mapper>

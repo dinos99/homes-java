@@ -10,7 +10,10 @@ public enum EnumError {
 	INTERNAL_SERVER_ERROR(500, "서버에서 에러가 발생하였습니다."), 
 
 	/* Custom Exception 900 ~ 999 */
-	USER_NOT_FOUND(900, "존재하지 않는 사용자입니다.")
+	USER_NOT_FOUND(900, "존재하지 않는 사용자입니다."),
+    INVALID_TOKEN(901, "사용자인증에 실패하였습니다."),
+    UNSUPPORTED_TOKEN(902, "사용자인증에 실패하였습니다."),
+    TOKEN_EXPIRED(904, "만로된 토큰입니다.")
 	;
 	
 
