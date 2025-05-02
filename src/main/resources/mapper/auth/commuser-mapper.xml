@@ -46,4 +46,65 @@
 		WHERE  USER_NO = #{userNo}
     </update>
     
+    <select id="selectLastid" parameterType="long" resultType="long">
+    	SELECT /* homes.security.mapper.CommUserMapper.selectLastid */
+		       LAST_INSERT_ID()
+		FROM   DUAL 
+    </select>
+    
+    <insert id="insertCommuser" parameterType="homes.comm.vo.CommUserReqVo">
+    	INSERT INTO TB_CM_COMMUSER (
+			/* homes.security.mapper.CommUserMapper.insertCommuser */
+			EMAIL
+			, PASSWORD
+			, USER_NM
+			, USER_ROLE
+			, USER_STTUS
+			, BIRTH
+			, GNDR
+			, CCB_CD
+			, MBLE_CTTPC
+			, MBLE_CTTPC_01
+			, MBLE_CTTPC_02
+			, MBLE_CTTPC_03
+			, MBLE_CERTNO
+			, MBLE_CERT_DT
+			, FRST_SBSCRB_DT
+			, PASSWORD_CHG_DT
+			, LOGIN_FAILR_CO
+			, LOGIN_TY
+			, AGRE_YN
+			, AGRE_DT
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT
+		) VALUES (
+			#{email}
+			, PASSWORD(#{password})
+			, #{userNm}
+			, #{userRole}
+			, #{userSttus}
+			, #{birth}
+			, #{gndr}
+			, #{ccbCd}
+			, PASSWORD(#{mbleCttpc})
+			, #{mbleCttpc01}
+			, #{mbleCttpc02}
+			, #{mbleCttpc03}
+			, #{mbleCertno}
+			, NOW()
+			, NOW()
+			, NOW()
+			, 0
+			, "LGT001"
+			, #{agreYn}
+			, NOW()
+			, 0
+			, NOW()
+			, 0
+			, NOW()
+		)
+    </insert>
+    
 </mapper>

@@ -1,10 +1,13 @@
 package homes.config;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import homes.comm.interceptor.ApiAuthInterceptor;
+import homes.comm.interceptor.ApiInterceptor;
 import lombok.RequiredArgsConstructor;
  
 
@@ -12,16 +15,23 @@ import lombok.RequiredArgsConstructor;
 /* @EnableWebMvc */ 
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer   {
+	public Logger Log = LogManager.getLogger(WebConfig.class) ;  
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+    	
+        registry.addInterceptor(new ApiInterceptor())
+	    	.addPathPatterns("/api/v1/mber/**") 
+	    	.addPathPatterns("/api/v1/common/**"); 
+        
         registry.addInterceptor(new ApiAuthInterceptor())
-//        registry.addInterceptor(jwtTokenInterceptor)
-        	.addPathPatterns("/**") 
+        	.addPathPatterns("/api/v1/**") 
         	.excludePathPatterns(
         			"/favicon.ico",
         			"/api/error",
-        			"/auth/sign-in"); 
+        			"/auth/sign-in",
+        			"/api/v1/mber/**")
+        	; 
     }
     
 

@@ -32,7 +32,8 @@ public class SecurityConfig  {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowedOriginPatterns(Collections.singletonList("http://127.0.0.1:8080")); // ⭐️ 허용할 origin
+            config.setAllowedOriginPatterns(Collections.singletonList("http://127.0.0.1:8081")); // ⭐️ 허용할 origin
+//            config.setAllowedOriginPatterns(Collections.singletonList("http://127.0.0.1:8082")); // ⭐️ 허용할 origin
             config.setAllowCredentials(true);
             return config;
         };
@@ -55,12 +56,5 @@ public class SecurityConfig  {
 //        		.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
         ;
 		return http.build();
-		/*
-		return http.csrf(csrf -> csrf.disable()).httpBasic(hbasic -> hbasic.disable())
-				.headers(config -> config.frameOptions(customizer -> customizer.sameOrigin()))
-				.authorizeHttpRequests(
-						authz -> authz.anyRequest().permitAll())
-				.build();
-		*/
 	}
 }
