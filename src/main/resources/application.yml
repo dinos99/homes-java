@@ -17,7 +17,3 @@ mybatis:
     jdbc-type-for-null: varchar
     default-fetch-size: 500
   config-location: classpath:config/mybatis-config.xml
-
-spring:
-  profiles:
-    active: LOCAL

@@ -25,4 +25,6 @@ public class CommUserReqVo {
 	private String mbleCertno ;
 	private String loginTy ; 
 	private String agreYn ; 
+
+	private String brokerty ; /* 중개사만 해당 [BRK001]: 대표, [BRK002]: 소속중개사 */  
 }

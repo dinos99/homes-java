@@ -4,10 +4,15 @@ server:
 spring:
   datasource:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mysql://34.64.63.95/:3306/db_homes?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:log4jdbc:mysql://34.64.63.95:3306/db_homes?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: homes
     password: server#!2a
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 100MB
+homes:
+  security:
+    jwt:
+      path: /var/www/extern/resource
+      filename: jwt.properties

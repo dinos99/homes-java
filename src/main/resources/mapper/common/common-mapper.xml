@@ -45,4 +45,35 @@
 		ORDER  BY AREACD ASC 
     </select>
     
+    <select id="selectFileLastid" parameterType="long" resultType="long">
+    	SELECT /* homes.security.mapper.CommonMappe.selectFileLastid */
+		       LAST_INSERT_ID()
+		FROM   DUAL 
+    </select>
+    
+    <insert id="addfile" parameterType="fileVo">
+    	INSERT INTO /* homes.common.mapper.CommonMappe.addfile */
+		TB_CM_COMMFILE (
+			FILEPATH
+			, FILESVNM
+			, FILEORGNM
+			, FILE_TY
+			, FILESIZE
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT 
+    	) VALUES (
+    		#{fpath}
+    		, #{fsvname}
+    		, #{forgname}
+    		, #{ftype}
+    		, #{fsize}
+    		, #{userno}
+    		, NOW()
+    		, #{userno}
+    		, NOW()
+    	)
+    </insert>
+    
 </mapper>

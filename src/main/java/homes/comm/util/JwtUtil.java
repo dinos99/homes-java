@@ -1,5 +1,4 @@
 package homes.comm.util;
-
 import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -26,15 +25,21 @@ public class JwtUtil {
 	
     private final Key key;
     private final long accessTokenExpTime;
-    
-    private final String EXTERN_BASE_PATH   = "C:\\workspace\\project\\homes-java\\extern\\resource" ; 
-    private final String PROPERTY_FILE_NAME = "jwt.properties" ; 
-    
-    public JwtUtil() {
-    	PropertyUtil.getProperty(EXTERN_BASE_PATH, PROPERTY_FILE_NAME) ; 
+
+	private static final String HOMES_PROP_FILE_NAME = "homes" ;  
+	private static final String JWT_PROP_FILE_NAME = "jwt.properties" ;
+	
+	
+    public JwtUtil() {       	
+    	PropertyUtil.getProperty( HOMES_PROP_FILE_NAME) ;
+    	String path = PropertyUtil.getString("jwt.key.path") ; 
+    	
+    	PropertyUtil.getProperty(path, JWT_PROP_FILE_NAME) ;
     	String secretKey = PropertyUtil.getStringVal("secret") ;        /* Secret Key */
     	long   expTime   = PropertyUtil.getLongVal("expiration_time") ; /* 토큰 만료시간 */ 
 
+    	Log.info("*** secretKey: {}", secretKey);
+    	Log.info("*** expTime  : {}", expTime);
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = expTime ; 

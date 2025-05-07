@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.broker.mapper.BrokerMapper">    
+    <insert id="insertBrokerUser" parameterType="homes.broker.vo.BrokerVo">
+    	INSERT INTO TB_BRK_USER (
+			/* homes.broker.mapper.BrokerMapper.insertBrokerUser */
+			USER_NO
+			, USER_NM
+			, BROKER_TY
+			, BROKER_STTUS
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT
+		) VALUES (
+			#{brokerno}
+			, #{brokernm}
+			, #{brokerty}
+			, #{brokersttus}
+			, #{brokerno}
+			, NOW()
+			, #{brokerno}
+			, NOW()
+		)
+    </insert>
+    
+    <insert id="insertBrokerOffice" parameterType="homes.broker.vo.BrokerOfficeVo">
+	    INSERT INTO TB_BRK_OFFICE ( 
+	           /* homes.broker.mapper.BrokerMapper.insertBrokerOffice */
+			USER_NO
+			, OFFICE_NM
+			, BSNS_TY
+			, REPSNT_NM
+			, TELNO_ARNO
+			, TELNO
+			, REP_CTTPC_01
+			, REP_CTTPC_02
+			, REP_CTTPC_03
+			, BSNSNO
+			, BSNS_ATCH_NO
+			, EST_REG_NO
+			, ESTREG_ATCH_NO
+			, PPS_BUY_01
+			, PPS_BUY_02
+			, PPS_BUY_03
+			, PPS_BUY_04
+			, PPS_BUY_05
+			, PPS_BUY_06
+			, PPS_BUY_07
+			, PPS_RNT_01
+			, PPS_RNT_02
+			, PPS_RNT_03
+			, PPS_RNT_04
+			, PPS_RNT_05
+			, PPS_RNT_06
+			, PPS_RNT_07
+			, POSTNO
+			, ADDR_SEL
+			, OFFICE_ADDR
+			, OFFICE_ADDR_J
+			, OFFICE_ADDR_R
+			, OFFICE_ADDR_DTL
+			, CRTFC_STTUS
+			, CRTFC_REQ_DT
+			, CRTFC_USER_NO
+			, CRTFC_DT
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT
+		) VALUES (
+			#{brokerno}
+			, #{officenm}
+			, #{bsnsty}
+			, #{repsntnm}
+			, #{telnoarno}
+			, #{telno}
+			, ( SELECT MBLE_CTTPC_01 FROM TB_CM_COMMUSER WHERE USER_NO = #{brokerno})
+			, ( SELECT MBLE_CTTPC_02 FROM TB_CM_COMMUSER WHERE USER_NO = #{brokerno})
+			, ( SELECT MBLE_CTTPC_03 FROM TB_CM_COMMUSER WHERE USER_NO = #{brokerno})
+			, #{bsnsno}
+			, #{bizfileno}
+			, #{estno}
+			, #{estfileno}
+			, #{prsbuy01}
+			, #{prsbuy02}
+			, #{prsbuy03}
+			, #{prsbuy04}
+			, #{prsbuy05}
+			, #{prsbuy06}
+			, #{prsbuy07}
+			, #{prsrnt01}
+			, #{prsrnt02}
+	 		, #{prsrnt03}
+			, #{prsrnt04}
+			, #{prsrnt05}
+			, #{prsrnt06}
+			, #{prsrnt07}
+			, #{postno}
+			, #{addrsel}
+			, #{officeaddr}
+			, #{officeaddrj}
+			, #{officeaddrr}
+			, #{officeaddrdtl}
+			, #{crtfcsttus}
+			, NOW() 
+			, #{brokerno}
+			, NOW()
+			, #{brokerno}
+			, NOW()
+			, #{brokerno}
+			, NOW()
+		)
+	    <selectKey resultType="long" keyProperty="officeno" order="AFTER">
+	        SELECT LAST_INSERT_ID()
+	    </selectKey>
+    </insert>
+    
+</mapper>

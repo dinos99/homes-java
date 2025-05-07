@@ -13,7 +13,9 @@ public enum EnumError {
 	USER_NOT_FOUND(900, "존재하지 않는 사용자입니다."),
     INVALID_TOKEN(901, "사용자인증에 실패하였습니다."),
     UNSUPPORTED_TOKEN(902, "사용자인증에 실패하였습니다."),
-    TOKEN_EXPIRED(904, "만로된 토큰입니다.")
+    TOKEN_EXPIRED(904, "만로된 토큰입니다."),
+
+	FILE_NOT_FOUND(910, "파일을 찾을 수 없습니다.")
 	;
 	
 

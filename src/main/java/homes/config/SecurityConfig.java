@@ -1,5 +1,6 @@
 package homes.config;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.sql.DataSource;
@@ -7,13 +8,10 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -32,7 +30,11 @@ public class SecurityConfig  {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
-            config.setAllowedOriginPatterns(Collections.singletonList("http://127.0.0.1:8081")); // ⭐️ 허용할 origin
+            config.setAllowedOriginPatterns(Arrays.asList(
+            		"http://127.0.0.1:8080",
+            		"http://127.0.0.1:8081",
+            		"http://127.0.0.1:8082"
+            )); // ⭐️ 허용할 origin
 //            config.setAllowedOriginPatterns(Collections.singletonList("http://127.0.0.1:8082")); // ⭐️ 허용할 origin
             config.setAllowCredentials(true);
             return config;

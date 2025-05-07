@@ -15,7 +15,7 @@
 		       , LOGIN_FAILR_CO   /* 로그인_실패_회수 */
 		       , LOGIN_TY         /* 로그인_유형 */
 		       , IF_USER_ID       /* 로그인 API 사용자 ID */ 
-		       , '1171000000'     AS ARCODE
+		       , ''               AS ARCODE /* 사용자는 지역코드가 없음 */
 		FROM   TB_CM_COMMUSER
 		WHERE  EMAIL = #{email}
 		AND    PASSWORD = PASSWORD(#{password}) ; 
@@ -34,7 +34,7 @@
 		       , LOGIN_FAILR_CO   /* 로그인_실패_회수 */
 		       , LOGIN_TY         /* 로그인_유형 */
 		       , IF_USER_ID       /* 로그인 API 사용자 ID */  
-		       , '1171000000'     AS ARCODE
+		       , ''     AS ARCODE
 		FROM   TB_CM_COMMUSER
 		WHERE  USER_NO = #{userNo}
     </select>

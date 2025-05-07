@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,13 +26,14 @@ public class ApiAuthInterceptor implements HandlerInterceptor {
 	 	boolean is_auth = false ; 
 	 	Log.info("******************************************************************************");
 	 	Log.info("*** Api Auth interceptor: {}", request.getRequestURI()) ; 
-	
+
 	 	JwtUtil jwtUtil = new JwtUtil() ; 
 	 	while(enumHeader.hasMoreElements()) {
 	 		String header_name = enumHeader.nextElement() ;
 	 		if ( "Authorization".equalsIgnoreCase(header_name)) {
 	 			String accessToken = request.getHeader("Authorization") ; 
 	 			String token = Optional.ofNullable(accessToken).orElse("").replaceFirst("Bearer ", "") ;
+	 		 	Log.info("*** Authorization: {}, token : {}", token) ;
 	 			is_auth = jwtUtil.validateToken(token) ;
 	 		 	Log.info("*** Authorization: {}, isAuth: {}", accessToken, is_auth) ;
 	 			break ;

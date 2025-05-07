@@ -47,4 +47,6 @@ public class CommUserVo {
 	
 	private String arcode ; 
 	
+	private String mbleCttpc ;
+	
 }
