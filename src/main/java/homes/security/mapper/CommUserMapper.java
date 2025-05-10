@@ -3,6 +3,7 @@ package homes.security.mapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import homes.comm.vo.CommUserReqVo;
+import homes.comm.vo.CommonMap;
 import homes.security.vo.CommUserVo;
 import homes.security.vo.LoginRequestVo;
 import homes.security.vo.UpdateLoginInfoReqVo;
@@ -21,6 +22,13 @@ public interface CommUserMapper {
 	/* 공통사용자 신규등록 */
 	public int insertCommuser( CommUserReqVo vo ) ;
 	
-	public long selectLastid( long l ) ; 
+	public Long getLastUserno( CommUserReqVo vo ) ; 
 	
+	public long selectLastid( long l ) ; 
+
+	/* 이메일 중복확인 */
+	public String isExistUserByEmail( String email ) ;
+	
+	/* 핸드폰 중복확인 */
+	public String isExistUserByCttpc( String mblecttpc ) ; 
 }

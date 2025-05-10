@@ -6,14 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import homes.broker.mapper.BrokerMapper;
 import homes.broker.vo.BrokerOfficeVo;
+import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.mapper.CommonMapper;
 import homes.comm.util.PropertyUtil;
@@ -27,12 +30,13 @@ public class BrokerServiceImpl implements BrokerService {
 
 	public final Logger Log = LogManager.getLogger(BrokerServiceImpl.class) ;
 
-	private final CommonMapper commUsermapper ;
+	private final CommonMapper commMapper ;
 	private final BrokerMapper mapper ; 
 	
 	private String UPLOAD_BASE_PATH = "" ; 
 	
 	@Override
+	@Transactional
 	public FileVo brokerUploadfile(String path, Long brokerno, String prefix, MultipartFile file) throws SQLException {   	
 		PropertyUtil.getProperty() ;
 		UPLOAD_BASE_PATH = PropertyUtil.getString("upload.base.path") ; 
@@ -69,17 +73,26 @@ public class BrokerServiceImpl implements BrokerService {
             }
             fvo.setFsize(file.getSize());
             
-            commUsermapper.addfile(fvo) ;
-            Long fileno = commUsermapper.selectFileLastid() ; 
+            commMapper.addfile(fvo) ;
+            Long fileno = commMapper.getLastfileno(brokerno) ; 
             fvo.setFileno(fileno);
             return fvo ; 
         } catch (IOException e) {
-        	e.printStackTrace();
         	throw new HomesException(EnumError.INTERNAL_SERVER_ERROR.getSttusCd()) ;
         }
 	}
-	
-	public long registbroker( BrokerOfficeVo paramVo) throws SQLException {
+
+	@Transactional
+	public long registbrokerOffice( BrokerOfficeVo paramVo) throws SQLException {
 		return mapper.insertBrokerOffice(paramVo) ;
+	}
+
+	@Transactional
+	public long registbroker( BrokerVo paramVo) throws SQLException {
+		String existYn = Optional.ofNullable(mapper.isExistBroker(paramVo.getBrokerno())).orElse("N") ;
+		if ( "N".equals( existYn )) {
+			mapper.insertBrokerUser(paramVo) ;
+		}
+		return paramVo.getBrokerno() ; 
 	}
 }

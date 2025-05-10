@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.comm.mapper.CommCodeMapper">
+
+    <select id="getCodeAllList" parameterType="codeVo" resultType="codeVo">
+    	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList 모든 공통코드조회  */
+    	       MXTR_COMM_CD AS CODE
+    	       , GRP_CD     AS GRPCD
+    	       , CD_NM      AS CODENM
+    	       , CD_ORDER   AS ORDR
+		FROM   TB_CM_COMMCODE
+		WHERE  USE_YN = 'Y' 
+		ORDER  BY CD_ORDR
+    </select>    
+    
+    <select id="getCodeGroupList" parameterType="codeVo" resultType="codeVo">
+    	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList GRP_CD로 공통코드조회  */
+    	       MXTR_COMM_CD AS CODE
+    	       , GRP_CD     AS GRPCD
+    	       , CODE_NM    AS CODENM
+    	       , CD_ORDR    AS ORDR
+    	       , CASE WHEN UPPER_CD IS NULL THEN CONCAT(#{grpcd} , '000')  
+    	              WHEN UPPER_CD = ''    THEN CONCAT(#{grpcd} , '000')  
+    	              ELSE UPPER_CD
+    	         END        AS UPPERCD
+		FROM   TB_CM_COMMCODE
+		WHERE  GRP_CD = #{grpcd}
+		AND    USE_YN = 'Y' 
+		ORDER  BY CD_ORDR
+    </select>
+
+</mapper>

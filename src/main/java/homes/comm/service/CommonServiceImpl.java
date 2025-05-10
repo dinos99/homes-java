@@ -2,15 +2,12 @@ package homes.comm.service;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import homes.broker.mapper.BrokerMapper;
-import homes.broker.vo.BrokerVo;
 import homes.comm.mapper.CommonMapper;
 import homes.comm.vo.CommReqVo;
 import homes.comm.vo.CommUserReqVo;
@@ -27,7 +24,7 @@ public class CommonServiceImpl implements CommonService {
 	
 	private final CommonMapper mapper ;
 	private final CommUserMapper commUserMapper ;
-	private final BrokerMapper brokerMapper ;
+//	private final BrokerMapper brokerMapper ;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -62,14 +59,20 @@ public class CommonServiceImpl implements CommonService {
 
 	@Override
 	@Transactional
-	public int insertCommuser(CommUserReqVo paramVo) throws SQLException {
+	public Long insertCommuser(CommUserReqVo paramVo) throws SQLException {
+		
 		String pass = new String(Decoders.BASE64.decode(paramVo.getPassword())) ; 
 		String cttpc = new String(Decoders.BASE64.decode(paramVo.getMbleCttpc())) ; 
 		paramVo.setPassword(pass);
 		paramVo.setMbleCttpc(cttpc);
-		int insco = commUserMapper.insertCommuser(paramVo) ;
+		commUserMapper.insertCommuser(paramVo) ;
+		Long userno = commUserMapper.getLastUserno(paramVo) ; 
+//		Long userno = vo.getUserno() ; 
+		Log.info("*** userno: {}", userno) ; 
+		return userno ; 
 		
 		/* insert broker user */
+		/*
 		BrokerVo brokerVo = new BrokerVo() ;
 		
 		Long brokerno   = commUserMapper.selectLastid(0l) ;
@@ -82,8 +85,8 @@ public class CommonServiceImpl implements CommonService {
 		brokerVo.setBrokerty(brokerty);
 		brokerVo.setBrokersttus(brksttus) ; 
 		
-		insco = brokerMapper.insertBrokerUser(brokerVo) ; 		
-		return insco ; 
+		insco = brokerMapper.insertBrokerUser(brokerVo) ;
+		*/
 	}
 
 	@Override

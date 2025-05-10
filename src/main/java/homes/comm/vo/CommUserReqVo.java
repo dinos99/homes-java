@@ -12,7 +12,7 @@ public class CommUserReqVo {
 	
 	private String email ; 
 	private String password ; 
-	private String userNm ; 
+	private String usernm ; 
 	private String userRole ; 
 	private String userSttus ; 
 	private String birth ; 

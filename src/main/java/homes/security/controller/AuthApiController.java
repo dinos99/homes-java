@@ -12,6 +12,7 @@ import homes.exception.HomesException;
 import homes.security.service.AuthService;
 import homes.security.vo.CommUserVo;
 import homes.security.vo.LoginRequestVo;
+import io.jsonwebtoken.io.Encoders;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,6 +25,8 @@ public class AuthApiController {
     public ResponseEntity<String> getMemberProfile(@RequestBody LoginRequestVo request) {
         AccessTokenVo tokenVo = this.authService.Login(request);
     	CommUserVo    userVo  = this.authService.slectUserInfo(tokenVo.getUserno());
+    	String mbno = Encoders.BASE64.encode(userVo.getMobileno().getBytes()) ;
+    	userVo.setMobileno(mbno) ; 
     	userVo.setAccessToken(tokenVo.getAccessToken()) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(tokenVo, userVo));
     }

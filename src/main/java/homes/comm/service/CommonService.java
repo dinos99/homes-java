@@ -16,7 +16,7 @@ public interface CommonService {
 	public CommonMap selectArcodeList(CommReqVo paramVo) throws SQLException; 
 
 	/* 공통사용자 신규등록 */
-	public int insertCommuser( CommUserReqVo vo ) throws SQLException ;
+	public Long insertCommuser( CommUserReqVo vo ) throws SQLException ;
 	
 	public long selectLastid() throws SQLException ; 
 }

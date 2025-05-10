@@ -7,13 +7,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import homes.comm.constants.EnumError;
+import homes.comm.service.CommCodeService;
 import homes.comm.service.CommonService;
 import homes.comm.util.JsonUtil;
+import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommReqVo;
 import homes.comm.vo.CommonMap;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class CommonController {
 	public Logger Log = LogManager.getLogger(CommonController.class) ;  
 
 	private final CommonService service ; 
+	private final CommCodeService commCodeservice ; 
 
 	@PostMapping("/api/v1/common/arcode/sidocd")
 	public ResponseEntity<String> selectSidoList(@RequestBody CommReqVo paramVo) {
@@ -54,5 +58,18 @@ public class CommonController {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
 		}
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(arList)) ;
+	}
+	
+	@GetMapping("/api/v1/common/commcode/estate")
+	public ResponseEntity<String> getEstateCodeList(@RequestBody CommReqVo paramVo) { 
+		Log.info("*** api call estateList" ) ;
+		CommCodeListVo estateList = null ; 
+		try {
+			estateList = commCodeservice.getEstGroupList() ; 
+		} catch ( RuntimeException e ) {
+			Log.error("*** ApiError: () ", e.getMessage()) ; 
+	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
+		}
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(estateList)) ;
 	}
 }

@@ -14,7 +14,9 @@ public enum EnumError {
     INVALID_TOKEN(901, "사용자인증에 실패하였습니다."),
     UNSUPPORTED_TOKEN(902, "사용자인증에 실패하였습니다."),
     TOKEN_EXPIRED(904, "만로된 토큰입니다."),
-
+    
+	IS_EXIST_EMAIL(905, "이미 존재하는 이메일주소입니다."),
+	IS_EXIST_MOBILE(906, "이미 등록된 휴대전화번호 입니다."),
 	FILE_NOT_FOUND(910, "파일을 찾을 수 없습니다.")
 	;
 	

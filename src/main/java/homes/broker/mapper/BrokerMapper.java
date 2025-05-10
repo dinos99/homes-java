@@ -11,4 +11,7 @@ import homes.broker.vo.BrokerVo;
 public interface BrokerMapper {
 	public int insertBrokerUser(BrokerVo brokerVo) throws SQLException ;
 	public long insertBrokerOffice(BrokerOfficeVo officeVo) throws SQLException ;
+	
+	public String isExistBroker( long userno ) throws SQLException ; 
+	
 }

@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import homes.broker.service.BrokerService;
 import homes.broker.vo.BrokerOfficeVo;
+import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
 import homes.comm.vo.CommonMap;
@@ -49,16 +50,25 @@ public class BrokerController {
 	
 	
 	@PostMapping("/api/v1/broker/registbroker")
-	public ResponseEntity<String> Registbroker(@RequestBody BrokerOfficeVo paramVo ) { 
+	public ResponseEntity<String> Registbroker(@RequestBody BrokerVo paramVo ) { 
 		try {
-			long officeno = service.registbroker(paramVo) ;
-			Log.info("*** officeno: {}", officeno) ; 
-			paramVo.setOfficeno(officeno) ; 
+			service.registbroker(paramVo) ; 
 		} catch ( SQLException e ) {
 			Log.error("*** ApiError: () ", e.getMessage()) ; 
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
 		} 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(paramVo)) ;
+	}
+	
+	@PostMapping("/api/v1/broker/registoffice")
+	public ResponseEntity<String> RegistOffice(@RequestBody BrokerOfficeVo paramVo ) { 
+		try {
+			service.registbrokerOffice(paramVo) ; 
+		} catch ( SQLException e ) {
+			Log.error("*** ApiError: () ", e.getMessage()) ; 
+			return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
+		} 
+		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(paramVo)) ;
 	}
 
 }

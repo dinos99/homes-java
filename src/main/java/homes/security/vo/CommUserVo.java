@@ -49,4 +49,6 @@ public class CommUserVo {
 	
 	private String mbleCttpc ;
 	
+	private String mobileno ; 
+	
 }

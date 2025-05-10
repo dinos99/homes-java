@@ -21,6 +21,19 @@
 		AND    PASSWORD = PASSWORD(#{password}) ; 
     </select>
     
+    <select id="isExistUserByEmail" parameterType="string" resultType="string">
+    	SELECT /* homes.security.mapper.CommUserMapper.isExistUserByEmail 동일한 사용자가 있는지 확인 */
+		       CASE WHEN COUNT(USER_NO) = 0 THEN 'N' ELSE 'Y' END AS EXIST_YN
+		FROM   TB_CM_COMMUSER
+		WHERE  EMAIL = #{email} 
+    </select>
+    <select id="isExistUserByCttpc" parameterType="string" resultType="string">
+    	SELECT /* homes.security.mapper.CommUserMapper.isExistUserByEmail 동일한 사용자가 있는지 확인 */
+		       CASE WHEN COUNT(USER_NO) = 0 THEN 'N' ELSE 'Y' END AS EXIST_YN
+		FROM   TB_CM_COMMUSER
+		WHERE  CONCAT(MBLE_CTTPC_01, MBLE_CTTPC_02, MBLE_CTTPC_03) = #{mblecttpc} 
+    </select>
+    
     <select id="findCommUserByUserNo" parameterType="long" resultType="homes.security.vo.CommUserVo">
     	SELECT /* homes.security.mapper.CommUserMapper.findCommUserByUserNo 사용자번호로 사용자 정보조회 */
     	       USER_NO            /* 사용자_번호 */  
@@ -34,6 +47,7 @@
 		       , LOGIN_FAILR_CO   /* 로그인_실패_회수 */
 		       , LOGIN_TY         /* 로그인_유형 */
 		       , IF_USER_ID       /* 로그인 API 사용자 ID */  
+		       , CONCAT(MBLE_CTTPC_01, '-', MBLE_CTTPC_02, '-', MBLE_CTTPC_03) AS MOBILENO
 		       , ''     AS ARCODE
 		FROM   TB_CM_COMMUSER
 		WHERE  USER_NO = #{userNo}
@@ -50,6 +64,13 @@
     	SELECT /* homes.security.mapper.CommUserMapper.selectLastid */
 		       LAST_INSERT_ID()
 		FROM   DUAL 
+    </select>
+    
+    <select id ="getLastUserno" parameterType="homes.comm.vo.CommUserReqVo" resultType="java.lang.Long">
+    	SELECT /* homes.security.mapper.CommUserMapper.getLastUserno */
+    	       USER_NO AS USERNO 
+    	FROM   TB_CM_COMMUSER
+    	WHERE  EMAIL = #{email}
     </select>
     
     <insert id="insertCommuser" parameterType="homes.comm.vo.CommUserReqVo">
@@ -82,7 +103,7 @@
 		) VALUES (
 			#{email}
 			, PASSWORD(#{password})
-			, #{userNm}
+			, #{usernm}
 			, #{userRole}
 			, #{userSttus}
 			, #{birth}
@@ -97,7 +118,7 @@
 			, NOW()
 			, NOW()
 			, 0
-			, "LGT001"
+			, #{loginTy}
 			, #{agreYn}
 			, NOW()
 			, 0

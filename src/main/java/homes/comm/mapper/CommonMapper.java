@@ -18,6 +18,6 @@ public interface CommonMapper {
 	public List<CommonMap> selectEmdList(CommReqVo paramVo) throws SQLException; 
 	
 	public int addfile(FileVo fileVo) throws SQLException ; 
-	public long selectFileLastid() ; 
+	public Long getLastfileno(long userno) throws SQLException ; 
 	
 }

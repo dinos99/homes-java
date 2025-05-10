@@ -51,10 +51,18 @@
 		FROM   DUAL 
     </select>
     
+    <select id="getLastfileno" parameterType="long" resultType="java.lang.Long">
+    	SELECT /* homes.common.mapper.CommonMappe.getLastfileno */
+    	       MAX(FILENO) AS FILENO 
+		FROM   TB_CM_COMMFILE
+		WHERE  USERNO = #{userno}
+    </select>
+    
     <insert id="addfile" parameterType="fileVo">
     	INSERT INTO /* homes.common.mapper.CommonMappe.addfile */
 		TB_CM_COMMFILE (
-			FILEPATH
+			USERNO
+			, FILEPATH
 			, FILESVNM
 			, FILEORGNM
 			, FILE_TY
@@ -64,7 +72,8 @@
 			, UPDT_USER_NO
 			, UPDT_DT 
     	) VALUES (
-    		#{fpath}
+    		#{userno}
+    		, #{fpath}
     		, #{fsvname}
     		, #{forgname}
     		, #{ftype}

@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
-<mapper namespace="homes.broker.mapper.BrokerMapper">    
+<mapper namespace="homes.broker.mapper.BrokerMapper">
+
+	<select id="isExistBroker" parameterType="long" resultType="string">
+		SELECT /* homes.broker.mapper.BrokerMapper.isExistBroker */
+		       CASE WHEN COUNT(1) = 0 THEN 'N' ELSE 'Y' END AS EXIST_YN
+		FROM   TB_BRK_USER
+		WHERE  USER_NO = #{userno}
+	</select>
+
     <insert id="insertBrokerUser" parameterType="homes.broker.vo.BrokerVo">
     	INSERT INTO TB_BRK_USER (
 			/* homes.broker.mapper.BrokerMapper.insertBrokerUser */
@@ -27,7 +35,7 @@
     
     <insert id="insertBrokerOffice" parameterType="homes.broker.vo.BrokerOfficeVo">
 	    INSERT INTO TB_BRK_OFFICE ( 
-	           /* homes.broker.mapper.BrokerMapper.insertBrokerOffice */
+			/* homes.broker.mapper.BrokerMapper.insertBrokerOffice */
 			USER_NO
 			, OFFICE_NM
 			, BSNS_TY
@@ -112,9 +120,6 @@
 			, #{brokerno}
 			, NOW()
 		)
-	    <selectKey resultType="long" keyProperty="officeno" order="AFTER">
-	        SELECT LAST_INSERT_ID()
-	    </selectKey>
     </insert>
     
 </mapper>
