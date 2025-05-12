@@ -8,8 +8,14 @@ public class HomesException extends RuntimeException {
 	private String message ; 
 	
 	public HomesException () {
-		this.code = EnumError.INTERNAL_SERVER_ERROR.getSttusCd() ; 
-		this.message = EnumError.INTERNAL_SERVER_ERROR.getMessage() ; 
+		this.code = EnumError.BAD_REQUEST.getSttusCd() ; 
+		this.message = EnumError.BAD_REQUEST.getMessage() ; 
+	}
+
+	public HomesException(String errorMessage ) {
+		EnumError sttus = EnumError.getStatusFromCode(EnumError.BAD_REQUEST.getSttusCd()) ;
+		this.code = sttus.getSttusCd() ; 
+		this.message = errorMessage ; 
 	}
 	
 	public HomesException(int code ) {

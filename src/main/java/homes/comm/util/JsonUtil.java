@@ -98,7 +98,7 @@ public class JsonUtil {
 		try {
 			json = mapper.writeValueAsString(respVo);
 		} catch (JsonProcessingException e) {
-			Log.error("*** Json parsing ") ; 
+			Log.error("*** Json parsing error: {}", e.getMessage()) ; 
 			json = getErrorJsonStr() ; 
 		}
 		

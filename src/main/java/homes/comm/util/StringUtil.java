@@ -53,7 +53,7 @@ public class StringUtil extends JdbcUtils {
 			}
 		}
 		
-		Log.info("*** origin name: {}, converted name: {}", name, result.toString()) ; 
+//		Log.info("*** origin name: {}, converted name: {}", name, result.toString()) ; 
 		return result.toString() ;   
 	}
 }

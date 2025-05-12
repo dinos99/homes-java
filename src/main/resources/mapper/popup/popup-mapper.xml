@@ -13,7 +13,7 @@
     
     <select id="selectChernmList" parameterType="popVo" resultType="commonMap">
 		SELECT /* homes.popup.vo.selectChernmList 공통팝업(담당자조회) */
-		       USER_NO                                                                  AS USERNO
+		       USER_NO                                                                    AS USERNO
 		       , USER_NM                                                                  AS USERNM
 		       , USER_ROLE                                                                AS USER_ROLE
 		       , CASE WHEN USER_ROLE = 'ADM001' THEN '총괄관리자' ELSE '관리자' END       AS USER_ROLENM

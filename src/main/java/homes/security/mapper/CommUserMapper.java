@@ -1,9 +1,13 @@
 package homes.security.mapper;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import homes.comm.vo.CommUserReqVo;
 import homes.comm.vo.CommonMap;
+import homes.project.vo.ProjectReqVo;
 import homes.security.vo.CommUserVo;
 import homes.security.vo.LoginRequestVo;
 import homes.security.vo.UpdateLoginInfoReqVo;
@@ -30,5 +34,9 @@ public interface CommUserMapper {
 	public String isExistUserByEmail( String email ) ;
 	
 	/* 핸드폰 중복확인 */
-	public String isExistUserByCttpc( String mblecttpc ) ; 
+	public String isExistUserByCttpc( String mblecttpc ) ;
+	
+	public Long selectHomesUserCount( ProjectReqVo paramVo) throws SQLException ; 
+	public List<CommonMap> selectHomesUser( ProjectReqVo paramVo) throws SQLException ; 
+	
 }

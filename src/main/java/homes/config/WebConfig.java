@@ -21,16 +21,18 @@ public class WebConfig implements WebMvcConfigurer   {
     public void addInterceptors(InterceptorRegistry registry) {
     	
         registry.addInterceptor(new ApiInterceptor())
-	    	.addPathPatterns("/api/v1/mber/**") 
+	    	.addPathPatterns("/api/v1/mber/**")
 	    	.addPathPatterns("/api/v1/common/**",
-        			"/auth/sign-in"); 
+        			"/auth/sign-in",
+	    			"/api/v1/manager/sign-up"); 
         
         registry.addInterceptor(new ApiAuthInterceptor())
-        	.addPathPatterns("/api/v1/**") 
+        	.addPathPatterns("/api/v1/**/*") 
         	.excludePathPatterns(
         			"/favicon.ico",
         			"/api/error",
         			"/auth/sign-in",
+        			"/api/v1/manager/sign-up",
         			"/api/v1/mber/**")
         	; 
     }

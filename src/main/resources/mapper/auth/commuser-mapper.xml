@@ -18,7 +18,7 @@
 		       , ''               AS ARCODE /* 사용자는 지역코드가 없음 */
 		FROM   TB_CM_COMMUSER
 		WHERE  EMAIL = #{email}
-		AND    PASSWORD = PASSWORD(#{password}) ; 
+		AND    PASSWORD = PASSWORD(#{password}) 
     </select>
     
     <select id="isExistUserByEmail" parameterType="string" resultType="string">
@@ -51,6 +51,44 @@
 		       , ''     AS ARCODE
 		FROM   TB_CM_COMMUSER
 		WHERE  USER_NO = #{userNo}
+    </select>
+    
+    <select id="selectHomesUserCount" parameterType="homes.project.vo.ProjectReqVo" resultType="java.lang.Long">
+    	SELECT /* homes.security.mapper.CommUserMapper.selectHomesUserCount 일반사용자 페이징카운트 */
+    	       COUNT(1) AS TCNT 
+		FROM   TB_CM_COMMUSER      A
+		LEFT   JOIN TB_CM_COMMCODE B ON A.USER_ROLE = B.MXTR_COMM_CD
+		LEFT   JOIN TB_CM_COMMCODE C ON A.USER_STTUS = C.MXTR_COMM_CD 
+		LEFT   JOIN TB_CM_COMMCODE D ON A.LOGIN_TY = D.MXTR_COMM_CD 
+		WHERE  USER_ROLE IN ( 'MBT001', 'MBT002', 'MBT003' )
+    </select>
+    
+    <select id="selectHomesUser" parameterType="homes.project.vo.ProjectReqVo" resultType="commonMap">
+    	SELECT /* homes.security.mapper.CommUserMapper.selectHomesUser 일반사용자 정보조회 */
+    	       USER_NO                                              AS USERNO /* 사용자_번호 */  
+    	       , EMAIL                                              AS EMAIL  /* 이메일 */ 
+    	       , USER_NM                                            AS USERNM /* 사용자_명 */ 
+    	       , USER_ROLE                                          AS USERTY /* 사용자_업무_권한 */ 
+    	       , B.CODE_NM                                          AS USERTYNM
+		       , USER_STTUS                                         AS USERSTTUS /* 사용자_상태 */
+		       , C.CODE_NM                                          AS USERSTTUSNM
+		       , DATE_FORMAT(FRST_SBSCRB_DT, '%Y.%m.%d %H:%m:%s')   AS FRSTSBSCRBDT/* 최초_가입_일시 */
+		       , DATE_FORMAT(LAST_LOGIN_DT, '%Y.%m.%d %H:%m:%s')    AS LASTLOGNDT /* 최종_로그인_일시 */
+		       , DATE_FORMAT(PASSWORD_CHG_DT , '%Y.%m.%d %H:%m:%s') AS PASSWORDCHGDT /* 비밀번호_변경_일시 */
+		       , LOGIN_FAILR_CO                                     AS LGINFAILCO/* 로그인_실패_회수 */
+		       , LOGIN_TY                                           AS LOGNTY /* 로그인_유형 */
+		       , CASE WHEN LOGIN_TY = 'LGT001' THEN 'Email로 로그인' 
+		              WHEN LOGIN_TY = 'LGT002' THEN 'KAKAO 로그인'
+		              WHEN LOGIN_TY = 'LGT003' THEN 'NAVER 로그인'
+		              ELSE '기타 로그인'
+		         END                                                AS LOGNTYNM
+		       , IF_USER_ID                                         AS IFUSERID /* 로그인 API 사용자 ID */ 
+		FROM   TB_CM_COMMUSER      A
+		LEFT   JOIN TB_CM_COMMCODE B ON A.USER_ROLE = B.MXTR_COMM_CD
+		LEFT   JOIN TB_CM_COMMCODE C ON A.USER_STTUS = C.MXTR_COMM_CD 
+		LEFT   JOIN TB_CM_COMMCODE D ON A.LOGIN_TY = D.MXTR_COMM_CD  
+		WHERE  USER_ROLE IN ( 'MBT001', 'MBT002', 'MBT003' )
+		LIMIT  #{stno}, #{edno}
     </select>
     
     <update id="updateUserLogininfo" parameterType="homes.security.vo.UpdateLoginInfoReqVo">

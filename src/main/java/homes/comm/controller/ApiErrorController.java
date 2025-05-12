@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
-import homes.exception.HomesException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -20,16 +19,9 @@ public class ApiErrorController implements ErrorController {
 	public Logger Log = LogManager.getLogger(ApiErrorController.class) ;  
 	
 	@PostMapping("/api/error")
-    public ResponseEntity<String> getMemberProfile(HttpServletRequest request, HttpServletResponse response) {
-		HomesException he = null ; 
-		
-		try {
-			he = ( HomesException ) request.getAttribute("org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR") ;
-		} catch ( RuntimeException e ) { 
-			Log.error("*** ApiError: {}", e.getMessage()) ; 
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.BAD_REQUEST.getSttusCd())) ;
-		} 
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(he.getCode(), null)) ; 
+    public ResponseEntity<String> apierror(HttpServletRequest request, HttpServletResponse response) {
+		Log.error("*** ApiError: {}", request.getAttribute("org.springframework.boot.web.servlet.error.DefaultErrorAttributes.ERROR")) ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.BAD_REQUEST.getSttusCd())) ;
 	}
 	
 }

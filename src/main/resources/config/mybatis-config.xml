@@ -24,5 +24,6 @@
         <mapper resource="mapper/common/common-mapper.xml"/>
         <mapper resource="mapper/common/common-code-mapper.xml"/>
         <mapper resource="mapper/broker/broker-mapper.xml"/>
+        <mapper resource="mapper/manager/manager-mapper.xml"/>
     </mappers>
 </configuration>

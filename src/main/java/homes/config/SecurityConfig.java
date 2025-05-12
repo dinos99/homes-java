@@ -45,17 +45,7 @@ public class SecurityConfig  {
 	protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.cors(c -> c.configurationSource(corsConfigurationSource()))
         	.csrf(c -> c.disable())
-        	.authorizeHttpRequests(requests -> requests
-                .requestMatchers(
-                    AntPathRequestMatcher.antMatcher("/comments/**"), 
-                    AntPathRequestMatcher.antMatcher("/requests/admin/**")
-                ).authenticated()
-                .anyRequest().permitAll())
-//        		.authenticationProvider(authenticationProvider())
-//        		.exceptionHandling(r -> r.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-//        		.sessionManagement(r -> r.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        		// Add a filter to validate the tokens with every request
-//        		.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+        	.authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
         ;
 		return http.build();
 	}
