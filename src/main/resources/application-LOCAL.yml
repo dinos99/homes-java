@@ -11,8 +11,6 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 100MB
-homes:
-  security:
-    jwt:
-      path: C:/workspace/project/homes-java/extern/resource
-      filename: jwt.properties
+
+logging:
+  config: classpath:log4j2-LOCAL.xml

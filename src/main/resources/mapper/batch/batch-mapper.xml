@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.batch.mapper.BatchMapper">
+
+	<!-- 건축물관리대장-총괄표제부 삭제 -->
+	<delete id="deleteSummryTitlledgr" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteSummryTitlledgr */
+		FROM   TB_CM_SUMMRY_TITLLEDGR
+		WHERE  PK_BULD_REGSTR = #{pkBuldRegstr}
+	</delete>
+	
+	<insert id="insertSummryTitlledgr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertSummryTitlledgr */
+		INTO   TB_CM_SUMMRY_TITLLEDGR (
+			PK_BULD_REGSTR, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KND_CD, REGSTR_KND_NM, NW_OD_GB_CD
+			, NW_OD_GB_NM, PLOT_LOC, RDNM_PLOT_LOC, BULD_NM, SGG_CD, LEG_CD, PLOG_GB_CD, BUN, JI
+			, SP_PLOT_NM, BLOCK, LOT, OUT_LOT_CO, NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD
+			, NW_ADDR_GND_CD, NW_ADDR_MST_B, NW_ADDR_SUB_B, PLOT_AR, BULD_AR
+			, BULD_LND_RT, TOTAL_AR, BULK_CALC_TOT_AR, BULK_RT
+			, MST_PPS_CD, MST_PPS_CD_NM, ETC_PPS, HSHLD_1_CO, HSHLD_2_CO, MST_BULD_CO
+			, SUB_BULD_CO, SUB_BULD_AR, TOT_PARKNG_CO, IN_MECHA_CO, IN_MECHA_AR
+			, OUT_MECHA_CO, OUT_MECHA_AR, IN_INDPNT_CO, IN_INDPNT_AR
+			, OUT_INDPNT_CO, OUT_INDPNT_AR, PRMISS_DE, STWK_DE, USE_CONF_DE
+			, PRMISS_NO_YYYY, PRMISS_NO_ORG_CD, PRMISS_NO_ORG_NM
+			, PRMISS_NO_GB_CD, PRMISS_NO_GB_NM, HO_CO, ENERGY_EFCNY_GRAD
+			, ENERGY_REDCN_RT, ENERGY_EPI_SCR, ECO_BULD_GRAD, ECO_BULD_SCR, BRIN_BULD_GRAD
+			, BRIN_BULD_SCR, CREAT_DE
+			, FST_UPLOAD_DT, FST_UPLOAD_USER_NO
+			, LST_CHNG_DT, LST_CHNG_USER_NO, BATCH_YN, CREATE_USER_NO
+			, CREAT_DT, UPDT_USER_NO, UPDT_DT
+		) VALUES (
+			#{pkBuldRegstr}      /* 관리_건축물대장_PK */
+			, #{regstrGbCd}      /* 대장_구분_코드 */
+			, #{regstrGbNm}      /* 대장_구분_코드_명 */
+			, #{regstrKndCd}     /* 대장_종류_코드 */
+			, #{regstrKndNm}     /* 대장_종류_코드_명 */
+			, #{nwOdGbCd}        /* 신_구_대장_구분_코드 */
+			, #{nwOdGbNm}        /* 신_구_대장_구분_코드_명 */
+			, #{plotLoc}         /* 대지_위치 */
+			, #{rdnmPlotLoc}     /* 도로명_대지_위치 */
+			, #{buldNm}          /* 건물_명 */
+			, #{sggCd}           /* 시군구_코드 */
+			, #{legCd}           /* 법정동_코드 */
+			, #{plogGbCd}        /* 대지_구분_코드 */
+			, #{bun}             /* 번 */
+			, #{ji}              /* 지 */
+			, #{spPlotNm}        /* 특수지_명 */
+			, #{block}           /* 블록 */
+			, #{lot}             /* 로트(필지) */
+			, #{outLotCo}        /* 외필지_수 */
+			, #{nwAddrRoadCd}    /* 새주소_도로_코드 */
+			, #{nwAddrLegCd}     /* 새주소_법정동_코드 */
+			, #{nwAddrGndCd}     /* 새주소_지상지하_코드 */
+			, #{nwAddrMstB}      /* 새주소_본_번 */
+			, #{nwAddrSubB}      /* 새주소_부_번 */
+			, #{plotAr}          /* 대지_면적(㎡) */
+			, #{buldAr}          /* 건축_면적(㎡) */
+			, #{buldLndRt}       /* 건폐_율(%) */
+			, #{totalAr}         /* 연면적(㎡) */
+			, #{bulkCalcTotAr}   /* 용적_률_산정_연면적(㎡) */
+			, #{bulkRt}          /* 용적_률(%) */
+			, #{mstPpsCd}        /* 주_용도_코드 */
+			, #{mstPpsCdNm}      /* 주_용도_코드_명 */
+			, #{etcPps}          /* 기타_용도 */
+			, #{hshld1Co}        /* 세대_수(세대) */
+			, #{hshld2Co}        /* 가구_수(가구) */
+			, #{mstBuldCo}       /* 주_건축물_수 */
+			, #{subBuldCo}       /* 부속_건축물_수 */
+			, #{subBuldAr}       /* 부속_건축물_면적(㎡) */
+			, #{totParkngCo}     /* 총_주차_수 */
+			, #{inMechaCo}       /* 옥내_기계식_대수(대) */
+			, #{inMechaAr}       /* 옥내_기계식_면적(㎡) */
+			, #{outMechaCo}      /* 옥외_기계식_대수(대) */
+			, #{outMechaAr}      /* 옥외_기계식_면적(㎡) */
+			, #{inIndpntCo}      /* 옥내_자주식_대수(대) */
+			, #{inIndpntAr}      /* 옥내_자주식_면적(㎡) */
+			, #{outIndpntCo}     /* 옥외_자주식_대수(대) */
+			, #{outIndpntAr}     /* 옥외_자주식_면적(㎡) */
+			, #{prmissDe}        /* 허가_일 */
+			, #{stwkDe}          /* 착공_일 */
+			, #{useConfDe}       /* 사용승인_일 */
+			, #{prmissNoYyyy}    /* 허가번호_년 */
+			, #{prmissNoOrgCd}   /* 허가번호_기관_코드 */
+			, #{prmissNoOrgNm}   /* 허가번호_기관_코드_명 */
+			, #{prmissNoGbCd}    /* 허가번호_구분_코드 */
+			, #{prmissNoGbNm}    /* 허가번호_구분_코드_명 */
+			, #{hoCo}            /* 호_수(호) */
+			, #{energyEfcnyGrad} /* 에너지효율_등급 */
+			, #{energyRedcnRt}   /* 에너지절감_율 */
+			, #{energyEpiScr}    /* 에너지_EPI점수 */
+			, #{ecoBuldGrad}     /* 친환경_건축물_등급 */
+			, #{ecoBuldScr}      /* 친환경_건축물_인증점수 */
+			, #{brinBuldGrad}    /* 지능형_건축물_등급 */
+			, #{brinBuldScr}     /* 지능형_건축물_인증점수 */
+			, #{creat}           /* 생성_일자 */
+			, NOW() 
+			, 0
+			, NOW()
+			, 0
+			, #{batchYn}
+			, 0
+			, NOW()
+			, 0
+			, NOW()
+		)
+	</insert>
+	
+	<insert id="insertBatchjob" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertBatchjob */ 
+		INTO TB_CM_BATCHJOB (
+			BT_UUID
+			, BATCHTY
+			, BT_STTUS_CD
+			, BT_ST_DT
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT
+		) VALUES(
+			#{uuid}
+			, #{batchty}
+			, #{sttuscd}
+			, NOW()
+			, 0
+			, NOW()
+			, 0
+			, NOW()
+		)
+	</insert>
+	<update id="updateBatchjob" parameterType="commonMap">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateBatchjob */ 
+		       TB_CM_BATCHJOB
+		SET    BT_STTUS_CD = #{sttuscd}
+		       , BT_ED_DT = NOW()
+		       , BT_EXCO = #{exco}
+		       , BT_FILENM = #{filenm}
+		       , BT_ERROR_MSG = #{message}
+		       , UPDT_USER_NO = 0
+		       , UPDT_DT = NOW()
+		WHERE  BT_UUID = #{uuid}
+	</update>
+</mapper>

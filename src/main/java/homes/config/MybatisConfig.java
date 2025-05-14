@@ -20,7 +20,7 @@ public class MybatisConfig {
      * @throws Exception 예외 처리
      */
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+    SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(dataSource); // 데이터 소스 설정
         // MyBatis 설정 파일 위치 지정
@@ -36,7 +36,7 @@ public class MybatisConfig {
      * @return SqlSessionTemplate 인스턴스
      */
     @Bean
-    public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
+    SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
         return new SqlSessionTemplate(sqlSessionFactory); // SqlSessionTemplate 반환
     }
 }

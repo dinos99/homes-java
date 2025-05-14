@@ -35,6 +35,18 @@ public class DateTimeUtil {
 	        return "";
 	    }
 	}
+
+	public static String convertTimeStampToString(Long unixtimestamp, String format) {
+	    if (unixtimestamp == null) return "";
+
+	    try {
+	        Date date = new Date();
+	        date.setTime(unixtimestamp);
+	        return new SimpleDateFormat(format).format(date);
+	    } catch (RuntimeException e) {
+	        return "";
+	    }
+	}
 	
 	/* LocalDateTime to String */
 	public static String convertLocalDateTimeToString(LocalDateTime localDateTime, String format) {

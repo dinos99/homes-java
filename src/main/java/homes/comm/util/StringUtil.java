@@ -1,5 +1,7 @@
 package homes.comm.util;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -55,5 +57,37 @@ public class StringUtil extends JdbcUtils {
 		
 //		Log.info("*** origin name: {}, converted name: {}", name, result.toString()) ; 
 		return result.toString() ;   
+	}
+
+	public static float getFloatValue(String fstr, float defVal ) {
+		String floatStr = Optional.ofNullable(fstr).orElse("") ; 
+		floatStr = "".equals(floatStr) ? String.valueOf(defVal) : floatStr ;
+		return Float.parseFloat(floatStr) ; 
+	}
+	
+	public static long getLongValue(String lstr, long defVal ) {
+		String longStr = Optional.ofNullable(lstr).orElse("") ; 
+		longStr = "".equals(longStr) ? String.valueOf(defVal) : longStr ;
+		return Long.parseLong(longStr) ; 
+		
+	}
+
+	public static int getIntValue(String istr, long defVal ) {
+		String intStr = Optional.ofNullable(istr).orElse("") ; 
+		intStr = "".equals(intStr) ? String.valueOf(defVal) : intStr ;
+		return Integer.parseInt(intStr) ;  
+		
+	}
+	
+	public static float getFloatValue(String fstr) {
+		return getFloatValue(fstr, 0.00f) ; 
+	}
+
+	public static long getLongValue(String lstr) {
+		return getLongValue(lstr, 0l) ; 
+	}
+
+	public static int getIntValue(String istr ) {
+		return getIntValue(istr, 0) ;
 	}
 }

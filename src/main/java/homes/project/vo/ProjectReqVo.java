@@ -21,9 +21,10 @@ public class ProjectReqVo {
 	public void setPage() {
 		int pgno = this.getPgno() <= 0 ? 1 : this.getPgno() ; 
 		
-		int stno = ( pgno / 10 ) ; 
+		int stno = (( pgno -  1) * 10 ) ; 
 		int edno = stno + 10 ;
 		
+		this.setPgno(pgno) ;
 		this.setStno(stno) ;
 		this.setEdno(edno) ;
 	}

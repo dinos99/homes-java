@@ -11,8 +11,3 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 100MB
-homes:
-  security:
-    jwt:
-      path: /var/www/extern/resource
-      filename: jwt.properties

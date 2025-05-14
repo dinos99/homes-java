@@ -24,7 +24,6 @@ public class ApiAuthInterceptor implements HandlerInterceptor {
 	 
 	 	Enumeration<String> enumHeader = request.getHeaderNames() ;
 	 	boolean is_auth = false ; 
-	 	Log.info("******************************************************************************");
 	 	Log.info("*** Api Auth interceptor: {}", request.getRequestURI()) ; 
 
 	 	JwtUtil jwtUtil = new JwtUtil() ; 
@@ -40,7 +39,6 @@ public class ApiAuthInterceptor implements HandlerInterceptor {
 	 		}
 	 		Log.info("*** \t {} :{}", header_name, request.getHeader(header_name)) ;  
 	 	}
-	 	Log.info("******************************************************************************");
 	 	
 	 	if (!is_auth) {
 	 		throw new HomesException(EnumError.UNSUPPORTED_TOKEN.getSttusCd()) ; 

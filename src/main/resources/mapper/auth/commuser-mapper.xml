@@ -75,7 +75,7 @@
 		       , DATE_FORMAT(FRST_SBSCRB_DT, '%Y.%m.%d %H:%m:%s')   AS FRSTSBSCRBDT/* 최초_가입_일시 */
 		       , DATE_FORMAT(LAST_LOGIN_DT, '%Y.%m.%d %H:%m:%s')    AS LASTLOGNDT /* 최종_로그인_일시 */
 		       , DATE_FORMAT(PASSWORD_CHG_DT , '%Y.%m.%d %H:%m:%s') AS PASSWORDCHGDT /* 비밀번호_변경_일시 */
-		       , LOGIN_FAILR_CO                                     AS LGINFAILCO/* 로그인_실패_회수 */
+		       , LOGIN_FAILR_CO                                     AS LOGNFAILCO/* 로그인_실패_회수 */
 		       , LOGIN_TY                                           AS LOGNTY /* 로그인_유형 */
 		       , CASE WHEN LOGIN_TY = 'LGT001' THEN 'Email로 로그인' 
 		              WHEN LOGIN_TY = 'LGT002' THEN 'KAKAO 로그인'

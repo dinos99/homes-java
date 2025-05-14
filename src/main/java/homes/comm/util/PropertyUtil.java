@@ -61,7 +61,12 @@ public class PropertyUtil {
 			Log.error("IOException: {}파일을 로드하는데 실패하였습니다." );
 		}
         return prop ; 
-	}	
+	}
+	
+	public static String getPropVal(String key) {
+		getProperty() ;
+		return getString(key) ;
+	}
 	
 	public static String getString(String key) {
 		String propVal =prop.getProperty(key) ;  

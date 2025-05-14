@@ -30,8 +30,8 @@ public class BrokerController {
 	
 	@PostMapping("/api/v1/broker/uploadbizfile")
 	public ResponseEntity<String> Uploadbizfile(@RequestParam("userno") Long brokerno
-												, @RequestParam("bizfile") MultipartFile bizfile
-												, @RequestParam("estfile") MultipartFile estfile ) {
+												, @RequestParam MultipartFile bizfile
+												, @RequestParam MultipartFile estfile ) {
 		CommonMap fmap = new CommonMap() ; 
 		fmap.put("bizfile", new FileVo()) ; 
 		fmap.put("estfile", new FileVo()) ; 
