@@ -32,12 +32,11 @@ public class ApiAuthInterceptor implements HandlerInterceptor {
 	 		if ( "Authorization".equalsIgnoreCase(header_name)) {
 	 			String accessToken = request.getHeader("Authorization") ; 
 	 			String token = Optional.ofNullable(accessToken).orElse("").replaceFirst("Bearer ", "") ;
-	 		 	Log.info("*** Authorization: {}, token : {}", token) ;
 	 			is_auth = jwtUtil.validateToken(token) ;
 	 		 	Log.info("*** Authorization: {}, isAuth: {}", accessToken, is_auth) ;
 	 			break ;
 	 		}
-	 		Log.info("*** \t {} :{}", header_name, request.getHeader(header_name)) ;  
+//	 		Log.info("*** \t {} :{}", header_name, request.getHeader(header_name)) ;  
 	 	}
 	 	
 	 	if (!is_auth) {

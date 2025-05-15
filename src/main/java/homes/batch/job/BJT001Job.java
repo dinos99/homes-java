@@ -106,6 +106,7 @@ public class BJT001Job implements Job {
 						this.deleteOneBJT001(line) ;
 						this.insertOneBJT001(line) ;
 						ins_co++ ;
+						Log.info(" *** exco             : {}", ins_co) ; 
 					}
 					bufReader.close() ;
 					filereader.close()  ; 

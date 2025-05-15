@@ -37,7 +37,7 @@ public class PropertyUtil {
 		FileReader resources = null ;
 		prop = new Properties() ;
 		try {
-			Log.info("*** PROP_BASE_PATH: {}", PROP_BASE_PATH + File.separator + propName + "-" + PROFILE + ".properties");
+//			Log.info("*** PROP_BASE_PATH: {}", PROP_BASE_PATH + File.separator + propName + "-" + PROFILE + ".properties");
 			resources= new FileReader(PROP_BASE_PATH + File.separator + propName + "-" + PROFILE + ".properties");
 			prop.load(resources);
 		} catch (FileNotFoundException e) {
@@ -70,19 +70,19 @@ public class PropertyUtil {
 	
 	public static String getString(String key) {
 		String propVal =prop.getProperty(key) ;  
-		Log.info("*** propVal {}: {}", key, propVal) ; 
+//		Log.info("*** propVal {}: {}", key, propVal) ; 
 		return Optional.ofNullable(propVal).orElse("") ; 
 	}
 	
 	public static String getStringVal(String key) {
 		String propVal =prop.getProperty(key) ;  
-		Log.info("*** propVal {}: {}", key, propVal) ; 
+//		Log.info("*** propVal {}: {}", key, propVal) ; 
 		return Optional.ofNullable(propVal).orElse("") ; 
 	}
 	
 	public static long getLongVal(String key) {
 		String propVal = prop.getProperty(key) ; 
-		Log.info("*** propVal {}: {}", key, propVal) ; 
+//		Log.info("*** propVal {}: {}", key, propVal) ; 
 		return propVal == null ? 0l : Long.parseLong(propVal) ;
 	}
 	

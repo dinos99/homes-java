@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 
 import homes.batch.job.BJT001Job;
 
-
 @Configuration
 public class QuartzSchedulerConfig {
 	@Bean
@@ -26,7 +25,7 @@ public class QuartzSchedulerConfig {
 		return TriggerBuilder.newTrigger()
 				.forJob(jobDetail)
 				.withIdentity("BJT001")
-				.withSchedule(CronScheduleBuilder.cronSchedule("0 0 7 * * ?")) // 매일 0시 50분 분에시작 
+				.withSchedule(CronScheduleBuilder.cronSchedule("0 10 13 * * ?")) // 매일 0시 50분 분에시작 
 				.build();
 	}
 
