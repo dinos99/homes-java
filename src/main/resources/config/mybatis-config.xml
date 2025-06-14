@@ -2,14 +2,7 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
         
-<configuration>
-	<settings>
-    	<!-- snake to camel -->
-		<setting name="mapUnderscoreToCamelCase" value="true"/>
-		<setting name="callSettersOnNulls" value="true"/>
-		<setting name="jdbcTypeForNull" value="NULL"/>
-	</settings>
-	
+<configuration>	
 	<typeAliases>
 		<typeAlias type="homes.comm.vo.CommonMap" alias="commonMap" />
 		<typeAlias type="homes.comm.vo.CommReqVo" alias="commVo" />
@@ -26,5 +19,7 @@
         <mapper resource="mapper/broker/broker-mapper.xml"/>
         <mapper resource="mapper/manager/manager-mapper.xml"/>
         <mapper resource="mapper/batch/batch-mapper.xml"/>
+        <mapper resource="mapper/system/system-mapper.xml"/>
+        <mapper resource="mapper/complex/complex-mapper.xml"/>
     </mappers>
 </configuration>

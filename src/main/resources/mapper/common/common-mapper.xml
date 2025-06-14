@@ -16,33 +16,42 @@
     </select>
     
     <select id="selectSggList" parameterType="commVo" resultType="commonMap">
-		SELECT /* homes.common.mapper.CommonMapper.selectSggList 시군구 조회 */
-		       AREACD                                                                       AS ARCODE
-		       , AREANM                                                                     AS ARNAME
-		       , AREA_FULLNM                                                                AS ARFULLNM
-		       , SDSGGCD                                                                    AS SDSGGCD
-		       , CASE WHEN SDSGGCD = SUBSTR(#{arcode}, 1, 5) THEN 'selected' ELSE '' END AS SELECTED
-		FROM   TB_CM_COAREACODE
-		WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
-		AND    SGGCD != '000' 
-		AND    EMDCD = '000'
-		AND    USE_YN = 'Y'
-		ORDER  BY AREACD ASC 
+    	SELECT /* homes.common.mapper.CommonMapper.selectSggList 시군구 조회 */ 
+    	       TA.ARCODE, TA.ARNAME, TA.ARFULLNM, TA.SDSGGCD
+    	       , CASE WHEN TA.RNUM = '1' THEN 'selected' ELSE '' END AS SELECTED
+    	FROM   ( SELECT AREACD        AS ARCODE
+		                , AREANM      AS ARNAME
+		                , AREA_FULLNM AS ARFULLNM
+		                , SDSGGCD     AS SDSGGCD 
+		                , ROW_NUMBER() OVER(ORDER BY AREACD ASC) AS RNUM
+		         FROM   TB_CM_COAREACODE
+		         WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
+		         AND    SGGCD != '000' 
+		         AND    EMDCD = '000'
+		         AND    USE_YN = 'Y'
+		       ) TA
     </select>
     
     <select id="selectEmdList" parameterType="commVo" resultType="commonMap">
-		SELECT /* homes.common.mapper.CommonMapper.selectEmdList 읍면동 조회 */
-		       AREACD                                                                       AS ARCODE
-		       , AREANM                                                                     AS ARNAME
-		       , AREA_FULLNM                                                                AS ARFULLNM
-		       , SDSGGCD                                                                    AS SDSGGCD
-		       , CASE WHEN SDSGGCD = SUBSTR(#{arcode}, 1, 5) THEN 'selected' ELSE '' END AS SELECTED
-		FROM   TB_CM_COAREACODE
-		WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
-		AND    SDSGGCD = SUBSTR(#{arcode}, 1, 5)
-		AND    EMDCD != '000'
-		AND    USE_YN = 'Y'
-		ORDER  BY AREACD ASC 
+    	SELECT /* homes.common.mapper.CommonMapper.selectEmdList 읍면동 조회 */ 
+    	       TA.ARCODE, TA.ARNAME, TA.ARFULLNM, TA.EMDCD
+    	       , CASE WHEN TA.RNUM = '1' THEN 'selected' ELSE '' END AS SELECTED
+		FROM   ( SELECT AREACD                                   AS ARCODE
+		                , AREANM                                 AS ARNAME
+		                , AREA_FULLNM                            AS ARFULLNM
+		                , RPAD(EMDCD,5, '0')                     AS EMDCD 
+		                , ROW_NUMBER() OVER(ORDER BY AREACD ASC) AS RNUM
+		         FROM   TB_CM_COAREACODE A
+		         WHERE  SIDOCD = SUBSTR(#{arcode}, 1, 2) 
+		         AND    SDSGGCD = SUBSTR(#{arcode}, 1, 5)
+		         AND    EMDCD != '000'
+		         AND    USE_YN = 'Y'
+		         AND    EXISTS ( SELECT 'X' 
+		                         FROM   TB_BD_COMPLEX B
+		                         WHERE  SUBSTR(A.AREACD, 1, 5) = B.ARCD
+		                         AND    RPAD(EMDCD, 5, 0) = B.LEGCD 
+		                       ) 
+		       ) TA 
     </select>
     
     <select id="selectFileLastid" parameterType="long" resultType="long">

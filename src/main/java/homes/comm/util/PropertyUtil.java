@@ -23,10 +23,10 @@ public class PropertyUtil {
 		FileReader resources = null ;
 		prop = new Properties() ;
 		try {
-			resources= new FileReader(PROP_BASE_PATH + File.separator + HOMES_PROP_NAME+ "-" + PROFILE + ".properties");
+			resources = new FileReader(PROP_BASE_PATH + File.separator + HOMES_PROP_NAME + "-" + PROFILE + ".properties");
 			prop.load(resources);
 		} catch (FileNotFoundException e) {
-			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", HOMES_PROP_NAME);
+			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", PROP_BASE_PATH + File.separator + HOMES_PROP_NAME + "-" + PROFILE + ".properties" );
 		} catch (IOException e) {
 			Log.error("IOException: {}파일을 로드하는데 실패하였습니다." );
 		}
@@ -41,7 +41,7 @@ public class PropertyUtil {
 			resources= new FileReader(PROP_BASE_PATH + File.separator + propName + "-" + PROFILE + ".properties");
 			prop.load(resources);
 		} catch (FileNotFoundException e) {
-			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", propName);
+			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", PROP_BASE_PATH + File.separator + HOMES_PROP_NAME + "-" + PROFILE + ".properties" );
 		} catch (IOException e) {
 			Log.error("IOException: {}파일을 로드하는데 실패하였습니다." );
 		}
@@ -56,7 +56,7 @@ public class PropertyUtil {
 			resources= new FileReader(path + File.separator + propName );
 			prop.load(resources);
 		} catch (FileNotFoundException e) {
-			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", propName);
+			Log.error("FileNotFoundException: {}파일을 찾을 수 없습니다.", PROP_BASE_PATH + File.separator + HOMES_PROP_NAME + "-" + PROFILE + ".properties" );
 		} catch (IOException e) {
 			Log.error("IOException: {}파일을 로드하는데 실패하였습니다." );
 		}

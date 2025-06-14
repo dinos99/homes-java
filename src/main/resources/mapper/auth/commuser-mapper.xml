@@ -4,9 +4,11 @@
 <mapper namespace="homes.security.mapper.CommUserMapper">
     <select id="findCommUserByEmail" parameterType="homes.security.vo.LoginRequestVo" resultType="homes.security.vo.CommUserVo">
     	SELECT /* homes.security.mapper.CommUserMapper.findCommUserByEmail 이메일로 사용자 정보조회 */
-    	       USER_NO            /* 사용자_번호 */  
+    	       USER_NO            /* 사용자_번호 */
+    	       , USER_NO          AS USERNO  
     	       , EMAIL            /* 이메일 */ 
     	       , USER_NM          /* 사용자_명 */ 
+    	       , USER_NM          AS USERNM /* 사용자_명 */ 
     	       , USER_ROLE        /* 사용자_업무_권한 */ 
 		       , USER_STTUS       /* 사용자_상태 */
 		       , FRST_SBSCRB_DT   /* 최초_가입_일시 */
@@ -37,8 +39,10 @@
     <select id="findCommUserByUserNo" parameterType="long" resultType="homes.security.vo.CommUserVo">
     	SELECT /* homes.security.mapper.CommUserMapper.findCommUserByUserNo 사용자번호로 사용자 정보조회 */
     	       USER_NO            /* 사용자_번호 */  
+    	       , USER_NO          AS USERNO  
     	       , EMAIL            /* 이메일 */ 
     	       , USER_NM          /* 사용자_명 */ 
+    	       , USER_NM          AS USERNM /* 사용자_명 */ 
     	       , USER_ROLE        /* 사용자_업무_권한 */ 
 		       , USER_STTUS       /* 사용자_상태 */
 		       , FRST_SBSCRB_DT   /* 최초_가입_일시 */
@@ -67,7 +71,8 @@
     	SELECT /* homes.security.mapper.CommUserMapper.selectHomesUser 일반사용자 정보조회 */
     	       USER_NO                                              AS USERNO /* 사용자_번호 */  
     	       , EMAIL                                              AS EMAIL  /* 이메일 */ 
-    	       , USER_NM                                            AS USERNM /* 사용자_명 */ 
+    	       , USER_NM                                            AS USERNM /* 사용자_명 */
+    	       , USER_NM          AS USERNM /* 사용자_명 */  
     	       , USER_ROLE                                          AS USERTY /* 사용자_업무_권한 */ 
     	       , B.CODE_NM                                          AS USERTYNM
 		       , USER_STTUS                                         AS USERSTTUS /* 사용자_상태 */

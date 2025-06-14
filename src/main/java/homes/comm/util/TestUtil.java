@@ -17,18 +17,10 @@ public class TestUtil {
 		System.out.println(Math.ceilDiv(t_cnt, r_cnt)) ;		
 		System.out.println("*** execute batchjob, jobid[BTJ001] started at " + DateTimeUtil.convertTimeStampToString(System.currentTimeMillis(), "yyyy.MM.dd HH:mm:ss.SSS")) ;
  */  
-		  System.out.println(StringUtil.convCamelCase("SUB_BULD_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("PLOT_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("BULD_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("BULD_LND_RT")) ; 
-		  System.out.println(StringUtil.convCamelCase("TOTAL_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("BULK_CALC_TOT_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("BULK_RT")) ; 
-		  System.out.println(StringUtil.convCamelCase("IN_MECHA_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("OUT_MECHA_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("IN_INDPNT_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("OUT_INDPNT_AR")) ; 
-		  System.out.println(StringUtil.convCamelCase("ENERGY_REDCN_RT")) ; 
+		String[] headers = "1000000000000000052605||1|일반|1|총괄표제부| |||||||||||2||||||UQB200|||생산관리지역|||20220818".split("[|]") ;
+		for ( int i = 0; i < headers.length; i ++ ) {
+			System.out.println("headers[" + i + "]:" + headers[i]) ;
+		}
 	}
 	
 }

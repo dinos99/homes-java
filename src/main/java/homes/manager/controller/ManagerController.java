@@ -8,10 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
+import homes.comm.vo.CommonMap;
+import homes.comm.vo.FileVo;
 import homes.exception.HomesException;
 import homes.manager.service.ManagerService;
 import homes.manager.vo.ManagerVo;
@@ -38,6 +42,19 @@ public class ManagerController {
 		}
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(mVo)) ;
 	}
-	
-	
+
+	@PostMapping("/api/v1/manager/batchUpload")
+	public ResponseEntity<String> batchUpload(@RequestParam String batchType
+											, @RequestParam MultipartFile buildfile  ) {
+		CommonMap fmap = new CommonMap() ; 
+		fmap.put("buildFile", new FileVo()) ; 
+		try {
+			int up_co = service.uploadBuildFile(batchType, buildfile) ;
+			fmap.put("up_co", up_co) ;
+		} catch ( HomesException e ) {
+			Log.error("*** ApiError: () ", e.getMessage()) ;
+	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(e.getCode())) ;
+		}
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(fmap)) ;
+	}
 }

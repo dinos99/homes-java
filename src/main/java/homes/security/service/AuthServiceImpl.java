@@ -4,6 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Base64;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +19,15 @@ import homes.security.vo.CommUserVo;
 import homes.security.vo.LoginRequestVo;
 import homes.security.vo.UpdateLoginInfoReqVo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class AuthServiceImpl implements AuthService {
 
-//	private final Logger Log = LogManager.getLogger(AuthServiceImpl.class) ; 
+	private final Logger Log = LogManager.getLogger(AuthServiceImpl.class) ; 
 	
     private final JwtUtil jwtUtil;
 //    private final PasswordEncoder encoder  ; 

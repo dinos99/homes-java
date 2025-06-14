@@ -1,48 +1,166 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="homes.batch.mapper.BatchMapper">
+	<select id="selectComplexUpdated" parameterType="string" resultType="string">
+		SELECT /* homes.batch.mapper.BatchMapper.selectComplexUpdated */
+		       'Y' AS IS_UPDATED
+		FROM   DUAL 
+	</select>
+	<select id="selectSidocodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectSidocodeList */
+		       ARCODE, AR_FULL_NM AS ARNAME, SDCODE 
+		FROM   TB_CM_COAREACODE
+		WHERE  ARLEVEL = 1  
+		AND    USE_YN = 'Y'
+	</select>
+	<select id="selectSggcodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectSidocodeList */
+		       ARCODE, AR_FULL_NM AS ARNAME, SDCODE 
+		FROM   TB_CM_COAREACODE
+		WHERE  ARLEVEL = 2 
+		AND    USE_YN = 'Y'
+		AND    SDCODE = #{sdcode}
+	</select>
+	<select id="selectBatchTagetFile" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBatchTagetFile */
+		       BATCHNO      AS BTNO
+		       , BT_UUID    AS BTUUID
+		       , BT_EXCO    AS BTEXCO
+		       , BT_FILENM  AS BTFILENM
+		FROM   TB_CM_BATCHJOB
+		WHERE  BATCHTY = 'BJT000'
+		AND    BT_STTUS_CD = 'BTS002' 
+		AND    BT_EXCO <![CDATA[ > ]]> 0 
+		AND    BT_FILENM = CONCAT('SP-', #{jobid}, '-', BT_UUID, '.txt') 
+		ORDER  BY BATCHNO DESC 
+		LIMIT  1 
+	</select>
+	
+	<select id="selectBatchJobListCount" parameterType="homes.batch.vo.BatchReqVo" resultType="java.lang.Long">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBatchJobListCount */
+		        COUNT(1) AS T_CNT
+		FROM   TB_CM_BATCHJOB 
+		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstDe}
+	</select>
+	<select id="selectBatchJobList" parameterType="homes.batch.vo.BatchReqVo" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBatchJobList */
+		       BATCHNO                                      AS BATCHNO
+		       , BT_UUID                                    AS UUID
+		       , BATCHTY                                    AS BATCH_TY
+		       , BT_STTUS_CD                                AS BT_STTUSCD
+		       , DATE_FORMAT(BT_ST_DT, '%Y.%m.%d %H:%i:%s') AS BTST_DT
+		       , DATE_FORMAT(BT_ED_DT, '%Y.%m.%d %H:%i:%s') AS BTED_DT   
+		       , NVL(BT_EXCO, 0)                            AS BT_EXCO
+		       , BT_FILENM                                  AS BT_FILENM
+		       , BT_ERROR_MSG                               AS BT_ERRORMSG
+		FROM   TB_CM_BATCHJOB 
+		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstDe}
+		ORDER  BY BATCHNO DESC
+		LIMIT  #{stno}, #{edno}
+	</select>
+	
+	<select id="selectComplexCpxgno" parameterType="commonMap" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectComplexCpxgno */
+		       LPAD(NVL(MAX(CPXGNO), 0) + 1, 4, 0) AS CPXGNO
+		FROM   TB_BD_COMPLEX A
+		WHERE  CPXNO = #{cpxno}
+	</select>
+	
+	<select id="selectComplexList" parameterType="commonMap" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectComplexList */
+		       CONCAT(A.ARCD, A.LEGCD, A.BUN, A.JI) AS CPXNO
+		       , A.REGSTR_KD_CD
+		       , A.REGSTR_GB_CD
+		       , A.ARCD
+		       , A.LEGCD
+		       , A.BUN
+		       , A.JI
+		       , A.BULD_REGSTR_PK
+		       , A.PLOT_LOC
+		       , A.BULD_NM
+		       , A.BLOCK_NM
+		       , A.ETC_PPS
+		       , A.MAIN_PPS_CD 
+		       , A.HSHLD_CO
+		       , #{nwOdGbCd}       AS NW_OD_GB_CD
+		       , #{creatUserNo}    AS CREAT_USER_NO
+		       , #{updtUserNo}     AS UPDT_USER_NO
+		FROM   TB_BD_TITLLEDGR A
+		WHERE  REGSTR_GB_CD = '2'
+	</select>
+	
+	<!-- 건측믈데징-기본개요 삭제 -->
+	<delete id="deleteBaseSummry" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteBaseSummry */
+		FROM   TB_BD_BASESUMMRY_ORIGIN
+		WHERE  ARCD = #{arcode} 
+	</delete>
 
+	<!-- 건측믈데징-기본개요 등록 -->
+	<insert id="insertBaseSummry" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertBaseSummry 기본개요 등록 */
+		INTO   TB_BD_BASESUMMRY_ORIGIN (
+			   MNGR_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM
+		       , PLOT_LOC, RDNM_PLOT_LOC, BULD_NM
+		       , ARCD, LEGCD, PLOT_GB_CD, BUN, JI, SP_PLOT_NM
+		       , BLOCK, LOT, OUT_LOT_CO
+		       , NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD, NW_ADDR_GRND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B
+		       , ZONE_CD, DISTRICT_CD, AREA_CD, ZONE_CD_NM, DISTRICT_CD_NM, AREA_CD_NM
+		       , CREAT_DE, BATCH_YN
+		) VALUES (
+		       #{mngrRegstrPk}, #{upperRegstrPk}, #{regstrGbCd}, #{regstrGbNm}, #{regstrKdCd}, #{regstrKdNm}
+		       , #{plotLoc}, #{rdnmPlotLoc}, #{buldNm}
+		       , #{arcd}, #{legcd}, #{plotGbCd}, #{bun}, #{ji}, #{spPlotNm}
+		       , #{block}, #{lot}, #{outLotCo}
+		       , #{nwAddrRoadCd}, #{nwAddrLegCd}, #{nwAddrGrndCd}, #{nwAddrMainB}, #{nwAddrSubB}
+		       , #{zoneCd}, #{districtCd}, #{areaCd}, #{zoneCdNm}, #{districtCdNm}, #{areaCdNm}
+		       , #{creatDe}, #{batchYn}
+		) 
+	</insert>
+	
 	<!-- 건축물관리대장-총괄표제부 삭제 -->
-	<delete id="deleteSummryTitlledgr" parameterType="string">
-		DELETE /* homes.batch.mapper.BatchMapper.deleteSummryTitlledgr */
-		FROM   TB_CM_SUMMRY_TITLLEDGR
-		WHERE  PK_BULD_REGSTR = #{pkBuldRegstr}
+	<delete id="deleteTotalTitleLedgr" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteTotalTitleLedgr */
+		FROM   TB_BD_TOTAL_TITLLEDGR
+		WHERE  BULD_REGSTR_PK = #{pkBuldRegstr}
 	</delete>
 	
-	<insert id="insertSummryTitlledgr" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertSummryTitlledgr */
-		INTO   TB_CM_SUMMRY_TITLLEDGR (
-			PK_BULD_REGSTR, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KND_CD, REGSTR_KND_NM, NW_OD_GB_CD
-			, NW_OD_GB_NM, PLOT_LOC, RDNM_PLOT_LOC, BULD_NM, SGG_CD, LEG_CD, PLOG_GB_CD, BUN, JI
+	<!-- 건축물관리대장-총괄표제부 등록 -->
+	<insert id="insertTotalTitleLedgr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertTotalTitleLedgr 총괄표제부 등록 */
+		INTO   TB_BD_TOTAL_TITLLEDGR (
+			BULD_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM, NW_OD_GB_CD
+			, NW_OD_GB_NM, PLOT_LOC, RDNM_PLOT_LOC, BULD_NM, ARCD, LEGCD, PLOT_GB_CD, BUN, JI
 			, SP_PLOT_NM, BLOCK, LOT, OUT_LOT_CO, NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD
-			, NW_ADDR_GND_CD, NW_ADDR_MST_B, NW_ADDR_SUB_B, PLOT_AR, BULD_AR
+			, NW_ADDR_GND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B, PLOT_AR, BULD_AR
 			, BULD_LND_RT, TOTAL_AR, BULK_CALC_TOT_AR, BULK_RT
-			, MST_PPS_CD, MST_PPS_CD_NM, ETC_PPS, HSHLD_1_CO, HSHLD_2_CO, MST_BULD_CO
+			, MAIN_PPS_CD, MAIN_PPS_CD_NM, ETC_PPS, HSHLD_CO, FMLY_CO, MAIN_BULD_CO
 			, SUB_BULD_CO, SUB_BULD_AR, TOT_PARKNG_CO, IN_MECHA_CO, IN_MECHA_AR
 			, OUT_MECHA_CO, OUT_MECHA_AR, IN_INDPNT_CO, IN_INDPNT_AR
 			, OUT_INDPNT_CO, OUT_INDPNT_AR, PRMISS_DE, STWK_DE, USE_CONF_DE
 			, PRMISS_NO_YYYY, PRMISS_NO_ORG_CD, PRMISS_NO_ORG_NM
-			, PRMISS_NO_GB_CD, PRMISS_NO_GB_NM, HO_CO, ENERGY_EFCNY_GRAD
+			, PRMISS_NO_GB_CD, PRMISS_NO_GB_NM, UNIT_CO, ENERGY_EFCNY_GRAD
 			, ENERGY_REDCN_RT, ENERGY_EPI_SCR, ECO_BULD_GRAD, ECO_BULD_SCR, BRIN_BULD_GRAD
 			, BRIN_BULD_SCR, CREAT_DE
 			, FST_UPLOAD_DT, FST_UPLOAD_USER_NO
-			, LST_CHNG_DT, LST_CHNG_USER_NO, BATCH_YN, CREATE_USER_NO
-			, CREAT_DT, UPDT_USER_NO, UPDT_DT
+			, LST_CHNG_DT, LST_CHNG_USER_NO, BATCH_YN
+			, CREATE_USER_NO, CREAT_DT, UPDT_USER_NO, UPDT_DT
 		) VALUES (
-			#{pkBuldRegstr}      /* 관리_건축물대장_PK */
+			#{buldRegstrPk}      /* 관리_건축물대장_PK */
 			, #{regstrGbCd}      /* 대장_구분_코드 */
 			, #{regstrGbNm}      /* 대장_구분_코드_명 */
-			, #{regstrKndCd}     /* 대장_종류_코드 */
-			, #{regstrKndNm}     /* 대장_종류_코드_명 */
+			, #{regstrKdCd}      /* 대장_종류_코드 */
+			, #{regstrKdNm}      /* 대장_종류_코드_명 */
 			, #{nwOdGbCd}        /* 신_구_대장_구분_코드 */
 			, #{nwOdGbNm}        /* 신_구_대장_구분_코드_명 */
 			, #{plotLoc}         /* 대지_위치 */
 			, #{rdnmPlotLoc}     /* 도로명_대지_위치 */
 			, #{buldNm}          /* 건물_명 */
-			, #{sggCd}           /* 시군구_코드 */
-			, #{legCd}           /* 법정동_코드 */
-			, #{plogGbCd}        /* 대지_구분_코드 */
+			, #{arcd}            /* 시군구_코드 */
+			, #{legcd}           /* 법정동_코드 */
+			, #{plotGbCd}        /* 대지_구분_코드 */
 			, #{bun}             /* 번 */
 			, #{ji}              /* 지 */
 			, #{spPlotNm}        /* 특수지_명 */
@@ -60,12 +178,12 @@
 			, #{totalAr}         /* 연면적(㎡) */
 			, #{bulkCalcTotAr}   /* 용적_률_산정_연면적(㎡) */
 			, #{bulkRt}          /* 용적_률(%) */
-			, #{mstPpsCd}        /* 주_용도_코드 */
-			, #{mstPpsCdNm}      /* 주_용도_코드_명 */
+			, #{mainPpsCd}        /* 주_용도_코드 */
+			, #{mainPpsCdNm}      /* 주_용도_코드_명 */
 			, #{etcPps}          /* 기타_용도 */
-			, #{hshld1Co}        /* 세대_수(세대) */
-			, #{hshld2Co}        /* 가구_수(가구) */
-			, #{mstBuldCo}       /* 주_건축물_수 */
+			, #{hshldCo}        /* 세대_수(세대) */
+			, #{fmlyCo}        /* 가구_수(가구) */
+			, #{mainBuldCo}       /* 주_건축물_수 */
 			, #{subBuldCo}       /* 부속_건축물_수 */
 			, #{subBuldAr}       /* 부속_건축물_면적(㎡) */
 			, #{totParkngCo}     /* 총_주차_수 */
@@ -85,7 +203,7 @@
 			, #{prmissNoOrgNm}   /* 허가번호_기관_코드_명 */
 			, #{prmissNoGbCd}    /* 허가번호_구분_코드 */
 			, #{prmissNoGbNm}    /* 허가번호_구분_코드_명 */
-			, #{hoCo}            /* 호_수(호) */
+			, #{unitCo}          /* 호_수(호) */
 			, #{energyEfcnyGrad} /* 에너지효율_등급 */
 			, #{energyRedcnRt}   /* 에너지절감_율 */
 			, #{energyEpiScr}    /* 에너지_EPI점수 */
@@ -93,7 +211,7 @@
 			, #{ecoBuldScr}      /* 친환경_건축물_인증점수 */
 			, #{brinBuldGrad}    /* 지능형_건축물_등급 */
 			, #{brinBuldScr}     /* 지능형_건축물_인증점수 */
-			, #{creat}           /* 생성_일자 */
+			, #{creatDe}         /* 생성_일자 */
 			, NOW() 
 			, 0
 			, NOW()
@@ -106,12 +224,212 @@
 		)
 	</insert>
 	
+	<!-- 건축물관리대장-표제부 삭제 -->
+	<delete id="deleteTitleLedgr" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteTitleLedgr */
+		FROM   TB_BD_TITLLEDGR
+		WHERE  BULD_REGSTR_PK = #{buldRegstrPk}
+	</delete>
+	<!-- 건축물관리대장-표제부 등록 -->
+	<insert id="insertTitleLedgr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertTitleLedgr 표제부 등록 */
+		INTO   TB_BD_TITLLEDGR (
+			   BULD_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM, PLOT_LOC, RDNM_PLOT_LOC
+		       , BULD_NM, ARCD, LEGCD, PLOT_GB_CD, BUN, JI, SP_PLOT_NM, BLOCK, LOT, OUT_LOT_CO, NW_ADDR_ROAD_CD
+		       , NW_ADDR_EG_CD, NW_ADDR_ND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B, BLOCK_NM, MAIN_SUB_GB_CD, MAIN_SUB_GB_NM
+		       , PLOT_AR, BULD_AR, BULD_LND_RT, TOTAL_AR, BULK_CALC_TOT_AR, BULK_RT, STRCT_CD, STRCT_CD_NM
+		       , ETC_STRCT, MAIN_PPS_CD, MAIN_PPS_CD_NM, ETC_PPS, RF_CD, RF_CD_NM, ETC_RF, HSHLD_CO, FMLY_CO
+		       , HEIGHT, GRND_FLOOR_CO, UNDR_GRND_FLOOR_CO, RDNG_ELVTR_CO, EMGNC_ELVTR_CO, SUB_BULD_CO
+		       , SUB_BULD_AR, TOT_BLOCK_AR, IN_MECHA_CO, IN_MECHA_AR, OUT_MECHA_CO, OUT_MECHA_AR
+		       , IN_INDPNT_CO, IN_INDPNT_AR, OUT_INDPNT_CO, OUT_INDPNT_AR, PRMISS_DE, STWK_DE
+		       , OCCUPANCY_APPROVAL_DE, PRMISS_NO_YYYY, PRMISS_NO_ORG_CD, PRMISS_NO_ORG_NM
+		       , PRMISS_NO_GB_CD, PRMISS_NO_GB_NM, UNIT_CO, ENERGY_EFCNY_GRAD, ENERGY_REDCN_RT
+		       , ENERGY_EPI_SCR, ECO_BULD_GRAD, ECO_BULD_SCR, BRIN_BULD_GRAD, BRIN_BULD_SCR
+		       , CREAT_DE, ERDSGN_APPLC_YN, RSERTHQK_ABLTY, FST_UPLOAD_DT, FST_UPLOAD_USER_NO
+		       , LST_CHNG_DT, LST_CHNG_USER_NO, BATCH_YN, CREATE_USER_NO, CREAT_DT, UPDT_USER_NO, UPDT_DT
+		) VALUES (
+			#{buldRegstrPk}
+			, #{regstrGbCd}
+			, #{regstrGbNm}
+			, #{regstrKdCd}
+			, #{regstrKdNm}
+			, #{plotLoc}
+			, #{rdnmPloLoc}
+			, #{buldNm}
+			, #{arcd}
+			, #{legCd}
+			, #{plotGbCd}
+			, #{bun}
+			, #{ji}
+			, #{spLndNm}
+			, #{block}
+			, #{lot}
+			, #{outLotCo}
+			, #{nwAddrOadCd}
+			, #{nwAddrEgCd}
+			, #{nwAddrNdCd}
+			, #{nwAddrStB}
+			, #{nwAddrUbB}
+			, #{blockNm}
+			, #{mainSubGbCd}
+			, #{mainSubGbNm}
+			, #{plotAr}
+			, #{buldAr}
+			, #{buldLndRt}
+			, #{totalAr}
+			, #{bulkCalcTotAr}
+			, #{bulkRt}
+			, #{strctCd}
+			, #{strctCdNm}
+			, #{etcStrct}
+			, #{mainPpsCd}
+			, #{mainUseCdNm}
+			, #{etcPps}
+			, #{rfCd}
+			, #{rfCdNm}
+			, #{etcRf}
+			, #{hshldCo}
+			, #{fmlyCo}
+			, #{height}
+			, #{grndFloorCo}
+			, #{undrGrndFloorCo}
+			, #{rdngElvtrCo}
+			, #{emgncElvtrCo}
+			, #{subBuldCo}
+			, #{subBuldAr}
+			, #{totBlockAr}
+			, #{inMechaCo}
+			, #{inMechaAr}
+			, #{outMechaCo}
+			, #{outMechaAr}
+			, #{inIndpntCo}
+			, #{inIndpntAr}
+			, #{outIndpntCo}
+			, #{outIndpntAr}
+			, #{prmissDe}
+			, #{stwkDe}
+			, #{occupancyApprovalDe}
+			, #{prmissNoYyyy}
+			, #{prmissNoOrgCd}
+			, #{prmissNoOrgNm}
+			, #{prmissNoGbCd}
+			, #{prmissNoGbNm}
+			, #{unitCo}
+			, #{energyEfcnyGrad}
+			, #{energyRedcnRt}
+			, #{energyEpiScr}
+			, #{ecoBuldGrad}
+			, #{ecoBuldScr}
+			, #{brinBuldGrad}
+			, #{brinBuldScr}
+			, #{creatDe}
+			, #{erdsgnApplcYn}
+			, #{rserthqkAblty}
+			, NOW() 
+			, 0
+			, NOW()
+			, 0
+			, #{batchYn}
+			, 0
+			, NOW()
+			, 0
+			, NOW()
+		)
+	</insert>
+		<!-- 건축물관리대장-전유부삭제 -->
+	<delete id="deletePssionLedgr" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deletePssionLedgr 전유부삭제 */
+		FROM   TB_BD_PSSION_LEDGR
+		WHERE  BULD_REGSTR_PK = #{buldRegstrPk}
+	</delete>
+	<!-- 건축물관리대장-전유부입력 -->
+	<insert id="insertPssionLedgr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertPssionLedgr 전유부 등록 */
+		INTO   TB_BD_PSSION_LEDGR (
+		  BULD_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM, PLOT_LOC, RDNM_PLOT_LOC, BULD_NM
+		  , ARCD, LEGCD, PLOT_GB_CD, BUN, JI, SP_PLOT_NM, BLOCK, LOT
+		  , NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD, NW_ADDR_GRND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B
+		  , BLOCK_NM, HO_NM, FLOOR_GB_CD, FLOOR_GB_NM, FLOOR_NO, CREAT_DE
+		) VALUES (
+		  #{buldRegstrPk}
+		  , #{regstrGbCd}
+		  , #{regstrGbNm}
+		  , #{regstrKdCd}
+		  , #{regstrKdNm}
+		  , #{plotLoc}
+		  , #{rdnmPloLoc}
+		  , #{buldNm}
+		  , #{arcd}
+		  , #{legcd}
+		  , #{plogGbCd}
+		  , #{bun}
+		  , #{ji}
+		  , #{spPlotNm}
+		  , #{block}
+		  , #{lot}
+		  , #{nwAddrRoadCd}
+		  , #{nwAddrLegCd}
+		  , #{nwAddrGrndCd}
+		  , #{nwAddrMainB}
+		  , #{nwAddrSubB}
+		  , #{blockNm}
+		  , #{hoNm}
+		  , #{floorGbCd}
+		  , #{floorGbNm}
+		  , #{floorNo}
+		  , #{creatDe}
+		)
+	</insert>
+	
+	<insert id="insertComplex" parameterType="CommonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertComplex */ 
+		INTO TB_BD_COMPLEX (
+			 CPXNO
+			 , CPXGNO
+			 , REGSTR_KD_CD
+			 , REGSTR_GB_CD
+			 , ARCD, LEGCD, BUN, JI
+			 , BULD_REGSTR_PK
+			 , PLOT_LOC
+			 , BULD_NM
+			 , BLOCK_NM
+			 , ETC_PPS
+			 , MAIN_PPS_CD
+			 , HSHLD_CO
+			 , NW_OD_GB_CD
+			 , CREAT_USER_NO
+			 , UPDT_USER_NO
+		) VALUES (
+			#{cpxno}
+			, #{cpxgno}
+			, #{regstrKdCd}
+			, #{regstrGbCd}
+			, #{arcd}
+			, #{legcd}
+			, #{bun}
+			, #{ji}
+			, #{buldRegstrPk}
+			, #{plotLoc}
+			, #{buldNm}
+			, #{blockNm}
+			, #{etcPps}
+			, #{mainPpsCd}
+			, #{hshldCo}
+			, #{nwOdGbCd}
+			, #{creatUserNo}
+			, #{updtUserNo}			
+		)
+	</insert>
+	
 	<insert id="insertBatchjob" parameterType="commonMap">
 		INSERT /* homes.batch.mapper.BatchMapper.insertBatchjob */ 
 		INTO TB_CM_BATCHJOB (
 			BT_UUID
 			, BATCHTY
 			, BT_STTUS_CD
+	        , BT_EXCO 
+	        , BT_FILENM 
+			, BT_ERROR_MSG
 			, BT_ST_DT
 			, CREAT_USER_NO
 			, CREAT_DT
@@ -121,6 +439,9 @@
 			#{uuid}
 			, #{batchty}
 			, #{sttuscd}
+			, #{exco}
+			, #{filenm}
+			, #{message}
 			, NOW()
 			, 0
 			, NOW()
@@ -128,6 +449,31 @@
 			, NOW()
 		)
 	</insert>
+	
+	<insert id="insertBaseSummryRawData" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertBaseSummryRawData */ 
+		INTO TB_BD_BASESUMMRY_RAWDATA (
+			CRDE, UUID, NO
+			, BULD_REGSTR_PK, REGSTR_GB_CD, REGSTR_KD_CD
+			, ARCD, LEGCD, BUN, JI
+			, RAW_DATA
+			, REGSTR_CR_DE 
+		) values (
+			date_format(NOW(), '%Y%m%d')
+			, #{uuid}
+			, #{no}
+			, #{mngrRegstrPk}
+			, #{regstrGbCd}
+			, #{regstrKdCd}
+			, #{arcd}
+			, #{legcd}
+			, #{bun}
+			, #{ji}
+			, #{rawdata}
+			, #{regstrCrde}
+		)
+	</insert>
+	
 	<update id="updateBatchjob" parameterType="commonMap">
 		UPDATE /* homes.batch.mapper.BatchMapper.updateBatchjob */ 
 		       TB_CM_BATCHJOB
@@ -140,4 +486,16 @@
 		       , UPDT_DT = NOW()
 		WHERE  BT_UUID = #{uuid}
 	</update>
+	
+	<delete id="deleteComplex" parameterType="commonMap">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteComplex 단지정보전체삭제(모든데이터 삭제) !!! */
+		FROM   TB_BD_COMPLEX
+		WHERE  CPXNO = #{cpxno}
+	</delete>
+	
+	<delete id="deleteBaseSummryRawdata" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.deleteBaseSummryRawdata */
+		FROM   TB_BD_BASESUMMRY_RAWDATA
+		WHERE  UUID = #{uuid}
+	</delete>
 </mapper>

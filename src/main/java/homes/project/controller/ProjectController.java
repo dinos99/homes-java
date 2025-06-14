@@ -23,8 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectController {
 	public Logger Log = LogManager.getLogger(ProjectController.class) ;
 
-	private final ProjectService service ; 
-
+	private final ProjectService service ;
 	
 	@PostMapping("/api/v1/project/homesuserList")
 	public ResponseEntity<String> Registbroker(@RequestBody ProjectReqVo paramVo ) {
@@ -39,8 +38,5 @@ public class ProjectController {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(e.getCode())) ;
 		}
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(resVo)) ;
-	}
-	
-
-	
+	}	
 }

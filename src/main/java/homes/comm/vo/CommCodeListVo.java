@@ -10,12 +10,9 @@ import lombok.ToString;
 @Getter
 @ToString
 @NoArgsConstructor
-public class CommCodeListVo {
-	
-	private List<CommCodeVo> codeList = new ArrayList<>() ; 
-	
+public class CommCodeListVo {	
+	private List<CommCodeVo> codeList = new ArrayList<>() ; 	
 	public CommCodeListVo( List<CommCodeVo> codeList ) {
 		this.codeList = codeList ; 
 	}
-	
 }

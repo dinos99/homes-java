@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.system.mapper.SystemMapper">
+	<select id="selectDomainListCount" parameterType="homes.system.vo.SystemReqVo" resultType="long">
+		SELECT /* homes.system.mapper.SystemMapper.selectDomainListCount */
+		        COUNT(1) AS T_CNT
+		FROM   TB_CM_DOMAINS 
+	</select>
+	
+	<select id="selectDomainList" parameterType="homes.system.vo.SystemReqVo" resultType="commonMap">
+		SELECT /* homes.system.mapper.SystemMapper.selectDomainList */
+		        COL_NM             AS COLNM
+		        , COL_COMMENT      AS COLCOMMENT
+		        , COL_DATA_TY      AS COLDATA_TY
+		        , COL_DATA_SIZE    AS COLDATA_SIZE
+		        , COL_SIZE         AS COLSIZE
+		        , CREAT_DE         AS CREATDE
+		        , SOURCE_CD        AS SOURCECD
+		        , SOURCE_NM        AS SOURCENM
+		        , CREAT_ID         AS CREATID
+		FROM   TB_CM_DOMAINS 
+		LIMIT  #{stno}, #{edno}
+	</select>
+	
+	<select id="selectExistsDomain" parameterType="homes.system.vo.DomainVo" resultType="commonMap">
+		SELECT /* homes.system.mapper.SystemMapper.selectExistsDomain */
+		       #{colnm}             AS COLNM
+		       , #{colcomment}      AS COLCOMMENT
+		       , COL_DATA_TY        AS COLDATA_TY
+		       , COL_DATA_SIZE      AS COLDATA_SIZE
+		       , COL_SIZE           AS COLSIZE
+		       , CREAT_DE           AS CREATDE
+		       , SOURCE_CD          AS SOURCECD
+		       , SOURCE_NM          AS SOURCENM
+		       , CREAT_ID           AS CREATID
+		       , CASE WHEN COUNT(1) <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS EXISTS_YN 
+		FROM   TB_CM_DOMAINS 
+		WHERE  COL_NM = #{colnm} 
+	</select>
+	
+	<!-- 총괄표제부 리스트 검색 -->
+	<select id="selectTotalLedgrCount" parameterType="homes.system.vo.BuldRegstrReqVo" resultType="java.lang.Long">
+		SELECT /* homes.system.mapper.SystemMapper.selectTotalLedgrCount */
+		       COUNT(1) AS CNT 
+		FROM   TB_BD_TOTAL_TITLLEDGR
+	</select>
+	<select id="selectTotalLedgr" parameterType="homes.system.vo.BuldRegstrReqVo" resultType="commonMap">
+		SELECT /* homes.system.mapper.SystemMapper.selectTotalLedgr */
+		       BULD_REGSTR_PK                      AS REGSTRPK
+		       , REGSTR_GB_NM                      AS REGSTRGBNM
+		       , NW_OD_GB_CD                       AS NWODGBNM
+		       , PLOT_LOC                          AS PLOTLOC
+		       , BULD_NM                           AS BULDNM
+		       , MAIN_PPS_CD_NM                    AS MPPSNM
+		       , ETC_PPS                           AS ETCPPS
+		       , HSHLD_CO                          AS HSHLDCO
+		       , FMLY_CO                           AS FMLYCO
+		       , CREAT_DE                          AS CREATDE
+		       , DATE_FORMAT(CREAT_DT, '%Y.%m.%d') AS REGSTRDE
+		FROM   TB_BD_TOTAL_TITLLEDGR
+		LIMIT  #{stno}, #{edno}
+	</select>
+	
+	<update id="modifyDomain" parameterType="homes.system.vo.DomainVo" >
+		UPDATE /* homes.system.mapper.SystemMapper.modifyDomain */
+		TB_CM_DOMAINS SET
+			COL_COMMENT = #{colcomment}
+			, COL_SIZE = #{colsize}
+			, COL_DATA_TY = #{coldataTy}
+			, COL_DATA_SIZE = #{coldataSize}
+			, SOURCE_CD = #{sourcecd}
+			, SOURCE_NM = #{sourcenm}
+			, CREAT_ID = #{creatid}
+		WHERE COL_NM = #{colnm} 
+	</update>
+	<insert id="insertDomain" parameterType="homes.system.vo.DomainVo">
+		INSERT INTO TB_CM_DOMAINS (
+			/* homes.system.mapper.SystemMapper.modifyDomain */
+			COL_NM, COL_COMMENT, COL_DATA_TY, COL_DATA_SIZE, COL_SIZE
+			, CREAT_DE, SOURCE_CD, SOURCE_NM
+			, CREAT_ID, CREAT_DT, UPDT_ID, UPDT_DT
+		) VALUES (
+			#{colnm} 
+			, #{colcomment}
+			, #{coldataTy}
+			, #{coldataSize}
+			, #{colsize}
+			, DATE_FORMAT(NOW(), '%Y%m%d')
+			, #{sourcecd}
+			, #{sourcenm}
+			, #{creatid}
+			, NOW()
+			, #{creatid}
+			, NOW()
+		)
+	</insert>
+</mapper>

@@ -30,8 +30,8 @@ public class CommResponseVo {
 		}
 		
 		/* 페이지번호를 10개씩 보여준다(고정) ex) 1page ~ 10page */ 
-		this.pg_st = ( this.pgno / 10 ) + 1 ; 
-		this.pg_ed = this.pg_st + 9 ; 
+		this.pg_st = (((this.pgno - 1) / 10) * 10) + 1  ;   
+		this.pg_ed = this.pg_st + 9 ;  
 		
 		if ( this.pg_ed > this.l_pageno ) this.pg_ed = this.l_pageno ; 
 		

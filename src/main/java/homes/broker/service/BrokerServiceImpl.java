@@ -19,7 +19,7 @@ import homes.broker.vo.BrokerOfficeVo;
 import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.mapper.CommonMapper;
-import homes.comm.util.PropertyUtil;
+import homes.comm.util.HomesProperty;
 import homes.comm.vo.FileVo;
 import homes.exception.HomesException;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +38,7 @@ public class BrokerServiceImpl implements BrokerService {
 	@Override
 	@Transactional
 	public FileVo brokerUploadfile(String path, Long brokerno, String prefix, MultipartFile file) throws SQLException {   	
-		PropertyUtil.getProperty() ;
-		UPLOAD_BASE_PATH = PropertyUtil.getString("upload.base.path") ; 
+		UPLOAD_BASE_PATH = HomesProperty.getPropVal("upload.base.path") ; 
         try {
             if (file.isEmpty()) {
                 throw new HomesException(EnumError.FILE_NOT_FOUND.getSttusCd()) ;

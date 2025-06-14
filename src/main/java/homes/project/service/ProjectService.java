@@ -8,7 +8,5 @@ import homes.comm.vo.CommonMap;
 import homes.project.vo.ProjectReqVo;
 
 public interface ProjectService {
-
-	public CommResponseVo homesuserList(ProjectReqVo paramVo) throws SQLException ;
-	
+	CommResponseVo homesuserList(ProjectReqVo paramVo) throws SQLException ;
 }

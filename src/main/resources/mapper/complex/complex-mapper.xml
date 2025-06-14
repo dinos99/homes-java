@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.complex.mapper.ComplexMapper">
+
+	<select id="selectComplexList" parameterType="homes.complex.vo.ComplexVo" resultType="commonMap">
+		SELECT /* homes.broker.mapper.BrokerMapper.selectComplexList */
+		       CPXNO, ARCD, LEGCD, BUN, JI
+		       , BULD_NM                 AS BULDNM
+		       , MAIN_PPS_CD             AS PPSCD
+		       , PPS_NM                  AS PPSNM
+		       , SUM(HSHLD_CO)           AS HSHLDCO
+		       , COUNT(1)                AS DNGCNT
+		FROM   TB_BD_COMPLEX             A
+		LEFT   JOIN TB_CM_REGSTR_PPSCODE B ON ( A.MAIN_PPS_CD  = B.PPS_CD ) 
+		WHERE  ARCD = #{arcode}
+		AND    LEGCD = #{legcd}
+		AND    MAIN_PPS_CD = '02000' /* 공동주택만 검색함 */ 
+		GROUP  BY CPXNO, ARCD, LEGCD, BUN, JI, BULD_NM, MAIN_PPS_CD, PPS_NM 
+	</select>
+	    
+</mapper>

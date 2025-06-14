@@ -1,5 +1,6 @@
 package homes.comm.util;
 
+import java.text.DecimalFormat;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -7,6 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
+
+import homes.comm.vo.CommonMap;
 
 public class StringUtil extends JdbcUtils {
 	
@@ -89,5 +92,24 @@ public class StringUtil extends JdbcUtils {
 
 	public static int getIntValue(String istr ) {
 		return getIntValue(istr, 0) ;
+	}
+	
+	
+	public static String getCurrencyFormat( int iVal ) {
+		DecimalFormat df = new DecimalFormat("#,###") ;
+		String s = df.format(iVal) ;
+		return s ; 
+	}
+	public static String getCurrencyFormat( double dVal ) {
+		DecimalFormat df = new DecimalFormat("#,###.##") ;
+		String s = df.format(dVal) ;
+		return s ; 
+	}
+	
+	public static String getStringValue( String val, String def ) {
+		return Optional.ofNullable(val).orElse(def) ;  
+	}
+	public static String getStringValue( String val) {
+		return getStringValue(val, "") ; 
 	}
 }

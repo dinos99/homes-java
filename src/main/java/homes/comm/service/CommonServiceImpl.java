@@ -35,7 +35,7 @@ public class CommonServiceImpl implements CommonService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<CommonMap> selectSggList(CommReqVo paramVo) throws SQLException {
-		return mapper.selectSidoList(paramVo);
+		return mapper.selectSggList(paramVo);
 	}
 	
 	@Override

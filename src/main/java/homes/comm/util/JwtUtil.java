@@ -25,18 +25,10 @@ public class JwtUtil {
 	
     private final Key key;
     private final long accessTokenExpTime;
-
-	private static final String HOMES_PROP_FILE_NAME = "homes" ;  
-	private static final String JWT_PROP_FILE_NAME = "jwt.properties" ;
-	
 	
     public JwtUtil() {       	
-    	PropertyUtil.getProperty( HOMES_PROP_FILE_NAME) ;
-    	String path = PropertyUtil.getString("jwt.key.path") ; 
-    	
-    	PropertyUtil.getProperty(path, JWT_PROP_FILE_NAME) ;
-    	String secretKey = PropertyUtil.getStringVal("secret") ;        /* Secret Key */
-    	long   expTime   = PropertyUtil.getLongVal("expiration_time") ; /* 토큰 만료시간 */ 
+    	String secretKey = HomesProperty.getPropVal("jwt.key.secret") ; /* Secret Key */
+    	long   expTime   = HomesProperty.getLongVal("jwt.expiration_time") ; /* 토큰 만료시간 */ 
 
     	Log.info("*** secretKey: {}", secretKey);
     	Log.info("*** expTime  : {}", expTime);

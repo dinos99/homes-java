@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="INFO">
     <Properties>
-        <Property name="LOG_PATH">C:/logs</Property>
-        <Property name="DEFAULT_PATTERN">[%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p ${sys:PID} --- [%15.15t] %-40.40c{1.} : %m%n%xwEx</Property>
-        <Property name="COLOR_PATTERN">[%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint}] %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c}{cyan} %clr{:}{faint} %m%n%xwEx</Property>
+        <Property name="LOG_PATH">D:/logs/homes</Property>
+        <Property name="DEFAULT_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] %5p ${sys:PID} --- [%15.15t] %-40.40c{1.} : %m%n%xwEx</Property>
+        <Property name="COLOR_PATTERN">[%clr{%d{yyyy-MM-dd HH:mm:ss}}{faint}] %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c}{cyan} %clr{:}{faint} %m%n%xwEx</Property>
         <Property name="TEST_PATTERN">%d %5p [%c] %m%n</Property>
     </Properties>
-
-    <Appenders>
-        <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+	<Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="${COLOR_PATTERN}"/>
         </Console>
 
@@ -23,46 +22,23 @@
                 <TimeBasedTriggeringPolicy interval = "1" modulate = "true"/>
             </Policies>
         </RollingFile>
-
-        <RollingFile name ="RollingFileErrorAppender">
-            <FileName>${LOG_PATH}/homes-java-error.log</FileName>
-            <FilePattern>${LOG_PATH}/%d{yyyy}/%d{MM}/homes-java_error-%d{yyyy-MM-dd}-%i.log</FilePattern>
-            <PatternLayout>
-                <Pattern>${DEFAULT_PATTERN}</Pattern>
-            </PatternLayout>
-            <Policies>
-                <SizeBasedTriggeringPolicy size="100MB"/>
-                <TimeBasedTriggeringPolicy interval = "1" modulate = "true"/>
-            </Policies>
-        </RollingFile>
-    </Appenders>
-
+	</Appenders>
 
     <Loggers>
-        <!-- Root : 일반적인 로그 정책, 반드시 하나 정의해야함 -->
-        <Root level="INFO" additivity="false">
-            <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="RollingFileAppender"/>
-            <AppenderRef ref="RollingFileErrorAppender" level="ERROR" />
+        <!-- log4jdbc 로그 설정 -->
+        <Logger name="homes.log.sqlonly" level="ERROR" additivity="false">
+			<appender-ref ref="Console"/>
+        </Logger>
+        <Logger name="homes.log.sqltiming" level="ERROR" additivity="false">
+			<appender-ref ref="Console"/>
+        </Logger>
+        <Logger name="homes.log.resultset" level="ERROR" additivity="false">
+			<appender-ref ref="Console"/>
+        </Logger>
+
+        <!-- ROOT -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
         </Root>
-
-        <!-- springframework logger -->
-        <Logger name="org.springframework" level="INFO" additivity="false">
-            <AppenderRef ref="ConsoleAppender" />
-            <AppenderRef ref="RollingFileAppender"/>
-        </Logger>
-
-
-        <Logger name="jdbc.resultsettable" level="INFO" additivity="false">
-            <AppenderRef ref="ConsoleAppender"/>
-            <AppenderRef ref="RollingFileAppender"/>
-        </Logger>
-
-        <Logger name="jdbc" level="OFF" additivity="false" />
-        <Logger name="jdbc.sqlonly" level="OFF" additivity="false" />
-        <Logger name="jdbc.sqltiming" level="OFF" additivity="false" />
-        <Logger name="jdbc.audit" level="OFF" additivity="false" />        
-        <Logger name="jdbc.resultset" level="OFF" additivity="false"/>
-        <Logger name="jdbc.connection" level="OFF" additivity="false" />
     </Loggers>
 </Configuration>

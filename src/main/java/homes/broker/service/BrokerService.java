@@ -9,9 +9,7 @@ import homes.broker.vo.BrokerVo;
 import homes.comm.vo.FileVo;
 
 public interface BrokerService {
-
 	public FileVo brokerUploadfile (String path, Long brokerno, String prefix, MultipartFile file) throws SQLException ;
 	public long registbrokerOffice( BrokerOfficeVo paramVo) throws SQLException ; 
-	public long registbroker( BrokerVo paramVo) throws SQLException ; 
-	
+	public long registbroker( BrokerVo paramVo) throws SQLException ;
 }

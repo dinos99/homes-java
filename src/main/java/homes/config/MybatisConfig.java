@@ -5,11 +5,15 @@ import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
-@Configuration
+import com.zaxxer.hikari.HikariDataSource;
+
+@Configuration(proxyBeanMethods = true)
 public class MybatisConfig {
 	 /**
      * SqlSessionFactory 빈 생성
@@ -38,5 +42,10 @@ public class MybatisConfig {
     @Bean
     SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
         return new SqlSessionTemplate(sqlSessionFactory); // SqlSessionTemplate 반환
+    }
+    
+    @Bean
+    HikariDataSource dataSource(DataSourceProperties properties) {
+        return properties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 }
