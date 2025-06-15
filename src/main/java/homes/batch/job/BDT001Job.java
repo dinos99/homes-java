@@ -3,11 +3,8 @@ package homes.batch.job;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,25 +20,28 @@ import homes.batch.vo.BatchVo;
 import homes.comm.constants.EnumBatchJob;
 import homes.comm.constants.EnumError;
 import homes.comm.util.HomesProperty;
+import homes.comm.util.StringUtil;
 import homes.comm.vo.CommonMap;
 import homes.exception.HomesException;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class BDT000Job implements Job {
+public class BDT001Job implements Job {
 	
-	public Logger Log = LogManager.getLogger(BDT000Job.class) ;
+	public Logger Log = LogManager.getLogger(BDT001Job.class) ;
 
 	private final BatchMapper mapper ; 
 	
 	public final String BDT000 = EnumBatchJob.SPLIT_BASE_SUMMRY_RAWDATA.getCode() ; 
+	public final String BDT001 = EnumBatchJob.INSERT_BASE_SUMMRY_RAWDATA.getCode() ; 
 	
 	public final String BTJOB_BASE_PATH   = HomesProperty.getPropVal("batch.job.base.path")  ; 
 	public final String BTJOB_WAIT_PATH   = HomesProperty.getPropVal("batch.job.wait.path")  + File.separator + BDT000  ;
 	public final String BTJOB_READY_PATH  = HomesProperty.getPropVal("batch.job.ready.path") + File.separator + BDT000  ; 
 	
 	public final String BTJOB_READY_SPLIT_PATH = HomesProperty.getPropVal("batch.job.ready.path") + File.separator + BDT000 + File.separator + "split" ; 
+	public final String BTJOB_READY_BDT001_PATH = HomesProperty.getPropVal("batch.job.ready.path") + File.separator + BDT001 ; 
 	
 	public final String FILE_PRIFIX = "ready-" ; 
 	public final String FILE_EXTENTION = ".txt" ; 
@@ -54,56 +54,27 @@ public class BDT000Job implements Job {
 	public final String ORIGIN_FILE_PREFIX = "ORIGIN-" ; 
 	public final String SP_FILE_EXTENTION  = ".txt" ; 
 	
-	public final int SPLIT_LINE = 100000;
+	public final int SPLIT_LINE = 1000;
 	
 	public String bt_uuid = "" ; 
+
+	public String getUUID( String f_nm ) {
+		this.bt_uuid = f_nm.substring(10, 46) ;
+		return this.bt_uuid ; 
+	}
 	
 	public void create_jobdir() {
 		File wait_dir  = new File( BTJOB_WAIT_PATH ) ; 
 		File ready_dir = new File( BTJOB_READY_PATH ) ; 
 		File split_dir = new File( BTJOB_READY_SPLIT_PATH ) ; 
+		File bdt001_dir = new File( BTJOB_READY_BDT001_PATH ) ; 
 		
 		if ( !wait_dir.isDirectory()) wait_dir.mkdirs() ; 
 		if ( !ready_dir.isDirectory()) ready_dir.mkdirs() ; 
 		if ( !split_dir.isDirectory()) split_dir.mkdirs() ; 
+		if ( !bdt001_dir.isDirectory()) bdt001_dir.mkdirs() ; 
 	}
 	
-	public String check_jobFile() {
-		String message = "" ; 
-		File wait_dir = new File( BTJOB_WAIT_PATH ) ;
-		if ( wait_dir.isDirectory() && wait_dir.list().length > 0 ) {
-			if ( wait_dir.list().length > 1 ) {
-				message = "작업대상 파일이 여러건 존재합니다." ; 
-			} else {
-				message = "EXISTS_JOB_FILE" ; 
-			}
-		} else {
-			message = "작업대상 파일이 없습니다." ; 
-		}
-		return message ; 
-	}
-	
-	public File get_jobfile() {
-		Log.info("*** job file path: {}", BTJOB_READY_PATH + File.separator + FILE_PRIFIX + this.bt_uuid + FILE_EXTENTION) ;
-		return new File( BTJOB_READY_PATH + File.separator + FILE_PRIFIX + this.bt_uuid + FILE_EXTENTION ) ;
-	}
-	
-	public void move_ready() {
-		/* ready folder 이동 */ 
-		File wait_dir = new File( BTJOB_WAIT_PATH ) ;
-		File f_ready = new File( BTJOB_READY_PATH + File.separator + FILE_PRIFIX + this.bt_uuid + FILE_EXTENTION ) ;
-//		Log.info("*** is directory for wait_dir ? => {}", wait_dir.isDirectory());
-//		Log.info("*** is exist file for wait_dir only one => {}", wait_dir.list().length);
-
-		if ( wait_dir.isDirectory() && wait_dir.list().length == 1 ) {
-			String f_wait_nm = wait_dir.list()[0] ; 
-//			Log.info("*** is exist file for wait_dir only one => file name is {}", f_wait_nm);
-			File f_wait = new File(wait_dir.getAbsolutePath() + File.separator + f_wait_nm ) ;
-			f_wait.renameTo(f_ready) ;
-		}
-	}
-	
-
 	public String[] getHeader() {
 		String[] headers = {
 			"mngrRegstrPk", "upperRegstrPk", "regstrGbCd", "regstrGbNm", "regstrKdCd", "regstrKdNm", "plotLoc", "rdnmPlotLoc", "buldNm"
@@ -138,65 +109,12 @@ public class BDT000Job implements Job {
 		return pMap ;
 	}
 	
-	public int doSplit() {
-		int sp_no = 1 ; 
-		File src_file = get_jobfile() ;
-
-		FileReader fr = null ;
-		BufferedReader br = null ;
-		FileWriter fw = null ;
-		PrintWriter wr = null ;
-				
-		try {
-			fr = new FileReader(src_file) ;
-			br = new BufferedReader(fr) ;
-
-			String line = "" ;
-			String sp_filenm = SP_FILE_PREFIX + BDT000 + "-" + this.bt_uuid + "-" + String.format("%07d",  sp_no) + SP_FILE_EXTENTION ;
-			File sp_file     = new File(BTJOB_READY_SPLIT_PATH + File.separator + sp_filenm) ;
-
-			if ( fw == null ) fw = new FileWriter(sp_file);
-			if ( wr == null ) wr = new PrintWriter(fw);
-			
-			int lineno = 1 ; 
-			while((line = br.readLine()) != null ) {
-				wr.println(line) ; 
-				lineno ++ ; 
-				if ( lineno > SPLIT_LINE ) {
-					if ( wr != null ) wr.close();  
-					if ( fw != null ) fw.close();  
-
-					sp_no ++ ; 
-					sp_filenm = SP_FILE_PREFIX + BDT000 + "-" + this.bt_uuid + "-" + String.format("%07d",  sp_no) + SP_FILE_EXTENTION ;
-					sp_file     = new File(BTJOB_READY_SPLIT_PATH + File.separator + sp_filenm) ;
-
-					fw = new FileWriter(sp_file);
-					wr = new PrintWriter(fw);
-					lineno = 1 ;
-				}
-			}
-			
-			if ( wr != null ) wr.close();  
-			if ( fw != null ) fw.close();  
-			
-			if ( br != null ) br.close() ;
-			if ( fr != null ) fr.close()  ;
-			
-		} catch ( IOException e ) {
-        	Log.error("*** Batchfile Split Error: {}:", e) ; 
-        	throw new HomesException(EnumError.INTERNAL_SERVER_ERROR.getSttusCd()) ;
-        } 
-		
-		return sp_no ; 
-	}
-	
 	@Transactional(rollbackFor = Exception.class)
-	public int insertRawData() {
+	public int insertRawData(File jbfile) {
 		int ins_co = 0 ; 
 		FileReader fr = null ;
 		BufferedReader br = null ;
 		
-		File jbfile = get_jobfile() ; 
 		Long no = 1l ; 
 		try {
 			fr = new FileReader(jbfile ) ;
@@ -204,15 +122,16 @@ public class BDT000Job implements Job {
 			String line = "" ;
 			while((line = br.readLine()) != null ) {
 				CommonMap pMap = parseLine(line, no) ;
-				mapper.insertBaseSummryRawData(pMap) ;	
-				if ((no % SPLIT_LINE) == 1) {
-					Log.info("inserted {} Lines", no) ;
+				ins_co += mapper.insertBaseSummryRawData(pMap) ;	
+				if ((no % SPLIT_LINE) == 0) {
+					Log.info("inserted {} Lines", StringUtil.getCurrencyFormat(no)) ;
 				}
 				no ++ ; 
 			}
 			
 			if ( br != null ) br.close() ;
 			if ( fr != null ) fr.close()  ;
+        	Log.error("*** job finished: {}/{}:", ins_co, System.currentTimeMillis()) ; 
 		} catch ( IOException e ) {
         	Log.error("*** Batchfile Split Error: {}:", e) ; 
         	throw new HomesException(EnumError.INTERNAL_SERVER_ERROR.getSttusCd()) ;
@@ -230,9 +149,6 @@ public class BDT000Job implements Job {
 	 * *********************************/
 	@Transactional(rollbackFor = Exception.class) 
 	public void ready() {
-		this.bt_uuid = UUID.randomUUID().toString() ;
-		/* wait => ready로 이동 */ 
-		move_ready() ; 
 		CommonMap btmap = new CommonMap() ;
 		btmap.put("uuid"   , this.bt_uuid) ;
 		btmap.put("batchty", BDT000) ;
@@ -257,20 +173,32 @@ public class BDT000Job implements Job {
 		mapper.updateBatchjob(btmap) ;
 	}
 	public BatchVo doExecute(String batchYn) {
-		/* 기본폴더 생성 */ 
 		create_jobdir() ;
-		String message = "[건축물관리대장]기본개요 파일을 분할" ;
-		message = check_jobFile() ;
-		
-		if ("EXISTS_JOB_FILE".equals(message)) {
-			ready() ; 
-			int sp_co = doSplit() ;
-			message = "[건축물관리대장]기본개요 파일을 분할하였습니다.(" + sp_co + ")" ;
-			done(BTS_DONE, sp_co, message) ; 
+		String message = "" ;
+		int ins_co = 0 ;
+
+		File split_dir = new File( BTJOB_READY_SPLIT_PATH ) ; 
+		if ( split_dir.isDirectory() && split_dir.list().length > 0) {
+			String[] f_nm = split_dir.list() ; 
+			for ( int i = 0; i < f_nm.length; i ++ ) {
+				/* 일단 하나만 이동 */ 
+				File source = new File( BTJOB_READY_SPLIT_PATH  + File.separator + f_nm[i]) ; 
+				File dest   = new File( BTJOB_READY_BDT001_PATH + File.separator + f_nm[i]) ;
+				source.renameTo(dest) ;
+				
+				this.bt_uuid = getUUID(f_nm[i]) ;
+				ready() ;
+				ins_co = insertRawData(dest) ;
+				message = "기본개요 등록완료(" + StringUtil.getCurrencyFormat(ins_co) + ")" ; 
+				done(BTS_DONE, ins_co, message) ;
+				Log.info("**** job file {}/{}", i + 1, split_dir.list().length) ;
+			}
+		} else {
+			message = "작업대상파일이 없습니다." ;
 		}
 		
-		BatchVo btVo = new BatchVo(BDT000, batchYn) ;
-		btVo.setExco(0);
+		BatchVo btVo = new BatchVo(BDT001, batchYn) ;
+		btVo.setExco(ins_co);
 		btVo.setBatchYn(batchYn) ; 
 		btVo.setMessage(message);
 		

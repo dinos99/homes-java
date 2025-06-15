@@ -31,6 +31,10 @@ public class SecurityConfig  {
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Arrays.asList(
+            		"http://34.64.63.95:8080",
+            		"http://34.64.63.95:8081",
+            		"http://34.64.63.95:8082",
+            		
             		"http://127.0.0.1:8080",
             		"http://127.0.0.1:8081",
             		"http://127.0.0.1:8082"

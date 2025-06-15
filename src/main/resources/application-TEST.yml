@@ -15,4 +15,4 @@ spring:
       maximum-pool-size: 20
 
 logging:
-  config: classpath:log4j2-LOCAL.xml
+  config: classpath:log4j2-TEST.xml

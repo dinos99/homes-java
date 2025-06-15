@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import homes.batch.job.BDT000Job;
+import homes.batch.job.BDT001Job;
 import homes.batch.job.BJT000Job;
 import homes.batch.job.BJT001Job;
 import homes.batch.job.BJT002Job;
@@ -30,9 +31,12 @@ import lombok.RequiredArgsConstructor;
 public class BatchServiceImpl implements BatchService {
 	public final Logger Log = LogManager.getLogger(BatchServiceImpl.class) ;
 	
+
+	private final String BDT000 = EnumBatchJob.SPLIT_BASE_SUMMRY_RAWDATA.getCode() ; 
+	private final String BDT001 = EnumBatchJob.INSERT_BASE_SUMMRY_RAWDATA.getCode() ; 
+
 	private final BDT000Job job_bdt_000 ; 
-	
-	private final String BDT000 = EnumBatchJob.BASE_SUMMRY_RAWDATA.getCode() ; 
+	private final BDT001Job job_bdt_001 ; 
 	
 	private final BJT000Job job_000 ;
 	private final BJT001Job job_001 ;
@@ -43,6 +47,7 @@ public class BatchServiceImpl implements BatchService {
 	private final BLD002Job job_buld_002 ;
 	private final BLD003Job job_buld_003 ;
 	private final BLD009Job job_buld_009 ;
+	
 	private final BatchMapper mapper ;
 
 	private final String BJT000 = EnumBatchJob.BJT000.getCode() ;
@@ -62,9 +67,10 @@ public class BatchServiceImpl implements BatchService {
 		String  batchYn = paramVo.getBatchYn() ;  
 		BatchVo btVo    = new BatchVo(jobid, batchYn) ; 
 		
-		if ( BDT000.equals(jobid)) {
-			/* 기본개요 rawdata 등록 */ 
+		if ( BDT000.equals(jobid)) { 
 			btVo = job_bdt_000.doExecute("N");
+		} else if ( BDT001.equals(jobid)) { 
+			btVo = job_bdt_001.doExecute("N");
 		} else if ( BJT000.equals(jobid)) {
 			int exco = job_000.doExecute() ;
 			btVo.setExco(exco);

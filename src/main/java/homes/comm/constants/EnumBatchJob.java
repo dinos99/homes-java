@@ -17,7 +17,8 @@ public enum EnumBatchJob {
 	BTS002("BTS002", "작업완료"),
 	BTS999("BTS999", "작업에러"),
 	
-	BASE_SUMMRY_RAWDATA("BDT000", "기본개요-RAWDATA등록"),
+	SPLIT_BASE_SUMMRY_RAWDATA("BDT000", "기본개요-RAWDATA분할"),
+	INSERT_BASE_SUMMRY_RAWDATA("BDT001", "기본개요-RAWDATA등록"),
 	;
 
     private final String jobcd ;
