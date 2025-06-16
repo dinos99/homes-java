@@ -1,5 +1,6 @@
 package homes.batch.mapper;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -48,7 +49,12 @@ public interface BatchMapper {
 	public List<CommonMap> selectSidocodeList( String sdcode ) ;  
 	public List<CommonMap> selectSggcodeList( String sdcode ) ;  
 
-	/* 기본개요 원시데이터 등록/삭제 */
+	/* 기본개요 등록/삭제 */
+	public int insertHbdBaseSummry( CommonMap pMap ) ; 
+	public int insertHbdBuld( CommonMap pMap ) ; 
+	public int insertHbdAgBuld( CommonMap pMap ) ; 
+	public int insertHbdPssionBuld( CommonMap pMap ) throws SQLException ; 
+	
 	public int deleteBaseSummryRawdata( String uuid ) ; 
 	public int insertBaseSummryRawData( CommonMap pMap ) ; 
 }

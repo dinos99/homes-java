@@ -498,4 +498,58 @@
 		FROM   TB_BD_BASESUMMRY_RAWDATA
 		WHERE  UUID = #{uuid}
 	</delete>
+	
+	<insert id="insertHbdBaseSummry" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertHbdBaseSummry */
+		INTO   TB_HBD_BASE_SUMMRY (
+			MNGR_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_GB_CD, REGSTR_KD_CD
+			, ARCD, LEGCD, BUN, JI
+			, REGSTR_CR_DE
+			, CR_DE
+		) VALUES (
+			#{mngrRegstrPk}
+			, #{upperRegstrPk}
+			, #{regstrGbCd}
+			, #{regstrKdCd}
+			, #{arcd}
+			, #{legcd}
+			, #{bun}
+			, #{ji}
+			, #{regstrCrde}
+			, DATE_FORMAT(NOW(), '%Y%m%d')
+		)
+	</insert>
+	
+	<insert id="insertHbdBuld" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertHbdBuld */
+		INTO   TB_HBD_BULD (
+			BULD_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_KD_CD
+		) VALUES (
+			#{mngrRegstrPk}
+			, #{upperRegstrPk}
+			, #{regstrKdCd}
+		)
+	</insert>
+	
+	<insert id="insertHbdAgBuld" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertHbdAgBuld */
+		INTO   TB_HBD_AG_BULD (
+			BULD_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_KD_CD
+		) VALUES (
+			#{mngrRegstrPk}
+			, #{upperRegstrPk}
+			, #{regstrKdCd}
+		)
+	</insert>
+	
+	<insert id="insertHbdPssionBuld" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.BatchMapper.insertHbdPssionBuld */
+		INTO   TB_HBD_PSSION_BULD (
+			BULD_REGSTR_PK, UPPER_REGSTR_PK
+		) VALUES (
+			#{mngrRegstrPk}
+			, #{upperRegstrPk}
+		)
+	</insert>
+	
 </mapper>

@@ -82,6 +82,15 @@ public class StringUtil extends JdbcUtils {
 		
 	}
 	
+	public static int getIntValue( CommonMap cmap, String key, int defVal) {
+		String s = Optional.ofNullable((String)cmap.get(key)).orElse(String.valueOf(defVal)) ; 
+		return Integer.parseInt(s) ; 
+	}
+
+	public static int getIntValue( CommonMap cmap, String key) {
+		return getIntValue(cmap, key, 0) ; 
+	}
+	
 	public static float getFloatValue(String fstr) {
 		return getFloatValue(fstr, 0.00f) ; 
 	}
@@ -111,5 +120,13 @@ public class StringUtil extends JdbcUtils {
 	}
 	public static String getStringValue( String val) {
 		return getStringValue(val, "") ; 
+	}
+	
+	public String getStringValue( CommonMap cmap, String key, String defVal) {
+		String s = Optional.ofNullable((String)cmap.get(key)).orElse(defVal) ; 
+		return s ; 
+	}
+	public String getStringValue( CommonMap cmap, String key ) {
+		return getStringValue(cmap, key, "") ; 
 	}
 }

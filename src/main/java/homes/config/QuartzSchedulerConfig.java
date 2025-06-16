@@ -29,6 +29,7 @@ public class QuartzSchedulerConfig {
 		return JobBuilder.newJob(BLD003Job.class).withIdentity("BLD003Job").storeDurably().build();
 	}
 
+	/*
 	@Bean
 	Trigger BJT001JobTrigger( JobDetail BJT001JobDetail ) {
 		return TriggerBuilder.newTrigger()
@@ -41,7 +42,7 @@ public class QuartzSchedulerConfig {
 	Trigger BLD002JobTrigger( JobDetail BLD002JobDetail ) {
 		return TriggerBuilder.newTrigger()
 				.forJob(BLD002JobDetail).withIdentity("BLD002JobTrigger")
-				.withSchedule(CronScheduleBuilder.cronSchedule("0 */4 1-3 11-13 * ?")) 
+				.withSchedule(CronScheduleBuilder.cronSchedule("0 * /4 1-3 11-13 * ?")) 
 				.build();
 	}
 	
@@ -49,8 +50,8 @@ public class QuartzSchedulerConfig {
 	Trigger BLD003JobTrigger( JobDetail BLD003JobDetail ) {
 		return TriggerBuilder.newTrigger()
 				.forJob(BLD003JobDetail).withIdentity("BLD003JobTrigger")
-				.withSchedule(CronScheduleBuilder.cronSchedule("0 */4 20-9 15-20 * ?")) 
+				.withSchedule(CronScheduleBuilder.cronSchedule("0 * / 4 20-9 15-20 * ?")) 
 				.build();
 	}
-
+	*/
 }
