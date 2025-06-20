@@ -7,8 +7,8 @@ import homes.batch.vo.BatchVo;
 import homes.comm.vo.CommResponseVo;
 
 public interface BatchService {
-	public BatchVo doExecute(BatchVo paramVo ) ; 
+	public BatchVo doExecute( BatchVo paramVo, String token ) ; 
 	
-	public CommResponseVo selectBatchJobList( BatchReqVo paramVo) throws SQLException ; 
+	public CommResponseVo selectBatchJobList( BatchReqVo paramVo ) throws SQLException ; 
 	
 }

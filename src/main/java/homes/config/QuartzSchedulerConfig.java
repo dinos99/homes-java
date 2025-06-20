@@ -1,19 +1,10 @@
 package homes.config;
 
-import org.quartz.CronScheduleBuilder;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import homes.batch.job.BJT001Job;
-import homes.batch.job.BLD002Job;
-import homes.batch.job.BLD003Job;
 
 @Configuration
 public class QuartzSchedulerConfig {
+	/*
 	@Bean
 	JobDetail BJT001JobDetail() {
 		return JobBuilder.newJob(BJT001Job.class).withIdentity("BJT001Job").storeDurably().build();
@@ -29,7 +20,6 @@ public class QuartzSchedulerConfig {
 		return JobBuilder.newJob(BLD003Job.class).withIdentity("BLD003Job").storeDurably().build();
 	}
 
-	/*
 	@Bean
 	Trigger BJT001JobTrigger( JobDetail BJT001JobDetail ) {
 		return TriggerBuilder.newTrigger()

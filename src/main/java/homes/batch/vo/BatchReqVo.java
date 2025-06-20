@@ -33,7 +33,7 @@ public class BatchReqVo {
 		this.setStno(stno) ;
 		this.setEdno(edno) ;
 		
-		Log.info("*** [ pgno: {}, from stno[{}] to edno[{}] ", pgno, stno, edno) ;
+//		Log.info("*** [ pgno: {}, from stno[{}] to edno[{}] ", pgno, stno, edno) ;
 	}
 	
 	private String   btstDe ;

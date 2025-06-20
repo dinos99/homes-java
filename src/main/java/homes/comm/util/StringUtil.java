@@ -1,6 +1,8 @@
 package homes.comm.util;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -62,10 +64,10 @@ public class StringUtil extends JdbcUtils {
 		return result.toString() ;   
 	}
 
-	public static float getFloatValue(String fstr, float defVal ) {
+	public static float getFloatValue(String fstr, float defVal ) throws NumberFormatException {
 		String floatStr = Optional.ofNullable(fstr).orElse("") ; 
 		floatStr = "".equals(floatStr) ? String.valueOf(defVal) : floatStr ;
-		return Float.parseFloat(floatStr) ; 
+		return Float.parseFloat(floatStr) ;
 	}
 	
 	public static long getLongValue(String lstr, long defVal ) {
@@ -90,19 +92,35 @@ public class StringUtil extends JdbcUtils {
 	public static int getIntValue( CommonMap cmap, String key) {
 		return getIntValue(cmap, key, 0) ; 
 	}
+
+	public static int getIntValue(String istr ) {
+		return getIntValue(istr, 0) ;
+	}
+
+	public static Long getLongValue(CommonMap cmap, String key, Long defVal ) {
+		String s = Optional.ofNullable((String)cmap.get(key)).orElse(String.valueOf(defVal)) ; 
+		return Long.parseLong(s) ; 		
+	}
+
+	public static Long getLongValue( CommonMap cmap, String key) {
+		return getLongValue(cmap, key, 0l) ; 
+	}
 	
-	public static float getFloatValue(String fstr) {
+	public static Long getLongValue(Map<String, Object> cmap, String key, Long defVal ) {
+		String s = Optional.ofNullable(String.valueOf(cmap.get(key))).orElse(String.valueOf(defVal)) ; 
+		return Long.parseLong(s) ; 		
+	}
+
+	public static Long getLongValue( Map<String, Object> cmap, String key) {
+		return getLongValue(cmap, key, 0l) ; 
+	}	
+	public static float getFloatValue(String fstr) throws NumberFormatException {
 		return getFloatValue(fstr, 0.00f) ; 
 	}
 
 	public static long getLongValue(String lstr) {
 		return getLongValue(lstr, 0l) ; 
 	}
-
-	public static int getIntValue(String istr ) {
-		return getIntValue(istr, 0) ;
-	}
-	
 	
 	public static String getCurrencyFormat( int iVal ) {
 		DecimalFormat df = new DecimalFormat("#,###") ;
@@ -118,10 +136,22 @@ public class StringUtil extends JdbcUtils {
 	public static String getStringValue( String val, String def ) {
 		return Optional.ofNullable(val).orElse(def) ;  
 	}
+	
 	public static String getStringValue( String val) {
 		return getStringValue(val, "") ; 
 	}
 	
+	public static String getStringValue(Map<String, Object> pMap, String key, String defVal) {
+		if ( pMap == null ) {
+			pMap = new HashMap<String, Object>() ;
+			pMap.put(key, defVal) ;
+		}
+		return Optional.ofNullable(String.valueOf(pMap.get(key))).orElse(defVal) ;
+	}
+
+	public static String getStringValue(Map<String, Object> pMap, String key) {
+		return getStringValue(pMap, key, "") ; 
+	}
 	public String getStringValue( CommonMap cmap, String key, String defVal) {
 		String s = Optional.ofNullable((String)cmap.get(key)).orElse(defVal) ; 
 		return s ; 

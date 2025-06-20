@@ -30,8 +30,6 @@ public class JwtUtil {
     	String secretKey = HomesProperty.getPropVal("jwt.key.secret") ; /* Secret Key */
     	long   expTime   = HomesProperty.getLongVal("jwt.expiration_time") ; /* 토큰 만료시간 */ 
 
-    	Log.info("*** secretKey: {}", secretKey);
-    	Log.info("*** expTime  : {}", expTime);
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = expTime ; 

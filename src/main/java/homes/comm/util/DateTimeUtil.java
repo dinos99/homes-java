@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 public class DateTimeUtil {
 	
@@ -30,7 +30,7 @@ public class DateTimeUtil {
 	    try {
 	        Date date = new Date();
 	        date.setTime(timestamp.getTime());
-	        return new SimpleDateFormat(format).format(date);
+	        return new SimpleDateFormat(format, Locale.KOREA).format(date);
 	    } catch (RuntimeException e) {
 	        return "";
 	    }
@@ -42,7 +42,7 @@ public class DateTimeUtil {
 	    try {
 	        Date date = new Date();
 	        date.setTime(unixtimestamp);
-	        return new SimpleDateFormat(format).format(date);
+	        return new SimpleDateFormat(format, Locale.KOREA).format(date);
 	    } catch (RuntimeException e) {
 	        return "";
 	    }
@@ -53,7 +53,7 @@ public class DateTimeUtil {
 	    if (localDateTime == null) return "";
 
 	    try {
-	        return localDateTime.format(DateTimeFormatter.ofPattern(format));
+	        return localDateTime.format(DateTimeFormatter.ofPattern(format, Locale.KOREA));
 	    } catch (RuntimeException e) {
 	        return "";
 	    }
@@ -64,7 +64,7 @@ public class DateTimeUtil {
 	    if (localTime == null) return "";
 
 	    try {
-	        return localTime.format(DateTimeFormatter.ofPattern(format));
+	        return localTime.format(DateTimeFormatter.ofPattern(format, Locale.KOREA));
 	    } catch (RuntimeException e) {
 	        return "";
 	    }
@@ -75,7 +75,7 @@ public class DateTimeUtil {
 	    if (dateTime == null) return null;
 
 	    try {
-	        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(format));
+	        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(format, Locale.KOREA));
 	    } catch (RuntimeException e) {
 	        return null;
 	    }

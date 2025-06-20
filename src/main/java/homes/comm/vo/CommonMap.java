@@ -2,6 +2,7 @@ package homes.comm.vo;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Optional;
 
 import homes.comm.util.StringUtil;
 
@@ -21,5 +22,13 @@ public class CommonMap extends HashMap<Object, Object> {
 			return bd.longValue() ; 
 		}
 		return 0l ; 
+	}
+	
+	public String getStringValue(String key, String defVal) {
+		return Optional.ofNullable(String.valueOf(super.get(key))).orElse(defVal) ;
+	}
+	
+	public String getStringValue(String key) {
+		return getStringValue(key, "") ;
 	}
 }

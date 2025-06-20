@@ -1,26 +1,48 @@
 package homes.comm.util;
 
+import java.util.Optional;
+
 public class TestUtil {
-	
+
+	public static String[] getHeader() {
+		String[] headers = {
+			"buldRegstrPk"       , "regstrGbCd"   , "regstrGbNm"    , "regstrKdCd"   , "regstrKdNm"     , "plotLoc"       , "rdnmPloLoc"   , "buldNm"         , "arcd"           , "legCd", 
+			"plotGbCd"           , "bun"         , "ji"           , "spLndNm"      , "block"          , "lot"           , "outLotCo"     , "nwAddrOadCd"    , "nwAddrEgCd"     , "nwAddrNdCd", 
+			"nwAddrStB"          , "nwAddrUbB"   , "blockNm"      , "mainSubGbCd"  , "mainSubGbNm"    , "plotAr"        , "buldAr"       , "buldLndRt"      , "totalAr"        , "bulkCalcTotAr", 
+			"bulkRt"             , "strctCd"     , "strctCdNm"    , "etcStrct"     , "mainPpsCd"      , "mainPpsCdNm"   , "etcPps"       , "rfCd"           , "rfCdNm"         , "etcRf",
+			"hshldCo"            , "fmlyCo"      , "height"       , "grndFloorCo"  , "undrGrndFloorCo", "rdngElvtrCo"   , "emgncElvtrCo" , "subBuldCo"      , "subBuldAr"      , "totBlockAr", 
+			"inMechaCo"          , "inMechaAr"   , "outMechaCo"   , "outMechaAr"   , "inIndpntCo"     , "inIndpntAr"    , "outIndpntCo"  , "outIndpntAr"    , "prmissDe"       , "stwkDe", 
+			"occupancyApprovalDe", "prmissNoYyyy", "prmissNoOrgCd", "prmissNoOrgNm", "prmissNoGbCd"   , "prmissNoGbNm"  , "unitCo"       , "energyEfcnyGrad", "energyRedcnRt"  , "energyEpiScr", 
+			"ecoBuldGrad"        , "ecoBuldScr"  , "brinBuldGrad" , "brinBuldScr"  , "creatDe"        , "erdsgnApplcYn" , "rserthqkAblty", "fstUploadDt"    , "fstUploadUserNo", "lstChngDt", 
+			"lstChngUserNo"      , "batchYn"     , "createUserNo" , "creatDt"      , "updtUserNo"     , "updtDt"
+		} ; 
+		return headers ; 
+	}
 	
 	public static void main( String[] args ) {
 /*
 		String txt = "arCodeList1";
 		boolean result1 = txt.matches("[A-Z0-9]+"); // 숫자로 이루어져 있는지
-		System.out.println(System.currentTimeMillis()) ; 
 		System.out.println(result1);
-    	List<String> upcdList = new ArrayList<String>() ;
-    	upcdList.add("EST000") ; 
-    	System.out.println(upcdList.contains("EST000")) ; 
-		Long t_cnt = 110l ;
-		int  r_cnt = 3 ; 
-		System.out.println(Math.ceilDiv(t_cnt, r_cnt)) ;		
-		System.out.println("*** execute batchjob, jobid[BTJ001] started at " + DateTimeUtil.convertTimeStampToString(System.currentTimeMillis(), "yyyy.MM.dd HH:mm:ss.SSS")) ;
- */  
-		String[] headers = "1000000000000000052605||1|일반|1|총괄표제부| |||||||||||2||||||UQB200|||생산관리지역|||20220818".split("[|]") ;
-		for ( int i = 0; i < headers.length; i ++ ) {
-			System.out.println("headers[" + i + "]:" + headers[i]) ;
-		}
+		
+		Long timestamp = System.currentTimeMillis() ;
+        Date date = new Date();
+        date.setTime(timestamp);
+        String format = "yyyy년 MM월 dd일 HH시 mm분 ss초" ;
+        System.out.println(new SimpleDateFormat(format, Locale.KOREA).format(date)) ;
+        System.out.println(new SimpleDateFormat(format, Locale.KOREAN).format(date)) ;
+		  
+ */
+		float fVal = StringUtil.getFloatValue("4900315") ;
+		System.out.println("*** fVal: " + fVal) ;	
+
+		String floatStr = Optional.ofNullable("4900315").orElse("") ; 
+		floatStr = "".equals(floatStr) ? String.valueOf(0.00f) : floatStr ;
+		System.out.println(Float.parseFloat(floatStr)) ;
+		
+		String sdcode = "34000" ; 
+		System.out.println(sdcode.substring(0, 2)) ;
+
 	}
 	
 }

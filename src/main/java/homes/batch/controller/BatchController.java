@@ -1,6 +1,7 @@
 package homes.batch.controller;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,7 @@ import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
 import homes.comm.vo.CommResponseVo;
 import homes.exception.HomesException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController 
@@ -27,15 +29,19 @@ public class BatchController {
 	public final BatchService service ;  
 
 	@PostMapping("/api/v1/batch/execute")
-	public ResponseEntity<String> doExecuteBatch(@RequestBody BatchVo paramVo ) {
-		Log.error("jobid: {}, batchYn: {}", paramVo.getJobid(), paramVo.getBatchYn()) ;
-		BatchVo batVo = service.doExecute(paramVo) ; 
+	public ResponseEntity<String> doExecuteBatch(HttpServletRequest request, @RequestBody BatchVo paramVo ) {
+		String token = Optional.of(String.valueOf(request.getAttribute("accessToken"))).orElse("") ;  
+		Log.info("jobid: {}, batchYn: {}", paramVo.getJobid(), paramVo.getBatchYn()) ;
+		Log.info("accessToken: {}", token) ;
+		BatchVo batVo = service.doExecute(paramVo, token) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(batVo)) ;
 	}
 
 	@PostMapping("/api/v1/batch/btjobList")
-	public ResponseEntity<String> btjobList(@RequestBody BatchReqVo paramVo ) {
-		CommResponseVo resVo = null ; 
+	public ResponseEntity<String> btjobList( @RequestBody BatchReqVo paramVo ) {
+//		Log.info("accessToken: {}", request.getAttribute("accessToken")) ;
+		CommResponseVo resVo = null ;
+//		String token = Optional.of(String.valueOf(request.getAttribute("accessToken"))).orElse("") ;  
 		try {
 			resVo = service.selectBatchJobList(paramVo) ;
 		} catch ( SQLException e ) {

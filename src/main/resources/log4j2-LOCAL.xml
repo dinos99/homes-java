@@ -26,13 +26,13 @@
 
     <Loggers>
         <!-- log4jdbc 로그 설정 -->
-        <Logger name="homes.log.sqlonly" level="INFO" additivity="false">
+        <Logger name="homes.log.sqlonly" level="ERROR" additivity="false">
 			<appender-ref ref="Console"/>
         </Logger>
-        <Logger name="homes.log.sqltiming" level="INFO" additivity="false">
+        <Logger name="homes.log.sqltiming" level="ERROR" additivity="false">
 			<appender-ref ref="Console"/>
         </Logger>
-        <Logger name="homes.log.resultset" level="INFO" additivity="false">
+        <Logger name="homes.log.resultset" level="ERROR" additivity="false">
 			<appender-ref ref="Console"/>
         </Logger>
 

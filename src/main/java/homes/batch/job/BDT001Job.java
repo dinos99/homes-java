@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,8 +38,8 @@ public class BDT001Job implements Job {
 
 	private final BatchMapper mapper ; 
 	
-	public final String BDT000 = EnumBatchJob.SPLIT_BASE_SUMMRY_RAWDATA.getCode() ; 
-	public final String BDT001 = EnumBatchJob.INSERT_BASE_SUMMRY_RAWDATA.getCode() ; 
+	public final String BDT000 = EnumBatchJob.SPLIT_BASE_SUMMRY.getCode() ; 
+	public final String BDT001 = EnumBatchJob.INSERT_BASE_SUMMRY.getCode() ; 
 	
 	public final String BTJOB_BASE_PATH   = HomesProperty.getPropVal("batch.job.base.path")  ; 
 	public final String BTJOB_WAIT_PATH   = HomesProperty.getPropVal("batch.job.wait.path")  + File.separator + BDT000  ;
@@ -101,28 +103,36 @@ public class BDT001Job implements Job {
 	public CommonMap parseLine(String rowdata) {
 		CommonMap pMap = new CommonMap() ;
 		String[] datas = rowdata.split("[|]") ;
-		
-		/* 필요한것들만 가져오자 */
-		pMap.put("mngrRegstrPk", datas[ 0]) ;
-		pMap.put("upperRegstrPk",datas[ 1]) ;
-		pMap.put("regstrGbCd"  , datas[ 2]) ;
-		pMap.put("regstrKdCd"  , datas[ 4]) ;
-		pMap.put("arcd"        , datas[ 9]) ;
-		pMap.put("legcd"       , datas[10]) ;
-		pMap.put("bun"         , datas[12]) ;
-		pMap.put("ji"          , datas[13]) ;
-		pMap.put("regstrCrde"  , datas[29]) ;
+		if ( datas.length > 8) {
+			/* 필요한것들만 가져오자 */
+			pMap.put("mngrRegstrPk", datas[ 0]) ;
+			pMap.put("upperRegstrPk",datas[ 1]) ;
+			pMap.put("regstrGbCd"  , datas[ 2]) ;
+			pMap.put("regstrKdCd"  , datas[ 4]) ;
+			pMap.put("arcd"        , datas[ 9]) ;
+			pMap.put("legcd"       , datas[10]) ;
+			pMap.put("bun"         , datas[12]) ;
+			pMap.put("ji"          , datas[13]) ;
+			pMap.put("regstrCrde"  , datas[29]) ;
+		} else {
+			Log.error("**** Data Error-Index out of bounds({}), data: {}", datas.length, rowdata) ; 
+			pMap.put("arcd"        , "00000") ;
+			pMap.put("legcd"       , "00000") ;
+			pMap.put("bun"         , "0000") ;
+			pMap.put("ji"          , "0000") ;
+			pMap.put("regstrCrde"  , DateTimeUtil.convertTimeStampToString(System.currentTimeMillis(), "yyyyMMdd")) ;
+		}
 		return pMap ;
 	}
 	
 	@Transactional
-	public CommonMap insertBaseSummryData(File jbfile) {
+	public Map<String, Object> insertBaseSummryData(File jbfile) {
 		int ins_bass_summry = 0 ; 
 		int ins_ag_buld    = 0 ; 
 		int ins_buld        = 0 ; 
 		int ins_pssion_buld = 0 ;
 		
-		CommonMap inmap = new CommonMap() ;
+		Map<String, Object> inmap = new HashMap<String, Object>() ;
 		
 		FileReader fr = null ;
 		BufferedReader br = null ;
@@ -153,13 +163,13 @@ public class BDT001Job implements Job {
 					} else {
 						try {
 							ins_pssion_buld += mapper.insertHbdPssionBuld(pMap) ;
-						} catch( SQLException e ) {
-							Log.error("*** Errlor: {}", e.getMessage());
+						} catch( DuplicateKeyException e ) {
+							Log.error("*** Error: Duplicated entry key {}", pMap.get("mngrRegstrPk"));
 							continue ;
 						}
 					}
 					if ((no % SPLIT_LINE) == 0) {
-						Log.info("inserted {} Lines", StringUtil.getCurrencyFormat(no)) ;
+						Log.info("file {}, execute count: {}", jbfile.getName(), StringUtil.getCurrencyFormat(no)) ;
 						Log.error("***************************************************") ;
 			        	Log.error("*** inserted bass_summry: {}", StringUtil.getCurrencyFormat(ins_bass_summry));
 			        	Log.error("*** inserted build      : {}", StringUtil.getCurrencyFormat(ins_buld));
@@ -173,14 +183,7 @@ public class BDT001Job implements Job {
 			
 			if ( br != null ) br.close() ;
 			if ( fr != null ) fr.close()  ;
-			Log.error("***************************************************") ;
-        	Log.error("*** job finished at: {} ", DateTimeUtil.convertTimeStampToString(System.currentTimeMillis(), "yyyy.MM.dd HH:mm:ss.SSS")) ;
-			Log.error("***************************************************") ;
-        	Log.error("*** inserted bass_summry: {}", ins_bass_summry);
-        	Log.error("*** inserted build      : {}", ins_buld);
-        	Log.error("*** inserted ag_build   : {}", ins_ag_buld);
-        	Log.error("*** inserted pssion_buld: {}", ins_pssion_buld);
-			Log.error("***************************************************") ;
+        	Log.error("*** job {} finished at: {} ", jbfile.getName(), DateTimeUtil.convertTimeStampToString(System.currentTimeMillis(), "yyyy.MM.dd HH:mm:ss.SSS")) ;
 		} catch ( IOException e ) {
         	Log.error("*** Batchfile Split Error: {}:", e) ; 
         	throw new HomesException(EnumError.INTERNAL_SERVER_ERROR.getSttusCd()) ;
@@ -189,14 +192,8 @@ public class BDT001Job implements Job {
 		inmap.put("ins_buld"       , ins_buld) ; 
 		inmap.put("ins_ag_buld"    , ins_ag_buld) ; 
 		inmap.put("ins_pssion_buld", ins_pssion_buld) ; 
-		inmap.put("ex_co"          , no - 1) ; 
-		
+		inmap.put("ex_co"          , no - 1) ; 		
 		return inmap ; 
-	}
-		
-	@Transactional(rollbackFor = Exception.class)
-	public void deleteRawData() {
-		mapper.deleteBaseSummryRawdata(this.bt_uuid) ; 
 	}
 	
 	/* *********************************
@@ -219,7 +216,7 @@ public class BDT001Job implements Job {
 	 * 작업완료 
 	 * *********************************/
 	@Transactional(rollbackFor = Exception.class) 
-	public void done(String sttus, int ex_co, String message) {
+	public void done(String sttus, double ex_co, String message) {
 		Log.info("*** uuid: {}", this.bt_uuid) ; 
 		CommonMap btmap = new CommonMap() ;
 		btmap.put("uuid"   , this.bt_uuid) ;
@@ -231,9 +228,15 @@ public class BDT001Job implements Job {
 	}
 	public BatchVo doExecute(String batchYn) {
 		create_jobdir() ;
-		int ex_co =0 ; 
+		Long ex_co = 0l ; 
+
+		Long ins_bass_summry = 0l ; 
+		Long ins_buld        = 0l ; 
+		Long ins_ag_buld     = 0l ; 
+		Long ins_pssion_buld = 0l ;
+		
 		String message = "" ;
-		CommonMap inmap = null ; 
+		Map<String, Object> inmap = null ; 
 
 		File split_dir = new File( BTJOB_READY_SPLIT_PATH ) ; 
 		if ( split_dir.isDirectory() && split_dir.list().length > 0) {
@@ -244,16 +247,25 @@ public class BDT001Job implements Job {
 				File dest   = new File( BTJOB_READY_BDT001_PATH + File.separator + f_nm[i]) ;
 				source.renameTo(dest) ;
 				inmap = insertBaseSummryData(dest) ;
-				Log.info("**** job file {}/{}", i + 1, f_nm.length) ;
+				Log.info("**** job file {}: {}/{}",f_nm[i], i + 1, f_nm.length) ;
 				move_done(dest) ;
+				
+				ins_bass_summry += StringUtil.getLongValue(inmap, "ins_bass_summry") ; 
+				ins_buld        += StringUtil.getLongValue(inmap, "ins_buld") ; 
+				ins_ag_buld     += StringUtil.getLongValue(inmap, "ins_ag_buld") ; 
+				ins_pssion_buld += StringUtil.getLongValue(inmap, "ins_pssion_buld") ;
+				
+				ex_co += StringUtil.getLongValue(inmap, "ex_co") ;
+
+				Log.info("file {}, execute count: {}", f_nm[i], StringUtil.getCurrencyFormat(StringUtil.getLongValue(inmap, "ex_co"))) ;
+				Log.error("***************************************************") ;
+	        	Log.error("*** inserted bass_summry: {}", StringUtil.getCurrencyFormat(StringUtil.getLongValue(inmap, "ins_bass_summry")));
+	        	Log.error("*** inserted build      : {}", StringUtil.getCurrencyFormat(StringUtil.getLongValue(inmap, "ins_buld")));
+	        	Log.error("*** inserted ag_build   : {}", StringUtil.getCurrencyFormat(StringUtil.getLongValue(inmap, "ins_ag_buld")));
+	        	Log.error("*** inserted pssion_buld: {}", StringUtil.getCurrencyFormat(StringUtil.getLongValue(inmap, "ins_pssion_buld")));
+				Log.error("***************************************************") ;
 			}
 
-			int ins_bass_summry = StringUtil.getIntValue(inmap, "ins_bass_summry") ; 
-			int ins_buld        = StringUtil.getIntValue(inmap, "ins_buld") ; 
-			int ins_ag_buld     = StringUtil.getIntValue(inmap, "ins_ag_buld") ; 
-			int ins_pssion_buld = StringUtil.getIntValue(inmap, "ins_pssion_buld") ;
-			
-			ex_co = StringUtil.getIntValue(inmap, "ex_co") ;
 			
 			message = "" ; 
 			message = message + "[기본개요] 등록완료 ( " ;
@@ -269,7 +281,7 @@ public class BDT001Job implements Job {
 		}
 		
 		BatchVo btVo = new BatchVo(BDT001, batchYn) ;
-		btVo.setExco(ex_co);
+		btVo.setExco(ex_co) ; 
 		btVo.setBatchYn(batchYn) ; 
 		btVo.setMessage(message);
 

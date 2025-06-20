@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.batch.mapper.BatchTitleLedgrMapper">
+	
+	<!-- 표제부 관련테이블 TRUNCATE -->
+	<update id="truncateTitleLedger">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedger */
+		TABLE    TB_BD_TITLE_LEDGR
+	</update>
+	<update id="truncateTitleLedgrAblty">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedgrAblty */
+		TABLE    TB_BD_TITLE_LEDGR_ABLTY
+	</update>
+	<update id="truncateTitleLedgrAr">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedgrAr */
+		TABLE    TB_BD_TITLE_LEDGR_AR
+	</update>
+	<update id="truncateTitleLedgrPps">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedgrPps */
+		TABLE    TB_BD_TITLE_LEDGR_PPS
+	</update>
+	<update id="truncateTitleLedgrPrmissDe">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedgrPrmissDe */
+		TABLE    TB_BD_TITLE_LEDGR_PRMISS_DE
+	</update>	
+	<update id="truncateTitleLedgrUnitCo">
+		TRUNCATE /* homes.batch.mapper.batchTitleLedgrMapper.truncateTitleLedgrUnitCo */
+		TABLE    TB_BD_TITLE_LEDGR_UNIT_CO
+	</update>
+	
+	<!-- 표제부 관련테이블 insert -->
+	<insert id="insertBdTitleLedgr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgr */
+		INTO   TB_BD_TITLE_LEDGR (
+			   BULD_REGSTR_PK
+			   , REGSTR_GB_CD
+			   , PLOT_LOC
+			   , BULD_NM
+			   , ARCD
+			   , LEGCD
+			   , BUN
+			   , JI
+		       , PLOT_GB_CD
+		       , SP_PLOT_NM
+		       , BLOCK_NM
+		       , CREAT_DE
+		       , BATCH_YN
+		       , CREAT_USER_NO
+		       , UPDT_USER_NO
+		) VALUES (
+			   #{buldRegstrPk}
+			   , #{regstrGbCd}
+			   , #{plotLoc}
+			   , #{buldNm}
+			   , #{arcd}
+			   , #{legcd}
+			   , #{bun}
+			   , #{ji}
+		       , #{plotGbCd}
+		       , #{spPlotNm}
+		       , #{blockNm}
+		       , #{creatDe}
+		       , #{batchYn}
+		       , #{mngrno}
+		       , #{mngrno}
+		)
+	
+	</insert>
+	<insert id="insertBdTitleLedgrAblty" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgrAblty */
+		INTO   TB_BD_TITLE_LEDGR_ABLTY (
+			BULD_REGSTR_PK
+			, ENERGY_EFCNY_GRAD
+			, ENERGY_REDCN_RT
+			, ENERGY_EPI_SCR
+			, ECO_BULD_GRAD
+			, ECO_BULD_SCR
+			, BRIN_BULD_GRAD
+			, BRIN_BULD_SCR
+			, ERDSGN_APPLC_YN
+			, RSERTHQK_ABLTY
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{energyEfcnyGrad}
+			, #{energyRedcnRt}
+			, #{energyEpiScr}
+			, #{ecoBuldGrad}
+			, #{ecoBuldScr}
+			, #{brinBuldGrad}
+			, #{brinBuldScr}
+			, #{erdsgnApplcYn}
+			, #{rserthqkAblty}
+			, #{mngrno}
+			, #{mngrno}
+		)
+	</insert>
+	<insert id="insertBdTitleLedgrAr" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgrAr */
+		INTO   TB_BD_TITLE_LEDGR_AR (
+			BULD_REGSTR_PK
+			, PLOT_AR
+			, BULD_AR
+			, TOTAL_AR
+			, BULK_CALC_TOT_AR
+			, BULD_LND_RT
+			, BULK_RT
+			, SUB_BULD_AR
+			, TOT_BLOCK_AR
+			, IN_MECHA_AR
+			, IN_INDPNT_CO
+			, OUT_MECHA_AR
+			, OUT_INDPNT_AR
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{plotAr}
+			, #{buldAr}
+			, #{totalAr}
+			, #{bulkCalcTotAr}
+			, #{buldLndRt}
+			, #{bulkRt}
+			, #{subBuldAr}
+			, #{totBlockAr}
+			, #{inMechaAr}
+			, #{inIndpntCo}
+			, #{outMechaAr}
+			, #{outIndpntAr}
+			, #{mngrno}
+			, #{mngrno}
+		)
+	</insert>
+	<insert id="insertBdTitleLedgrpps" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgrpps */
+		INTO   TB_BD_TITLE_LEDGR_PPS (
+			BULD_REGSTR_PK
+			, NW_OD_GB_CD
+			, RDNM_PLOT_LOC
+			, MAIN_PPS_CD
+			, ETC_PPS
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{nwOdGbCd}
+			, #{rdnmPlotLoc}
+			, #{mainPpsCd}
+			, #{etcPps}
+			, #{mngrno}
+			, #{mngrno}
+		) 
+	</insert>
+	<insert id="insertBdTitleLedgrde" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgrde */
+		INTO   TB_BD_TITLE_LEDGR_PRMISS_DE (
+			BULD_REGSTR_PK
+			, PRMISS_DE
+			, STWK_DE
+			, PRMISS_NO_YYYY
+			, PRMISS_NO_ORG_CD
+			, PRMISS_NO_ORG_NM
+			, PRMISS_NO_GB_CD
+			, PRMISS_NO_GB_NM
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{prmissDe}
+			, #{stwkDe}
+			, #{prmissNoYyyy}
+			, #{prmissNoOrgCd}
+			, #{prmissNoOrgNm}
+			, #{prmissNoGbCd}
+			, #{prmissNoGbNm}
+			, #{mngrno}
+			, #{mngrno}
+		)
+	</insert>
+	<insert id="insertBdTitleLedgrco" parameterType="commonMap">
+		INSERT /* homes.batch.mapper.batchTitleLedgrMapper.insertBdTitleLedgrco */
+		INTO   TB_BD_TITLE_LEDGR_UNIT_CO (
+			BULD_REGSTR_PK
+			, HSHLD_CO
+			, FMLY_CO
+			, MAIN_BULD_CO
+			, SUB_BULD_CO
+			, TOT_PARKNG_CO
+			, IN_MECHA_CO
+			, IN_INDPNT_CO
+			, OUT_MECHA_CO
+			, OUT_INDPNT_CO
+			, GRND_FLOOR_CO
+			, UNDR_GRND_FLOOR_CO
+			, RDNG_ELVTR_CO
+			, EMGNC_ELVTR_CO
+			, UNIT_CO
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{hshldCo}
+			, #{fmlyCo}
+			, #{mainBuldCo}
+			, #{subBuldCo}
+			, #{totParkngCo}
+			, #{inMechaCo}
+			, #{inIndpntCo}
+			, #{outMechaCo}
+			, #{outIndpntCo}
+			, #{grndFloorCo}
+			, #{undrGrndFloorCo}
+			, #{rdngElvtrCo}
+			, #{emgncElvtrCo}
+			, #{unitCo}
+			, #{mngrno}
+			, #{mngrno}
+		)
+	</insert>
+</mapper>
