@@ -28,7 +28,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BatchServiceImpl implements BatchService {
 	public final Logger Log = LogManager.getLogger(BatchServiceImpl.class) ;
-	
 
 	private final String BDT000 = EnumBatchJob.SPLIT_BASE_SUMMRY.getCode() ; 
 	private final String BDT001 = EnumBatchJob.INSERT_BASE_SUMMRY.getCode() ; 

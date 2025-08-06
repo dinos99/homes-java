@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.broker.mapper.BrokerComplexMapper">
+	<select id="selectComplexList" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexList */
+		       A.HBD_CPLX_NO
+		       , A.HBD_CPLX_SEQ
+		       , A.ARCD
+		       , A.LEGCD
+		       , A.CPLX_NM
+		       , 'CPX999' AS CPLX_TY
+		       , ( SELECT CODE_NM FROM TB_CM_COMMCODE WHERE GRP_CD = 'CPX' AND COMM_CD = '999' ) AS CPLX_TY_NM 
+		       , A.CPLX_HSHLD_CO
+		       , A.CPLX_DONG_CO
+		FROM   TB_HBD_COMPLEX A
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd} 
+		AND    NOT EXISTS ( SELECT 'X' 
+		                    FROM   TB_BRK_COMPLEX CPX
+		                    WHERE  A.HBD_CPLX_NO = CPX.HBD_CPLX_NO
+		                    AND    A.HBD_CPLX_SEQ = CPX.HBD_CPLX_SEQ
+		                    AND    CPX.BRKNO = #{brkno}
+		                  ) 
+		UNION ALL
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexList */
+		       A.HBD_CPLX_NO
+		       , A.HBD_CPLX_SEQ
+		       , A.ARCD
+		       , A.LEGCD
+		       , A.CPLX_NM
+		       , A.CPLX_TY
+		       , B.CODE_NM AS CPLX_TY_NM 
+		       , A.CPLX_HSHLD_CO
+		       , A.CPLX_DONG_CO
+		FROM   TB_BRK_COMPLEX A
+		INNER  JOIN TB_CM_COMMCODE B ON A.CPLX_TY = B.MXTR_COMM_CD 
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd} 
+		AND    A.BRKNO = #{brkno}
+	</select>
+    
+</mapper>

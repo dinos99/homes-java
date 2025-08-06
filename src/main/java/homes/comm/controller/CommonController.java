@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,66 +28,52 @@ public class CommonController {
 
 	private final CommonService service ; 
 	private final CommCodeService commCodeservice ; 
-
-	@PostMapping("/api/v1/common/arcode/select-arcode")
-	public ResponseEntity<String> selectArcodeList(@RequestBody CommReqVo paramVo) {
-		Log.info("*** param: {}", paramVo.getArcode()) ;
-		CommonMap arList = null ;
+	
+	@GetMapping("/api/v1/common/arcode/{arcode}")
+	public ResponseEntity<String> selectArCode(@PathVariable String arcode) {
+		Log.info("*** arcode: {}", arcode) ;
+		CommonMap armap = null ; 
 		try {
-			arList = service.selectArcodeList(paramVo) ;
-		} catch ( SQLException e ) {
+			armap = service.selectArCode(arcode) ;
+		} catch (SQLException e) {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} catch ( RuntimeException e) {
-			Log.error("*** ApiError: () ", e.getMessage()) ; 
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		}
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(arList)) ;
+		} 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(armap)) ;
 	}
 
-	@PostMapping("/api/v1/common/arcode/sidoList")
-	public ResponseEntity<String> selectSidoList(@RequestBody CommReqVo paramVo) {
-		Log.info("*** param: {}", paramVo.getArcode()) ;
-		List<CommonMap> sidoList = null ;
+	@GetMapping("/api/v1/common/arcode/sdList")
+	public ResponseEntity<String> selectSdList() {
+		List<CommonMap> sdList = null ; 
 		try {
-			sidoList = service.selectSidoList(paramVo) ;
-		} catch ( SQLException e ) {
+			sdList = service.selectSidoList() ;
+		} catch (SQLException e) {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} catch ( RuntimeException e) {
-			Log.error("*** ApiError: () ", e.getMessage()) ; 
+		} 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sdList)) ;
+	}
+
+	@GetMapping("/api/v1/common/arcode/sgg/{sdcode}")
+	public ResponseEntity<String> selectSggList(@PathVariable String sdcode) {
+		Log.info("*** sdcode: {}", sdcode) ;
+		List<CommonMap> sggList = null ; 
+		try {
+			sggList = service.selectSggList(sdcode) ;
+		} catch (SQLException e) {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		}
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sidoList)) ;
+		} 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sggList)) ;
 	}
 	
-	
-	@PostMapping("/api/v1/common/arcode/sggList")
-	public ResponseEntity<String> selectSggList(@RequestBody CommReqVo paramVo) {
-		Log.info("*** param: {}", paramVo.getArcode()) ;
-		List<CommonMap> arList = null ;
+	@GetMapping("/api/v1/common/arcode/emd/{arcode}")
+	public ResponseEntity<String> selectEmdList(@PathVariable String arcode) {
+		Log.info("*** arcode: {}", arcode) ;
+		List<CommonMap> emdList = null ; 
 		try {
-			arList = service.selectSggList(paramVo) ;
-		} catch ( SQLException e ) {
+			emdList = service.selectEmdList(arcode) ;
+		} catch (SQLException e) {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} catch ( RuntimeException e) {
-			Log.error("*** ApiError: () ", e.getMessage()) ; 
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		}
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(arList)) ;
-	}
-
-	@PostMapping("/api/v1/common/arcode/emdList")
-	public ResponseEntity<String> selectEmdList(@RequestBody CommReqVo paramVo) {
-		Log.info("*** param: {}", paramVo.getArcode()) ;
-		List<CommonMap> arList = null ;
-		try {
-			arList = service.selectEmdList(paramVo) ;
-		} catch ( SQLException e ) {
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} catch ( RuntimeException e) {
-			Log.error("*** ApiError: () ", e.getMessage()) ; 
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		}
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(arList)) ;
+		} 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(emdList)) ;
 	}
 	
 	@GetMapping("/api/v1/common/commcode/estate")
@@ -102,4 +88,17 @@ public class CommonController {
 		}
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(estateList)) ;
 	}
+
+	@GetMapping("/api/v1/commcode/{grpcd}")
+	public ResponseEntity<String> getCommCodeList(@PathVariable String grpcd) {
+		Log.info("*** grpcd: {}", grpcd) ;
+		List<CommonMap> codeList = null ; 
+		try {
+			codeList = service.getCommCodeList(grpcd) ;
+		} catch (SQLException e) {
+	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
+		} 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(codeList)) ;
+	}
+	
 }

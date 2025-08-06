@@ -132,6 +132,12 @@ public class StringUtil extends JdbcUtils {
 		String s = df.format(dVal) ;
 		return s ; 
 	}
+
+	public static String getCurrencyFormat( double dVal, String format ) {
+		DecimalFormat df = new DecimalFormat(format) ;
+		String s = df.format(dVal) ;
+		return s ; 
+	}
 	
 	public static String getStringValue( String val, String def ) {
 		return Optional.ofNullable(val).orElse(def) ;  

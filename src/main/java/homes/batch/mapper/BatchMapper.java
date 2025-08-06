@@ -34,5 +34,12 @@ public interface BatchMapper {
 	public int insertHbdAgBuld( CommonMap pMap ) ; 
 	public int insertHbdPssionBuld( CommonMap pMap ) throws DuplicateKeyException ;
 
-	public int updatePssionLedger( CommonMap pMap ) ; 
+	public int updatePssionLedger( CommonMap pMap ) ;
+	
+	/* 표제부 법정동코드 NULL변환 */
+	public List<CommonMap> selectNullLegcdList() ; 
+	public List<CommonMap> selectConvArcodeList(String arcd) ;
+	int updateLegcdTotalLedger( CommonMap pMap ) ;
+	int deleteLegcdTotalLedger( String arcd ) ;
+	
 }

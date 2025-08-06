@@ -22,9 +22,11 @@ public class WebConfig implements WebMvcConfigurer   {
     	
         registry.addInterceptor(new ApiInterceptor())
 	    	.addPathPatterns("/api/v1/mber/**")
-	    	.addPathPatterns("/api/v1/common/**",
+	    	.addPathPatterns("/api/v1/common/arcode/**",
         			"/auth/sign-in",
-	    			"/api/v1/manager/sign-up"); 
+	    			"/api/v1/manager/sign-up",
+        			"/api/v1/commcode/**"
+	    	); 
         
         registry.addInterceptor(new ApiAuthInterceptor())
         	.addPathPatterns("/api/v1/**/*") 
@@ -33,8 +35,10 @@ public class WebConfig implements WebMvcConfigurer   {
         			"/api/error",
         			"/auth/sign-in",
         			"/api/v1/manager/sign-up",
-        			"/api/v1/mber/**")
-        	; 
+        			"/api/v1/mber/**",
+        			"/api/v1/common/arcode/**",
+        			"/api/v1/commcode/**"
+        	); 
     }
     
 

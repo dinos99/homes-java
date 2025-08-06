@@ -6,6 +6,8 @@ public enum EnumBatchJob {
 	
 	MSG_NOT_EXIST_JOB_FILE_READY("MSG001", "[대기]디렉토리에 작업파일이 존재하지 않습니다."),
 	
+	CONV_LEGCD_NULL_TO_CODE_ARC000("ARC000", "표제부-법정동코드변환"),
+	
 	BJT000("BJT000", "건축물대장-파일분할"),
 	BJT001("BJT001", "건축물대장-단지정보등록"),
 	BJT002("BJT002", "건축물대장-기본개요-시도별분할"),

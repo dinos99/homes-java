@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import homes.comm.mapper.CommonMapper;
-import homes.comm.vo.CommReqVo;
 import homes.comm.vo.CommUserReqVo;
 import homes.comm.vo.CommonMap;
 import homes.security.mapper.CommUserMapper;
@@ -28,35 +27,32 @@ public class CommonServiceImpl implements CommonService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> selectSidoList(CommReqVo paramVo) throws SQLException {
-		return mapper.selectSidoList(paramVo);
+	public CommonMap selectArCode(String areacode ) throws SQLException {
+		CommonMap armap =  mapper.selectArCode(areacode) ;
+		List<CommonMap> arList =mapper.selectEmdList(armap.getStringValue("arcode")) ; 
+		CommonMap arCode = new CommonMap() ; 
+		arCode.put("arCode", armap) ;
+		arCode.put("arList", arList) ;
+		return arCode ; 
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> selectSggList(CommReqVo paramVo) throws SQLException {
-		return mapper.selectSggList(paramVo);
+	public List<CommonMap> selectSidoList() throws SQLException {
+		return mapper.selectSidoList() ; 
+	}
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommonMap> selectSggList( String sdcode ) throws SQLException {
+		return mapper.selectSggList(sdcode) ; 
 	}
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> selectEmdList(CommReqVo paramVo) throws SQLException {
-		return mapper.selectEmdList(paramVo);
+	public List<CommonMap> selectEmdList( String arcode ) throws SQLException {
+		return mapper.selectEmdList(arcode) ; 
 	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public CommonMap selectArcodeList(CommReqVo paramVo) throws SQLException {
-		List<CommonMap> arSidoList = mapper.selectSidoList(paramVo) ; 
-		List<CommonMap> arSggList  = mapper.selectSggList(paramVo) ;
-		List<CommonMap> arEmdList  = mapper.selectEmdList(paramVo) ;
-		CommonMap arList = new CommonMap() ; 
-		arList.put("arSidoList",arSidoList) ; 
-		arList.put("arSggList" ,arSggList) ; 
-		arList.put("arEmdList" ,arEmdList) ; 
-		return arList;
-	}
-
+	
 	@Override
 	@Transactional
 	public Long insertCommuser(CommUserReqVo paramVo) throws SQLException {
@@ -93,6 +89,11 @@ public class CommonServiceImpl implements CommonService {
 	@Transactional(readOnly = true)
 	public long selectLastid() throws SQLException {
 		return commUserMapper.selectLastid(0l);
-	} 
+	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<CommonMap> getCommCodeList(String grpcd) throws SQLException {
+		return mapper.getCommCodeList(grpcd) ;
+	}
 }

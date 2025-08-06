@@ -4,8 +4,9 @@ import lombok.Data;
 
 @Data
 public class ErrorInfoVo {
-	
+
 	private int    HttpSttusCd ;
+	private String httpSttusText ;
 	private String errorMessage ;
 	
 }

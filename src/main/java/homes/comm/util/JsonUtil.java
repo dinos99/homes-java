@@ -1,5 +1,8 @@
 package homes.comm.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -33,6 +36,22 @@ public class JsonUtil {
 				  .append(_TAB).append(_TAB).append(_COMMA).append(_QUOTATION).append("errorMessage").append(_QUOTATION).append(_COLON).append(_QUOTATION).append( HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase()).append(_QUOTATION)
 				  .append(_TAB).append(_BRACE_CLOSE).append(_CRLF)
 				  .append(_BRACE_CLOSE).toString() ;
+	}
+
+	public static String getErrorJson(ErrorInfoVo errorVo) {
+		String json = "" ;
+    	Map<String, Object> emap = new HashMap<String, Object>() ; 
+    	emap.put("error", errorVo) ;
+        ObjectMapper mapper = new ObjectMapper();
+
+		try {
+			json = mapper.writeValueAsString(emap);
+		} catch (JsonProcessingException e) {
+			Log.error("*** Json parsing Error") ; 
+			json = getErrorJsonStr() ; 
+		}
+		
+		return json ; 
 	}
 	
 	public static String getJson(AccessTokenVo tokenVo, ErrorInfoVo errorVo, Object resultVo ) {

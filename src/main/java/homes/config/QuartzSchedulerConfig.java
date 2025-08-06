@@ -1,6 +1,18 @@
 package homes.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import homes.batch.job.ARC000Job;
 
 @Configuration
 public class QuartzSchedulerConfig {
@@ -44,4 +56,26 @@ public class QuartzSchedulerConfig {
 				.build();
 	}
 	*/
+	@Bean
+	JobDetail ARC000JobDetail() { 
+		Map<String, Object> jbmap = new HashMap<String, Object>() ;
+		jbmap.put("userno" , "900900901") ;
+		jbmap.put("batchYn", "Y") ;
+		JobDataMap dataMap = new JobDataMap(jbmap) ;
+		return JobBuilder.newJob(ARC000Job.class)
+				         .withIdentity("ARC000Job")
+				         .usingJobData(dataMap)
+				         .storeDurably()
+				         .build();
+	}
+	
+	@Bean
+	Trigger BLD003JobTrigger( JobDetail ARC000JobDetail ) {
+		return TriggerBuilder.newTrigger()
+				.forJob(ARC000JobDetail)
+				.withIdentity("ARC000JobDetail")
+                .startNow() // 애플리케이션 시작 시 즉시 작업 실행
+				.withSchedule(CronScheduleBuilder.cronSchedule("0 */10 22-23 * * ?")) 
+				.build();
+	}
 }

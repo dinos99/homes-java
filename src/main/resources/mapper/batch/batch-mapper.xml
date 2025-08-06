@@ -302,4 +302,42 @@
 		)
 	</insert>
 	
+	
+	<!-- 표제부 법정동코드 NULL변환 -->
+	<select id="selectNullLegcdList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectNullLegcdList */
+		       TA.ARCD, COUNT(1) AS HAS_CNT
+		FROM   ( SELECT ARCD 
+		         FROM   TB_BD_TITLE_LEDGR
+		         WHERE  LEGCD IS NULL 
+		         LIMIT  1
+		       ) TA
+		GROUP  BY TA.ARCD 
+	</select>
+	
+	<select id="selectConvArcodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectConvArcodeList */
+		       ARCODE, LEGCODE
+		       , AR_FULL_NM AS ARNAME
+		FROM   TB_CM_COAREACODE
+		WHERE  ARCODE = #{arcode}
+		AND    ARLEVEL = 3  
+	</select>
+	
+	<update id="updateLegcdTotalLedger" parameterType="commonMap">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateLegcdTotalLedger */	
+		       TB_BD_TITLE_LEDGR
+		SET    LEGCD = #{legcode}
+		WHERE  ARCD = #{arcode}
+		AND    LEGCD IS NULL
+		AND    PLOT_LOC LIKE CONCAT(#{arname}, '%')
+	</update>
+	
+	<delete id="deleteLegcdTotalLedger" parameterType="string">
+		DELETE /* homes.batch.mapper.BatchMapper.updateLegcdTotalLedger */	
+		FROM   TB_BD_TITLE_LEDGR
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD IS NULL
+	</delete>
+	
 </mapper>
