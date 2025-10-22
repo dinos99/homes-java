@@ -105,15 +105,15 @@ public class BDT001Job implements Job {
 		String[] datas = rowdata.split("[|]") ;
 		if ( datas.length > 8) {
 			/* 필요한것들만 가져오자 */
-			pMap.put("mngrRegstrPk", datas[ 0]) ;
-			pMap.put("upperRegstrPk",datas[ 1]) ;
-			pMap.put("regstrGbCd"  , datas[ 2]) ;
-			pMap.put("regstrKdCd"  , datas[ 4]) ;
-			pMap.put("arcd"        , datas[ 9]) ;
-			pMap.put("legcd"       , datas[10]) ;
-			pMap.put("bun"         , datas[12]) ;
-			pMap.put("ji"          , datas[13]) ;
-			pMap.put("regstrCrde"  , datas[29]) ;
+			pMap.put("mngrRegstrPk" , datas[ 0]) ;
+			pMap.put("upperRegstrPk", datas[ 1]) ;
+			pMap.put("regstrGbCd"   , datas[ 2]) ;
+			pMap.put("regstrKdCd"   , datas[ 4]) ;
+			pMap.put("arcd"         , datas[ 9]) ;
+			pMap.put("legcd"        , datas[10]) ;
+			pMap.put("bun"          , datas[12]) ;
+			pMap.put("ji"           , datas[13]) ;
+			pMap.put("regstrCrde"   , datas[29]) ;
 		} else {
 			Log.error("**** Data Error-Index out of bounds({}), data: {}", datas.length, rowdata) ; 
 			pMap.put("arcd"        , "00000") ;

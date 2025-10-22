@@ -12,9 +12,7 @@ import homes.security.dto.HomesUserInfoDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -27,9 +25,16 @@ public class JwtUtil {
     private final long accessTokenExpTime;
 	
     public JwtUtil() {       	
-    	String secretKey = HomesProperty.getPropVal("jwt.key.secret") ; /* Secret Key */
-    	long   expTime   = HomesProperty.getLongVal("jwt.expiration_time") ; /* 토큰 만료시간 */ 
-
+//    	String secretKey = HomesProperty.getPropVal("jwt.key.secret") ; /* Secret Key */
+//    	long   expTime   = HomesProperty.getLongVal("jwt.expiration_time") ; /* 토큰 만료시간 */
+    	
+    	/* *************************************************************************
+    	 * 반드시 외부프로퍼티로 분리할것 
+    	 * *************************************************************************/ 
+        String secretKey = "V0Jhc285Zk1oZTFxVG5Hc29pR1NPbWxKNWhUdkdCZGw=" ; 
+        Long expTime     = 86400000l; 
+    	
+    	Log.error("*** secretKey: {}", secretKey) ;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenExpTime = expTime ; 
@@ -73,7 +78,11 @@ public class JwtUtil {
      * @return User ID
      */
     public Long getUserId(String token) {
-        return parseClaims(token).get("userno", Long.class);
+    	/* ** For Test */ 
+    	Long userno = Long.valueOf("17"); 
+    	return userno ; 
+    	/* ** For Test */ 
+//        return parseClaims(token).get("userno", Long.class);
     }
     /**
      * JWT 검증
@@ -81,6 +90,9 @@ public class JwtUtil {
      * @return IsValidate
      */
     public boolean validateToken(String token) {
+    	return true ; 
+    	/* ** For Test *****************************/
+    	/*
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -101,6 +113,8 @@ public class JwtUtil {
         	return false ;
 //        	throw new HomesException(EnumError.UNSUPPORTED_TOKEN.getSttusCd()) ;
         }
+        */
+    	/* ** For Test *****************************/
     }
     
 

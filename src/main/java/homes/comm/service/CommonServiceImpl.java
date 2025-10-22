@@ -93,7 +93,7 @@ public class CommonServiceImpl implements CommonService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> getCommCodeList(String grpcd) throws SQLException {
-		return mapper.getCommCodeList(grpcd) ;
+	public List<CommonMap> getCommCodeList(String upcd) throws SQLException {
+		return mapper.getCommCodeList(upcd) ;
 	}
 }

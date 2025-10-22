@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,22 +17,25 @@ import jakarta.servlet.http.HttpServletResponse;
 public class ApiAuthInterceptor implements HandlerInterceptor {
 
 	public static final Logger Log = LogManager.getLogger(ApiAuthInterceptor.class) ;
-	
+	private final JwtUtil jwtUtil = new JwtUtil() ;
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 	 
 	 	Enumeration<String> enumHeader = request.getHeaderNames() ;
 	 	boolean is_auth = false ; 
 	 	Log.info("*** Api Auth interceptor: {}", request.getRequestURI()) ;
-	 	JwtUtil jwtUtil = new JwtUtil() ; 
+//	 	JwtUtil jwtUtil = new JwtUtil() ; 
 	 	while(enumHeader.hasMoreElements()) {
 	 		String header_name = enumHeader.nextElement() ;
 	 		if ( "Authorization".equalsIgnoreCase(header_name)) {
 	 			String accessToken = request.getHeader("Authorization") ; 
 	 			String token = Optional.ofNullable(accessToken).orElse("").replaceFirst("Bearer ", "") ;
 	 			is_auth = jwtUtil.validateToken(token) ;
-	 			request.setAttribute("accessToken", token);
-	 		 	Log.info("*** Authorization access-token: {}, isAuth: {}", token , is_auth) ;
+	 			if ( is_auth ) {
+		 			request.setAttribute("accessToken", token);
+		 			request.setAttribute("userno", jwtUtil.getUserId(token));
+		 		 	Log.info("*** Authorization access-token: {}, isAuth: {}", token , is_auth) ;
+	 			}
 	 			break ;
 	 		}
 	 	}

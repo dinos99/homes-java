@@ -43,7 +43,7 @@ public class HomesSpyLogDelegator implements SpyLogDelegator {
 	@Override
 	public void exceptionOccured(Spy spy, String methodCall, Exception e, String sql, long execTime) {
         String operation = getQueryOperation(sql) ;
-        sqlTimingLogger.info("[ SQL {} 👀🎆🎆🎆\rn{}", operation, execTime, sql);
+        sqlTimingLogger.info("[ SQL {} 👀🎆🎆🎆{} ms \r\n{}", operation, execTime, e.toString());
 	}
 
 	@Override
@@ -71,7 +71,8 @@ public class HomesSpyLogDelegator implements SpyLogDelegator {
         	sqlTimingLogger.info("*** isDumpSqlFilteringOn && !shouldSqlBeLogged({})", operation);
             return;
         }
-        sqlTimingLogger.info("[ SQL - {} ][⏱️ {} ms ]\r\n{}", operation, execTime, sql);
+//        sqlTimingLogger.info("[ SQL - {} ][⏱️ {} ms ]\r\n{}", operation, execTime, sql);
+        sqlTimingLogger.info("[ SQL - {} ][⏱️ {} ms ]", operation, execTime);
 	}
 
 	@Override

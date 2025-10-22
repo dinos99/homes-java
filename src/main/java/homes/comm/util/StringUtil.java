@@ -12,6 +12,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import homes.comm.vo.CommonMap;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class StringUtil extends JdbcUtils {
 	
@@ -145,6 +146,10 @@ public class StringUtil extends JdbcUtils {
 	
 	public static String getStringValue( String val) {
 		return getStringValue(val, "") ; 
+	}
+	
+	public static String getStringValue( HttpServletRequest request, String key) {
+		return getStringValue((String)request.getAttribute(key)) ; 
 	}
 	
 	public static String getStringValue(Map<String, Object> pMap, String key, String defVal) {

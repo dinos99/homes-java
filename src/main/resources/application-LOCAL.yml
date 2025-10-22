@@ -13,6 +13,8 @@ spring:
       minimum-idle: 5
       max-lifetime: 240000
       maximum-pool-size: 20
+  config:
+    import: C:/workspace/project/homes-java/extern/resources/homes-local.properties
 
 logging:
   config: classpath:log4j2-LOCAL.xml

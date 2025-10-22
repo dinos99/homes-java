@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import homes.comm.mapper.CommCodeMapper;
 import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommCodeVo;
+import homes.comm.vo.CommonMap;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -56,5 +57,10 @@ public class CommCodeServiceImpl implements CommCodeService {
         List<CommCodeVo> codeList = mapper.getCodeGroupList(pCodeVo) ;
         Log.info("Repository getEstGroupList {}", codeList);
         return new CommCodeListVo(codeList);
-    }  
+    }
+
+	@Transactional(readOnly = true)
+    public List<CommonMap> getCommCodeList(CommCodeVo paramVo) {
+    	return mapper.getCommCodeList(paramVo) ; 
+    }
 }

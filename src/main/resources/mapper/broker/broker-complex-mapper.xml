@@ -2,42 +2,167 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="homes.broker.mapper.BrokerComplexMapper">
-	<select id="selectComplexList" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
-		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexList */
-		       A.HBD_CPLX_NO
-		       , A.HBD_CPLX_SEQ
-		       , A.ARCD
-		       , A.LEGCD
-		       , A.CPLX_NM
-		       , 'CPX999' AS CPLX_TY
-		       , ( SELECT CODE_NM FROM TB_CM_COMMCODE WHERE GRP_CD = 'CPX' AND COMM_CD = '999' ) AS CPLX_TY_NM 
-		       , A.CPLX_HSHLD_CO
-		       , A.CPLX_DONG_CO
-		FROM   TB_HBD_COMPLEX A
-		WHERE  A.ARCD = #{arcd}
-		AND    A.LEGCD = #{legcd} 
-		AND    NOT EXISTS ( SELECT 'X' 
-		                    FROM   TB_BRK_COMPLEX CPX
-		                    WHERE  A.HBD_CPLX_NO = CPX.HBD_CPLX_NO
-		                    AND    A.HBD_CPLX_SEQ = CPX.HBD_CPLX_SEQ
-		                    AND    CPX.BRKNO = #{brkno}
-		                  ) 
-		UNION ALL
-		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexList */
-		       A.HBD_CPLX_NO
-		       , A.HBD_CPLX_SEQ
-		       , A.ARCD
-		       , A.LEGCD
-		       , A.CPLX_NM
-		       , A.CPLX_TY
-		       , B.CODE_NM AS CPLX_TY_NM 
-		       , A.CPLX_HSHLD_CO
-		       , A.CPLX_DONG_CO
+	<select id="selectMyComplexList" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
+	    <!-- Deprecated: 미사용 -->
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectMyComplexList 나의 단지 목록 */
+		       'M'                 AS IS_MINE
+		       , A.CPLXNO          AS CPLXNO
+		       , A.PLOT_LOC        AS PLOT_LOC
+		       , A.BULDNM          AS BULDNM
+		       , A.CPLXNM          AS CPLXNM
+		       , A.ARCD            AS ARCD
+		       , A.LEGCD           AS LEGCD
+		       , A.CPLX_TY         AS CPLX_TY
+		       , B.CODE_NM         AS CPLX_TY_NM 
+		       , A.CPLX_HSHLD_CO   AS CPLX_HSHLD_CO
+		       , A.CPLX_DONG_CO    AS CPLX_DONG_CO
+		       , DATE_FORMAT( A.CREAT_DT, '%Y.%m.%d' ) AS CRDE
 		FROM   TB_BRK_COMPLEX A
 		INNER  JOIN TB_CM_COMMCODE B ON A.CPLX_TY = B.MXTR_COMM_CD 
 		WHERE  A.ARCD = #{arcd}
 		AND    A.LEGCD = #{legcd} 
 		AND    A.BRKNO = #{brkno}
+		/* 다세대, 빌딩, 상가건물, 기타건물 제외 */
+		AND    A.CPLX_TY NOT IN ( 'EST116', 'EST124', 'EST122', 'EST125')
 	</select>
+	<select id="selectOthersComplexList" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
+	    <!-- Deprecated: 미사용 -->
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectOthersComplexList 타중개사 단지목록 */
+		       'O'                 AS IS_MINE
+		       , A.CPLXNO          AS CPLXNO
+		       , A.PLOT_LOC        AS PLOT_LOC
+		       , A.BULDNM          AS BULDNM
+		       , A.CPLXNM          AS CPLXNM
+		       , A.ARCD            AS ARCD
+		       , A.LEGCD           AS LEGCD
+		       , A.CPLX_TY         AS CPLX_TY
+		       , B.CODE_NM         AS CPLX_TY_NM 
+		       , A.CPLX_HSHLD_CO   AS CPLX_HSHLD_CO
+		       , A.CPLX_DONG_CO    AS CPLX_DONG_CO
+		       , DATE_FORMAT( A.CREAT_DT, '%Y.%m.%d' ) AS CRDE
+		FROM   TB_BRK_COMPLEX A
+		INNER  JOIN TB_CM_COMMCODE B ON A.CPLX_TY = B.MXTR_COMM_CD 
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd} 
+		AND    A.BRKNO != #{brkno}
+		/* 다세대, 빌딩, 상가건물, 기타건물 제외 */
+		AND    A.CPLX_TY NOT IN ( 'EST116', 'EST124', 'EST122', 'EST125')
+	</select>
+	<select id="selectTotalComplexList" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectTotalComplexList 미등록단지 전체목록 */
+		       A.CPLXNO            AS CPLXNO
+		       , A.PLOT_LOC        AS PLOT_LOC
+		       , NVL(B.BULDNO, 0)  AS BULDNO 
+		       , NVL(B.BRKNO , 0)  AS BRKNO 
+		       , A.BULDNM          AS BULDNM
+		       , A.CPLXNM          AS CPLXNM
+		       , A.ARCD            AS ARCD
+		       , A.LEGCD           AS LEGCD
+		       , CASE WHEN B.CPLX_TY IS NULL OR B.CPLX_TY = '' THEN 'CPX999' ELSE B.CPLX_TY END  AS CPLX_TY
+		       , CASE WHEN B.CPLX_TY IS NULL OR B.CPLX_TY = '' THEN 
+				           ( SELECT CODE_NM FROM TB_CM_COMMCODE WHERE GRP_CD = 'CPX' AND COMM_CD = '999' )
+		              ELSE ( SELECT CODE_NM FROM TB_CM_COMMCODE WHERE GRP_CD = 'EST' AND MXTR_COMM_CD = B.CPLX_TY ) 
+		        END                                                 AS CPLX_TY_NM
+		       , A.CPLX_HSHLD_CO                                    AS CPLX_HSHLD_CO
+		       , A.CPLX_DONG_CO                                     AS CPLX_DONG_CO
+		       , DATE_FORMAT( A.CREAT_DT, '%Y.%m.%d' )              AS CRDE
+		       , CASE WHEN B.BRKNO = #{brkno} THEN 'Y' ELSE 'N' END AS IS_MINE
+		FROM   TB_HBD_COMPLEX      A
+		LEFT   JOIN TB_BRK_COMPLEX B ON A.CPLXNO = B.CPLXNO 
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd} 
+	</select>
+	<select id="getBuldno" parameterType="homes.broker.vo.BrokerComplexVo" resultType="string">
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.getBuldno 건물번호 조회 */
+		       CONCAT(#{arcd}, #{legcd}, LPAD(NVL(MAX(SUBSTR(BULDNO, 11, 5)), 0) + 1, 5, '0')) AS BULDNO
+		FROM   TB_HBD_BULD_STUFF
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+		AND    BRKNO = #{brkno}
+	</select>
+	
+	<select id="selectComplexinfo" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
+		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexinfo 단지 통합정보 조회 */
+		       A.CPLXNO, A.BULDNO, A.BRKNO
+		       , A.CPLXNM
+		       , A.ARCD, A.LEGCD 
+		       , ( SELECT ARNAME FROM TB_CM_COAREACODE WHERE ARCODE = A.ARCD AND LEGCODE = A.LEGCD ) AS ARNAME 
+		       , B.PLOT_LOC
+		       , B.BULD_NM                            AS BULDNM
+		       , DATE_FORMAT(C.PRMISS_DE, '%Y.%m.%d') AS PRMISSDE /* 승인일자 */ 
+		       , TIMESTAMPDIFF(YEAR, STR_TO_DATE(C.PRMISS_DE, '%Y%m%d'), CURDATE()) AS DIFFY /* 현재년도 - 승인년도 */ 
+		       , A.CPLX_HSHLD_CO                      AS HSHLDCO  /* 단지내 총 세대수 */ 
+		       , A.CPLX_DONG_CO                       AS DONGCO   /* 단지내 총 동수 */ 
+		       , 0                                    AS MARKETCO /* 단지내 상가동 수 */
+		       , D.RDNG_ELVTR_CO                      AS ELVTRCO  /* 엘레베이터 수(비상용 제외) */  
+		FROM   TB_BRK_COMPLEX                   A
+		INNER  JOIN TB_BD_TITLE_LEDGR           B ON A.BULDNO = B.BULD_REGSTR_PK 
+		INNER  JOIN TB_BD_TITLE_LEDGR_PRMISS_DE C ON A.BULDNO = C.BULD_REGSTR_PK
+		INNER  JOIN TB_BD_TITLE_LEDGR_UNIT_CO   D ON A.BULDNO = D.BULD_REGSTR_PK
+		WHERE  A.BRKNO = #{brkno}
+		AND    A.BULDNO = #{buldno}
+	</select> 
+	
+	<insert id="insertHbdBuldStuff" parameterType="homes.broker.vo.BrokerComplexVo">
+		INSERT /* homes.broker.mapper.BrokerComplexMapper.insertHbdBuldStuff 중개사물건(건물)등록 */
+		INTO   TB_HBD_BULD_STUFF ( 
+			BULDNO, BRKNO, ARCD, LEGCD, CPLXNO, BULDNM, ESTCD, T_HSHLDCO, T_DONGCO
+			, LOC_X, LOC_Y
+			, CREAT_USER_NO, UPDT_USER_NO
+		) 
+		SELECT #{buldno}       AS BULDNO
+		       , #{brkno}      AS BRKNO
+		       , ARCD          AS ARCD
+		       , LEGCD         AS LEGCD
+		       , CPLXNO        AS CPLXNO
+		       , BULDNM        AS BULDNM
+		       , #{cplxTy}     AS ESTCD
+		       , CPLX_HSHLD_CO AS T_HSHLDCO
+		       , CPLX_DONG_CO  AS T_DONGCO
+		       , #{x}          AS LOC_X
+		       , #{y}          AS LOC_Y
+		       , #{brkno}      AS CREAT_USER_NO
+		       , #{brkno}      AS UPDT_USER_NO
+		FROM   TB_HBD_COMPLEX
+		WHERE  HBD_CPLXNO = #{cplxno}		
+	</insert>
+	
+	<insert id="insertBrokerComplex" parameterType="homes.broker.vo.BrokerComplexVo">
+		INSERT /* homes.broker.mapper.BrokerComplexMapper.insertBrokerComplex 중개사 단지등록 */
+		INTO TB_BRK_COMPLEX ( 
+			CPLXNO
+			, BULDNO
+			, BRKNO
+			, PLOT_LOC
+			, CPLXNM
+			, BULDNM
+			, ARCD
+			, LEGCD
+			, CPLX_TY
+			, CPLX_HSHLD_CO
+			, CPLX_DONG_CO
+			, LOC_X
+			, LOC_Y
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) 
+		SELECT CPLXNO          AS CPLXNO
+		       , ( SELECT BULDNO FROM TB_HBD_COMPLEX_BULD WHERE CPLXNO = #{cplxno} AND REPRE_BULD_YN = 'Y' LIMIT 1 )
+		       , #{brkno}      AS BRKNO
+		       , PLOT_LOC      AS PLOT_LOC
+		       , CPLXNM        AS CPLX_NM
+		       , BULDNM        AS BULD_NM
+		       , ARCD          AS ARCD
+		       , LEGCD         AS LEGCD
+		       , #{cplxTy}     AS CPLX_TY
+		       , CPLX_HSHLD_CO AS CPLX_HSHLD_CO
+		       , CPLX_DONG_CO  AS CPLX_DONG_CO
+		       , #{x}          AS LOC_X
+		       , #{y}          AS LOC_Y
+		       , #{brkno}      AS CREAT_USER_NO
+		       , #{brkno}      AS UPDT_USER_NO
+		FROM   TB_HBD_COMPLEX A
+		WHERE  CPLXNO = #{cplxno}
+	</insert>
     
 </mapper>

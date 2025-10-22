@@ -20,7 +20,7 @@ public interface CommonMapper {
 	public int addfile(FileVo fileVo) throws SQLException ; 
 	public Long getLastfileno(long userno) throws SQLException ; 
 	
-	public List<CommonMap> getCommCodeList(String grpcd) throws SQLException; 
+	public List<CommonMap> getCommCodeList(String upcd) throws SQLException; 
 	
 	
 }

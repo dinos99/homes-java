@@ -10,5 +10,14 @@ import homes.comm.vo.CommonMap;
 
 @Mapper
 public interface BrokerComplexMapper {
-	public List<CommonMap> selectComplexList(BrokerComplexVo paramVo) throws SQLException ; 
+	@Deprecated public List<CommonMap> selectMyComplexList(BrokerComplexVo paramVo) throws SQLException ; 
+	@Deprecated public List<CommonMap> selectOthersComplexList(BrokerComplexVo paramVo) throws SQLException ;
+	public List<CommonMap> selectTotalComplexList(BrokerComplexVo paramVo) throws SQLException ; 
+
+	public CommonMap selectComplexinfo(BrokerComplexVo paramVo) ; 
+	
+	public String getBuldno(BrokerComplexVo paramVo) throws SQLException ; 
+	
+	public int insertBrokerComplex(BrokerComplexVo paramVo) throws SQLException ; 
+	public int insertHbdBuldStuff(BrokerComplexVo paramVo) throws SQLException ; 
 }

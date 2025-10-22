@@ -4,10 +4,15 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import homes.comm.util.StringUtil;
+import homes.stuff.service.StuffServiceImpl;
 
 public class CommonMap extends HashMap<Object, Object> {
 	static final long serialVersionUID = 1L;
+	public final Logger Log = LogManager.getLogger(StuffServiceImpl.class) ;
 
 	public Object put(Object key, Object val) {
 		return super.put(StringUtil.convCamelCase(String.valueOf(key)), val) ; 
@@ -22,6 +27,21 @@ public class CommonMap extends HashMap<Object, Object> {
 			return bd.longValue() ; 
 		}
 		return 0l ; 
+	}
+	
+	public int getIntValue(Object key) {
+		Object val = super.get(key) ; 
+		if ( val instanceof java.lang.Integer ) {
+			return ( int ) val ; 
+		} else if ( val instanceof java.math.BigDecimal ) {
+			BigDecimal bd = new BigDecimal((int)val) ; 
+			return bd.intValue() ; 
+		} else if ( val instanceof java.lang.Long ) {
+			return Integer.parseInt(String.valueOf(val)) ; 
+		} else {
+			Log.error("**** val instanceof {}", val.getClass().getName()) ; 
+		}
+		return 0 ;
 	}
 	
 	public String getStringValue(String key, String defVal) {

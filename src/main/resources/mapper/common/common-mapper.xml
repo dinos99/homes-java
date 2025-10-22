@@ -105,10 +105,8 @@
     	       MXTR_COMM_CD AS COMMCD
     	       , CODE_NM    AS CODENM
     	FROM   TB_CM_COMMCODE
-    	WHERE  GRP_CD = #{grpcd}
+    	WHERE  GRP_CD = UPPER(#{grpcd})
     	AND    USE_YN = 'Y'
-    	AND    UPPER_CD IS NOT NULL 
-    	AND    UPPER_CD != '' 
     	ORDER  BY CD_ORDR
     </select>
     

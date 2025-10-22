@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.stuff.mapper.StuffMapper">
+	<select id="selectBrkComplexList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuffList 중개사 물건 목록 */
+		        A.CPLXNO           AS CPLXNO     /* 단지번호 */
+		        , B.BULDNO         AS BULDNO     /* 단지내 대표건물번호 */ 
+		        , B.BRKNO          AS BRKNO
+		        , A.ARCD           AS ARCD
+		        , A.LEGCD          AS LEGCD
+		        , A.PLOT_LOC       AS PLOT_LOC
+		        , B.CPLXNM         AS CPLXNM
+		        , B.BULDNM         AS BULDNM
+		        , B.CPLX_TY        AS CPLX_TY
+		        , B.CPLX_HSHLD_CO  AS HSHLD_CO
+		        , B.CPLX_DONG_CO   AS DONG_CO
+		        , B.LOC_X          AS LOC_X
+		        , B.LOC_Y          AS LOC_Y
+		        , B.CPLX_TY        AS EST_TY
+		        , 'Y'              AS IS_COMPLEX
+		        , CD.FILLER_V1     AS EST_COLOR
+		        , CD.CODE_NM       AS EST_TYNM 
+		FROM   TB_HBD_COMPLEX      A
+		INNER  JOIN TB_BRK_COMPLEX B  ON ( A.CPLXNO = B.CPLXNO ) 
+		INNER  JOIN TB_CM_COMMCODE CD ON ( B.CPLX_TY = CD.MXTR_COMM_CD )
+		WHERE  B.BRKNO = #{brkno}
+		ORDER  BY B.CPLXNM ASC 
+	</select>
+	
+	<select id="selectBrkBlockList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkBlockList 단지내 포함된 동명조회 */
+		       CPLXNO, BULDNO, REPRE_YN, CPLXNM, BLOCKNM, BLOCKRN
+        FROM   ( SELECT A.CPLXNO, A.BULDNO
+		                , A.REPRE_BULD_YN AS REPRE_YN
+		                , A.CPLXNM
+		                , A.BLOCKNM
+		                , CONVERT(SUBSTR(A.BLOCKNM, 1, INSTR(A.BLOCKNM, '동') - 1), UNSIGNED) AS BLOCKRN
+		         FROM   TB_HBD_COMPLEX_BULD A
+		         WHERE  CPLXNO = #{cplxno}
+		       ) A
+		<!-- =====================================================================================
+		     관리사무소/전기실/발전기실/주민공동시설등을 걸러내려면 주석을 해제한다
+		     현재는 상가때문에 일단 사용함 
+        WHERE  BLOCKRN <![CDATA[ > ]]> 0  
+		-->
+		ORDER  BY BLOCKNM ASC 
+	</select>
+	
+	<select id="selectFloorCount" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectFloorCount 동별 총 층수, 총 호실 수 조회 */
+		       BULDNO
+		       , MAX(FLNO) AS FLOOR_CO 
+		       , MAX(RMCO) AS ROOM_CO
+		FROM   ( SELECT UPPER_REGSTR_PK AS BULDNO 
+		                , FLOOR_GB_CD   AS FLGBCD
+		                , FLOOR_NO      AS FLNO
+		                , COUNT(1)      AS RMCO
+		         FROM   TB_HBD_PSSION_BULD
+		         WHERE  UPPER_REGSTR_PK = #{buldno}
+		         AND    FLOOR_GB_CD = #{flgbcd} 
+		         GROUP  BY UPPER_REGSTR_PK, FLOOR_GB_CD, FLOOR_NO
+		       ) A
+		GROUP BY BULDNO
+	</select>
+	
+	<select id="selectFloorRoomList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		WITH RECURSIVE TB_LEV(RN) AS (
+			SELECT 1
+			UNION ALL
+			SELECT RN + 1 FROM TB_LEV WHERE RN <![CDATA[ < ]]> #{roomCo}
+		)
+		, TB_FLOOR AS  (
+			SELECT A.FLOOR_NO                                                         AS FLNO 
+			       , MOD(REGEXP_REPLACE(A.HO_NM, '[^0-9]+', ''), 10)                  AS RN
+			       , MOD(FLOOR(REGEXP_REPLACE(A.HO_NM, '[^0-9]+', '') / 10), 10) * 10 AS FRN
+			       , A.UPPER_REGSTR_PK                                                AS BULDNO 
+			       , A.BULD_REGSTR_PK                                                 AS PSS_REGSTR_PK 
+			       , A.HO_NM                                                          AS HO_NM
+		           , ( SELECT STUFFNO 
+		               FROM   TB_BRK_BULD_STUFF
+		               WHERE  BRKNO = #{brkno}
+		               AND    STUFFNO = B.STUFFNO 
+		           ) AS STUFFNO
+		           , ( SELECT SFSTTUS
+		               FROM   TB_BRK_BULD_STUFF
+		               WHERE  BRKNO = #{brkno}
+		               AND    STUFFNO = B.STUFFNO 
+		           ) AS SFSTTUS
+			FROM   TB_HBD_PSSION_BULD     A
+		    LEFT   JOIN TB_HBD_BULD_STUFF B ON A.UPPER_REGSTR_PK = B.BULDNO AND A.BULD_REGSTR_PK = B.PSSIONNO 
+			WHERE  A.UPPER_REGSTR_PK = #{buldno}
+			AND    A.FLOOR_GB_CD = #{flgbcd}
+			AND    A.FLOOR_NO = #{flno}
+		)
+		SELECT /* homes.stuff.mapper.StuffMapper.selectFloorRoomList 각 층별 호실번호목록 조회 */
+		       #{flno}                AS FLNO
+		       , #{flgbcd}            AS FLGBCD
+		       , FL.BULDNO            AS BULDNO
+		       , FL.PSS_REGSTR_PK     AS PSSIONNO
+		       , FL.HO_NM             AS ROOM_NM
+		       , NVL(FL.STUFFNO, 0)   AS STUFFNO
+		       , NVL(FL.SFSTTUS, 'T') AS SFSTTUS
+		FROM   TB_LEV LV
+		LEFT   JOIN ( SELECT RN + FRN             AS RN 
+		                     , FLNO               AS FLNO
+		                     , BULDNO             AS BULDNO 
+		                     , PSS_REGSTR_PK      AS PSS_REGSTR_PK
+		                     , HO_NM              AS HO_NM
+		                     , STUFFNO            AS STUFFNO
+		                     , SFSTTUS            AS SFSTTUS
+		              FROM   TB_FLOOR A
+		            ) FL
+		ON     LV.RN = FL.RN
+	</select>
+	
+	<select id="selectStuffOwnerList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectStuffOwnerList 중개사 물건 소유주 목록조회 */
+		       A.STUFFNO       AS STUFFNO
+		       , A.BULDNO      AS BULDNO
+		       , A.CPLXNO      AS CPLXNO
+		       , A.PSSIONNO    AS PSSIONNO
+		       , B.FLOOR_GB_CD AS FLGBCD
+		       , B.FLOOR_GB_NM AS FLGBNM
+		       , B.DONG_NM     AS DONGNM
+		       , B.FLOOR_NO    AS FLNO
+		       , B.HO_NM       AS ROOMNM
+		       , C.BRKNO       AS BRKNO 
+		       , D.OWNO        AS OWNO
+		       , D.OWSEQ       AS OWSEQ
+		       , D.USERNO      AS USERNO
+		       , D.STFFNM01    AS STFFNM01
+		       , D.STFFNM02    AS STFFNM02
+		       , D.OWNER_TY    AS OWNER_TY
+		       , D.OWNERNM     AS OWNERNM
+		       , D.CCB_CD      AS CCB_CD
+		       , D.CTTPC       AS CTTPC
+		       , C.SFSTTUS     AS SFSTTUS
+		       , D.OWSTTUS     AS OWSTTUS
+		FROM   TB_HBD_BULD_STUFF       A
+		LEFT   JOIN TB_HBD_PSSION_BULD B ON ( A.BULDNO = B.BULD_REGSTR_PK AND A.PSSIONNO = B.UPPER_REGSTR_PK ) 
+		LEFT   JOIN TB_BRK_BULD_STUFF  C ON ( A.STUFFNO = C.STUFFNO ) 
+		LEFT   JOIN TB_BRK_BULD_OWNER  D ON ( A.STUFFNO = D.STUFFNO AND C.BRKNO = D.BRKNO ) 
+		WHERE  A.BULDNO = #{buldno}
+		AND    C.BRKNO = #{brkno}
+	</select>
+	
+	<select id="isExistsStuff" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.isExistsStuff 물건등록여부 확인 */
+		       CASE WHEN COUNT(1) <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS IS_STUFF
+		FROM   TB_HBD_BULD_STUFF
+		WHERE  BULDNO = #{buldno}
+		<if test="pssionno != null and pssionno != ''">
+		AND    PSSIONNO = #{pssionno}
+		</if>
+	</select>
+	
+	<select id="createStuffno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.createStuffno 물건번호 신규채번 */
+		       CONCAT('SF', LPAD(NVL(MAX(REPLACE(STUFFNO, 'SF', '')), 0) + 1, 20, '0')) AS STUFFNO 
+		FROM   TB_HBD_BULD_STUFF 
+	</select>
+	<select id="getStuffno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.getStuffno 물건번호조회 */
+		       STUFFNO
+		FROM   TB_HBD_BULD_STUFF 
+		WHERE  BULDNO = #{buldno}
+		<if test="pssionno != null and pssionno != ''">
+		AND    PSSIONNO = #{pssionno}
+		</if>
+		LIMIT  1
+	</select>
+	
+	<select id="isExistsOwner" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.isExistsOwner 소유주 존재여부 확인 */
+		       NVL(MAX(OWNO), '000') AS OWNO
+		       , COUNT(1)            AS OWSEQ 
+		FROM   TB_BRK_BULD_OWNER
+		WHERE  BRKNO = #{brkno}
+		AND    STUFFNO = #{stuffno} 
+	</select>
+	
+	<select id="createOwno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.createOwno 소유주번호 신규채번 */
+		       CONCAT('OW', LPAD(NVL(MAX(REPLACE(OWNO, 'OW', '')), 0) + 1, 20, '0')) AS STUFFNO 
+		FROM   TB_BRK_BULD_OWNER 
+	</select>
+	
+	<insert id="insertHbdStuff" parameterType="homes.stuff.vo.StuffVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertHbdStuff 물건등록 */ 
+		TB_HBD_BULD_STUFF (
+			STUFFNO, BULDNO, CPLXNO, PSSIONNO, CREAT_USER_NO, UPDT_USER_NO  
+		) VALUES (
+			#{stuffno}
+			, #{buldno}
+			, #{cplxno}
+			, #{pssionno}
+			, #{brkno}
+			, #{brkno}
+		)
+	</insert>
+	<insert id="insertBrkStuff" parameterType="homes.stuff.vo.StuffVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertBrkStuff 중개사 물건등록 */ 
+		TB_BRK_BULD_STUFF (
+			BRKNO, STUFFNO, SFSTTUS, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{brkno}
+			, #{stuffno}
+			, #{sfsttus}
+			, #{brkno}
+			, #{brkno}
+		)
+	</insert>
+	<insert id="insertBrkOwner" parameterType="homes.stuff.vo.StuffVo">
+		INSERT /* homes.stuff.mapper.StuffMapper.insertBrkOwner 소유주 등록 */
+		INTO   TB_BRK_BULD_OWNER (
+			OWNO, OWSEQ, BRKNO, USERNO, STUFFNO, STFFNM01, STFFNM02
+			, OWNER_TY, OWNERNM, CCB_CD, CTTPC, OWSTTUS
+			, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{owno}
+			, #{owseq}
+			, #{brkno}
+			, #{userno}
+			, #{stuffno}
+			, #{stffnm01}
+			, #{stffnm02}
+			, #{ownerTy}
+			, #{ownernm}
+			, #{ccbCd}
+			, #{cttpc}
+			, #{owsttus}
+			, #{brkno}
+			, #{brkno}
+		)
+	</insert>
+	
+	<delete id="deleteBrkStuff" parameterType="homes.stuff.vo.StuffVo">
+		DELETE /* homes.stuff.mapper.StuffMapper.deleteBrkStuff 중개사 물건삭제 */
+		FROM   TB_BRK_BULD_STUFF
+		WHERE  BRKNO = #{brkno}
+		AND    STUFFNO = #{stuffno}
+	</delete>
+	
+	<update id="deleteBrkOwner" parameterType="homes.stuff.vo.StuffVo">
+		UPDATE /* homes.stuff.mapper.StuffMapper.deleteBrkOwner 소유주 삭제 */
+		TB_BRK_BULD_OWNER
+		SET    USERNO = 0
+		       , OWNER_TY = ''
+		       , OWNERNM = ''
+		       , CCB_CD = ''
+		       , CTTPC = ''
+		       , OWSTTUS = 'T'
+		WHERE  OWNO = #{owno}
+		AND    OWSEQ = #{owseq}
+		AND    BRKNO = #{brkno}
+	</update>
+</mapper>

@@ -29,5 +29,20 @@
 		AND    USE_YN = 'Y' 
 		ORDER  BY CD_ORDR
     </select>
+    
+    <select id="getCommCodeList" parameterType="codeVo" resultType="commonMap">
+    	SELECT /* homes.common.mapper.CommonMappe.getCommCodeList 여러공통코드조회  */
+    	       MXTR_COMM_CD AS CODE
+    	       , GRP_CD     AS GRPCD
+    	       , CODE_NM    AS CODENM
+    	       , CD_ORDR    AS ORDR
+		FROM   TB_CM_COMMCODE
+		WHERE  GRP_CD IN 
+		<foreach collection="grpcds" item="grpcd" open="(" separator="," close=")">
+			#{grpcd}
+		</foreach>
+		AND    USE_YN = 'Y' 
+		ORDER  BY GRPCD, CD_ORDR
+    </select>
 
 </mapper>

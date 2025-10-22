@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class CommReqVo {
 	private String arcode ; 
+	private String[] upcds ;
 }
