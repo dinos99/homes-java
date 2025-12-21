@@ -18,4 +18,9 @@ public interface CommCodeMapper {
 	/* 여러공통코드 조회 */ 
 	public List<CommonMap> getCommCodeList(CommCodeVo paramVo) ; 
 	
+	/* UPPER_CD로 공통코드조회 */
+	public List<CommonMap> getCodeListbyUpcode(String grpcd) ;
+	
+	/* View를 통하여 부동산 용도코드를 조회한다 */
+	public List<CommonMap> getPpsCdList( String ppscd ) ; 
 }

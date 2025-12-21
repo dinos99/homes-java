@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.buld.mapper.BuldMapper">
+	<select id="getTitleLedgrChngSeq" parameterType="string" resultType="int">
+		SELECT /* homes.buld.mapper.BuldMapper.getTitleLedgrChngSeq 변경일련번호 조회 */
+		       COUNT(1) + 1 AS CHNG_SEQ
+		FROM   TB_HBD_TITLE_LEDGR_HIST
+		WHERE  BULD_REGSTR_PK = #{buldno}
+	</select>
+	
+	<select id="getLedgrPpsHistno" parameterType="string" resultType="int">
+		SELECT /* homes.buld.mapper.BuldMapper.getLedgrPpsHistno 용도변경 일련번호 조회 */
+		       NVL(MAX(HISTNO), 0) + 1 AS HISTNO
+		FROM   TB_BD_TITLE_LEDGR_PPS_HIST A
+		WHERE  A.BULD_REGSTR_PK = #{buldno}
+	</select>
+	
+	<select id="isUpdatePpsCd" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.buld.mapper.BuldMapper.isUpdatePpsCd 용도변경 조회 */
+		       CASE WHEN A.MAIN_PPS_CD = #{ppscd} THEN 'N' ELSE 'Y' END AS IS_UPDATED
+		       , ( SELECT NVL(MAX(HISTNO), 0) + 1 AS HISTNO
+		           FROM TB_BD_TITLE_LEDGR_PPS_HIST A
+		           WHERE  A.BULD_REGSTR_PK = #{buldno}
+		       ) AS HISTNO 
+		FROM   TB_BD_TITLE_LEDGR_PPS A
+		WHERE  A.BULD_REGSTR_PK = #{buldno}
+	</select>
+	
+	<insert id="insertLedgrPpscdHist" parameterType="homes.stuff.vo.StuffVo" >
+		INSERT /* homes.buld.mapper.BuldMapper.insertLedgrPpscdHist 용도변경이력 등록 */
+		INTO   TB_BD_TITLE_LEDGR_PPS_HIST (
+			   BULD_REGSTR_PK, HISTNO, HISTDE
+			   , MAIN_PPS_CD, ETC_PPS
+			   , CREAT_USER_NO
+			   , UPDT_USER_NO
+		) 
+		SELECT BULD_REGSTR_PK
+		       , #{histno}
+		       , DATE_FORMAT(NOW(), '%Y%m%d')
+		       , MAIN_PPS_CD
+		       , ETC_PPS
+		       , #{brkno}
+		       , #{brkno}
+		FROM   TB_BD_TITLE_LEDGR_PPS
+		WHERE  BULD_REGSTR_PK = #{buldno}
+	</insert>
+	
+	<update id="updateLedgrPpscd" parameterType="homes.stuff.vo.StuffVo">
+		UPDATE /* homes.buld.mapper.BuldMapper.updateLedgrPpscd 건물용도 변경 */
+		TB_BD_TITLE_LEDGR_PPS
+		SET    UPDT_USER_NO = #{brkno}
+		       , UPDT_DT = NOW() 
+		       <if test="ppscd != null and ppscd != ''">
+		       , MAIN_PPS_CD = #{ppscd}
+		       </if>
+		       <if test="etcppscd != null and etcppscd != ''">
+		       , ETC_PPS = #{etcppscd}
+		       </if>
+		WHERE  BULD_REGSTR_PK = #{buldno}
+	</update>
+</mapper>

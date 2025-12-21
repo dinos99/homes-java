@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import homes.api.buld.vo.RecapLedgrVo;
+import homes.api.buld.vo.TitleLedgrVo;
 import homes.comm.util.JsonUtil;
 import homes.comm.util.RequestUtil;
 import homes.comm.vo.CommonMap;
 import homes.exception.HomesException;
 import homes.stuff.service.StuffService;
+import homes.stuff.vo.StuffListVo;
 import homes.stuff.vo.StuffVo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,14 @@ public class StuffController {
 		CommonMap stuffList = service.selectBrkStuffList(request, paramVo);
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(stuffList)) ;
 	}
+	@PostMapping("/api/v1/stuff/brker-stuff")
+	public ResponseEntity<String> brkerStuff(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		Long brkno = RequestUtil.getUserno(request) ; 
+		paramVo.setBrkno(brkno) ;
+		List<CommonMap> stuffList = service.selectBrkStuff(paramVo) ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(stuffList)) ;
+	}
+	
 
 	@PostMapping("/api/v1/stuff/blockList")
 	public ResponseEntity<String> blockList(@RequestBody StuffVo paramVo ) {
@@ -82,5 +93,39 @@ public class StuffController {
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ownerList)) ;
 	}
 	
+
+	@PostMapping("/api/v1/stuff/update-stuff")
+	public ResponseEntity<String> updateBrkSttuf(HttpServletRequest request, @RequestBody StuffListVo paramVo ) {
+		Log.error(paramVo) ;
+		Long brkno = RequestUtil.getUserno(request) ; 
+		CommonMap result = new CommonMap() ; 
+		try {
+			int up_co = service.updateBrkSttuf(brkno, paramVo) ;
+			result.put("up_co", up_co) ; 
+		} catch ( Exception e ) {
+			e.printStackTrace() ; 
+		}
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(result)) ;
+	}
 	
+	/**
+	 * 통합DB(홈즈_관리대장_마스터) 검색
+	 * @param paramVo
+	 * @return
+	 */
+	@PostMapping("/api/v1/stuff/total-buld")
+	public ResponseEntity<String> selectTitleLedgrinfo(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		Log.info("*** 건축물대장 통합DB조회 **********************************************");
+		Long brkno = RequestUtil.getUserno(request) ;
+		paramVo.setBrkno(brkno);
+		RecapLedgrVo recapVo = service.getHomesBuldMaster( paramVo ) ;
+		paramVo.setHtbdno(recapVo.getHtbdno()) ; 
+		paramVo.setBuldgb(recapVo.getBuldgb()) ;
+		List<TitleLedgrVo> titleLedgrList = service.selectHbdLedgr(paramVo) ; 
+//		CommonMap buldinfo = service.manageHomesBuldLedgr( paramVo ) ;
+		CommonMap buldinfo = new CommonMap() ;
+		buldinfo.put("recap"    , recapVo) ;        /* 홈즈_관리대장_총괄표제부 */
+		buldinfo.put("titleList", titleLedgrList) ; /* 홈즈_관리대장_표제부 */
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(buldinfo)) ;
+	}
 }

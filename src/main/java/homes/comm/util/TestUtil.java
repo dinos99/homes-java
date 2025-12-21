@@ -31,8 +31,7 @@ public class TestUtil {
         String format = "yyyy년 MM월 dd일 HH시 mm분 ss초" ;
         System.out.println(new SimpleDateFormat(format, Locale.KOREA).format(date)) ;
         System.out.println(new SimpleDateFormat(format, Locale.KOREAN).format(date)) ;
-		  
- */
+        
 		float fVal = StringUtil.getFloatValue("4900315") ;
 		System.out.println("*** fVal: " + fVal) ;	
 
@@ -42,6 +41,19 @@ public class TestUtil {
 		
 		String sdcode = "34000" ; 
 		System.out.println(sdcode.substring(0, 2)) ;
+		  
+ */
+		
+		int a = 100;
+		int b = 122;
+
+		// 결과를 double로 변환 후 나눗셈하고 올림
+		double result = Math.ceil((double) a / b);
+
+		// int로 형변환
+		int finalResult = (int) result;
+
+		System.out.println(finalResult); // 4가 출력됩니다.
 
 	}
 	

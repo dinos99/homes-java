@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import homes.comm.mapper.CommCodeMapper;
 import homes.comm.mapper.CommonMapper;
 import homes.comm.vo.CommUserReqVo;
 import homes.comm.vo.CommonMap;
@@ -23,7 +24,6 @@ public class CommonServiceImpl implements CommonService {
 	
 	private final CommonMapper mapper ;
 	private final CommUserMapper commUserMapper ;
-//	private final BrokerMapper brokerMapper ;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -89,11 +89,5 @@ public class CommonServiceImpl implements CommonService {
 	@Transactional(readOnly = true)
 	public long selectLastid() throws SQLException {
 		return commUserMapper.selectLastid(0l);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CommonMap> getCommCodeList(String upcd) throws SQLException {
-		return mapper.getCommCodeList(upcd) ;
 	}
 }

@@ -15,7 +15,7 @@ public class CommCodeVo {
 	private String grpcd ; 
 	private String uppercd ; 
 	private String codenm ;
-	private String[] grpcds ; 
+	private String[] grpcds ;
 	
 	public CommCodeVo( String gcd, String nm , String upcd ) {
 		this.grpcd = gcd ; 

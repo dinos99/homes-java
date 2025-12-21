@@ -20,20 +20,27 @@ public enum EnumBatchJob {
 	BLD009("BLD009", "건축물대장-전유부"),
 	
 	BTS_READY("BTS000", "작업대기"),
-	BTS_PROC("BTS001", "작업처리중"),
-	BTS_DONE("BTS002", "작업완료"),
+	BTS_PROC("BTS001" , "작업처리중"),
+	BTS_DONE("BTS002" , "작업완료"),
 	BTS_ERROR("BTS999", "작업에러"),
 	
-	SPLIT_BASE_SUMMRY("BDT000", "기본개요-파일분할"),
-	INSERT_BASE_SUMMRY("BDT001", "기본개요 등록"),
+	SPLIT_BASE_SUMMRY("BDT100" , "기본개요-파일분할"),
+
+	SPLIT_TITLE_LEDGER("BDT300" , "표제부-파일분할"),
+	INSERT_TITLE_LEDGER("BDT310", "건축물대장-표제부등록"),	
 	
 	INSERT_TOTAL_LEDGER("BDT021", "건축물대장-총괄표제부등록"),
-	
-	SPLIT_TITLE_LEDGER("BDT030", "표제부-파일분할"),
-	INSERT_TITLE_LEDGER("BDT031", "건축물대장-표제부등록"),
-	
 	SPLIT_PSSION_LEDGER("BDT040", "표제부-파일분할"),
 	INSERT_PSSION_LEDGER("BDT041", "건축물대장-표제부등록"),
+
+	MNG_BASE_SUMMRY("HBT000", "홈즈관리대장 기본개요관리"),
+	MNG_LEDGR_MSTR ("HBT001", "홈즈관리대장 총괄표제부관리"),
+	MNG_LEDGR      ("HBT002", "홈즈관리대장 표제부관리"),
+	
+	BATCH_AT_000("0", "작업대기"), 
+	BATCH_AT_010("1", "기본개요등록완료"),
+	BATCH_AT_020("2", "총괄표제부등록완료"),
+	BATCH_AT_030("3", "표제부등록완료")
 	;
 
     private final String jobcd ;

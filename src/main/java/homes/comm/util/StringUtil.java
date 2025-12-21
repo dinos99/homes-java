@@ -1,5 +1,6 @@
 package homes.comm.util;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
@@ -81,8 +83,11 @@ public class StringUtil extends JdbcUtils {
 	public static int getIntValue(String istr, long defVal ) {
 		String intStr = Optional.ofNullable(istr).orElse("") ; 
 		intStr = "".equals(intStr) ? String.valueOf(defVal) : intStr ;
-		return Integer.parseInt(intStr) ;  
-		
+		return Integer.parseInt(intStr) ;
+	}
+	
+	public static int getIntValue(Object obj) {
+		return getIntValue((String)obj) ; 
 	}
 	
 	public static int getIntValue( CommonMap cmap, String key, int defVal) {
@@ -151,7 +156,7 @@ public class StringUtil extends JdbcUtils {
 	public static String getStringValue( HttpServletRequest request, String key) {
 		return getStringValue((String)request.getAttribute(key)) ; 
 	}
-	
+		
 	public static String getStringValue(Map<String, Object> pMap, String key, String defVal) {
 		if ( pMap == null ) {
 			pMap = new HashMap<String, Object>() ;
@@ -169,5 +174,22 @@ public class StringUtil extends JdbcUtils {
 	}
 	public String getStringValue( CommonMap cmap, String key ) {
 		return getStringValue(cmap, key, "") ; 
+	}
+	
+	public static String getJsonString(JSONObject json, String key) {
+		return String.valueOf(json.get(key)) ;
+	}
+	
+	public static int getJsonInt(JSONObject json, String key) {
+		BigDecimal bd = new BigDecimal(String.valueOf(json.get(key))) ; 
+		return bd.intValue() ;
+	}
+	
+	public static String strLpad(String str, int len, char padChar) {
+	    String result = str;
+	    while (result.length() < len) {
+	        result = padChar + result;
+	    }
+	    return result;
 	}
 }

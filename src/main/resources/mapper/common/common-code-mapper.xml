@@ -6,17 +6,32 @@
     <select id="getCodeAllList" parameterType="codeVo" resultType="codeVo">
     	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList 모든 공통코드조회  */
     	       MXTR_COMM_CD AS CODE
+    	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
     	       , CD_NM      AS CODENM
     	       , CD_ORDER   AS ORDR
 		FROM   TB_CM_COMMCODE
 		WHERE  USE_YN = 'Y' 
 		ORDER  BY CD_ORDR
-    </select>    
+    </select>
+    
+    <select id="getCodeListbyUpcode" parameterType="string" resultType="CommonMap">
+    	SELECT /* homes.common.mapper.CommonMappe.getCodeListbyUpcode UPPER_CD로 공통코드조회  */
+    	       MXTR_COMM_CD   AS CODE
+    	       , MXTR_COMM_CD AS COMMCD
+    	       , GRP_CD       AS GRPCD
+    	       , CODE_NM      AS CODENM
+    	       , CD_ORDR      AS ORDR
+		FROM   TB_CM_COMMCODE
+		WHERE  UPPER_CD = UPPER(#{upcd})
+		AND    USE_YN = 'Y' 
+		ORDER  BY CD_ORDR
+    </select>
     
     <select id="getCodeGroupList" parameterType="codeVo" resultType="codeVo">
     	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList GRP_CD로 공통코드조회  */
     	       MXTR_COMM_CD AS CODE
+    	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
     	       , CODE_NM    AS CODENM
     	       , CD_ORDR    AS ORDR
@@ -33,6 +48,7 @@
     <select id="getCommCodeList" parameterType="codeVo" resultType="commonMap">
     	SELECT /* homes.common.mapper.CommonMappe.getCommCodeList 여러공통코드조회  */
     	       MXTR_COMM_CD AS CODE
+    	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
     	       , CODE_NM    AS CODENM
     	       , CD_ORDR    AS ORDR
@@ -43,6 +59,16 @@
 		</foreach>
 		AND    USE_YN = 'Y' 
 		ORDER  BY GRPCD, CD_ORDR
+    </select>
+    
+    <select id="getPpsCdList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.common.mapper.CommonMappe.getPpsCdList 부동산 용도코드 조회  */
+		       PPS_CD, PPS_NM
+		       , PPS_CD_01  , PPS_NM_01
+		       , PPS_CD_02, PPS_NM_02
+		       , PPS_CD_03, PPS_NM_03
+		FROM   VW_PPS_CD
+		WHERE  1 = 1 
     </select>
 
 </mapper>

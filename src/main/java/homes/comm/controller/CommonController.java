@@ -21,6 +21,7 @@ import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommCodeVo;
 import homes.comm.vo.CommReqVo;
 import homes.comm.vo.CommonMap;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -98,16 +99,21 @@ public class CommonController {
 	}
 	
 
-	@GetMapping("/api/v1/commcode/{upcd}")
-	public ResponseEntity<String> getCommCodeList(@PathVariable String upcd) {
-		Log.info("*** grpcd: {}", upcd) ;
+	@GetMapping("/api/v1/commcode/{grpcd}")
+	public ResponseEntity<String> getCommCodeList(@PathVariable String grpcd) {
+		Log.info("*** grpcd: {}", grpcd) ;
 		List<CommonMap> codeList = null ; 
-		try {
-			codeList = service.getCommCodeList(upcd) ;
-		} catch (SQLException e) {
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} 
+		CommCodeVo paramVo = new CommCodeVo() ; 
+		String[] grpcds = { grpcd } ; 
+		paramVo.setGrpcds(grpcds) ;
+		codeList = commCodeService.getCommCodeList(paramVo) ;
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(codeList)) ;
 	}
-	
+
+	@GetMapping("/api/v1/commcode/ppsList")
+	public ResponseEntity<String> getPpsCdList(HttpServletRequest request) {
+		List<CommonMap> ppsList = commCodeService.getPpsCdList("") ;
+		Log.info("*** get ppscd List: {}", ppsList) ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ppsList)) ;
+	}
 }

@@ -63,4 +63,16 @@ public class CommCodeServiceImpl implements CommCodeService {
     public List<CommonMap> getCommCodeList(CommCodeVo paramVo) {
     	return mapper.getCommCodeList(paramVo) ; 
     }
+	
+	@Transactional(readOnly = true)
+	public List<CommonMap> getCodeListbyUpcode(String upcd) {
+		return mapper.getCodeListbyUpcode(upcd) ; 
+	}
+
+    @Cacheable(key = "'ppsList'")
+	@Transactional(readOnly = true)
+	public List<CommonMap> getPpsCdList( String ppscd ) {
+    	Log.error("*** Execute Cacheable within key *************************************");
+		return mapper.getPpsCdList(ppscd) ;
+	}
 }

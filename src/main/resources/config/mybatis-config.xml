@@ -3,12 +3,25 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
         
 <configuration>	
+	<settings>
+    	<!-- snake to camel -->
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!-- 쿼리 결과가 null인 경우 누락되지 않도록 -->
+		<setting name="callSettersOnNulls" value="true"/>
+        <!-- 쿼리에 보내는 파라미터가 null인 경우 에러 발생 방지 -->
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
 	<typeAliases>
 		<typeAlias type="homes.comm.vo.CommonMap" alias="commonMap" />
 		<typeAlias type="homes.comm.vo.CommReqVo" alias="commVo" />
 		<typeAlias type="homes.comm.vo.CommCodeVo" alias="codeVo" />
 		<typeAlias type="homes.comm.vo.FileVo" alias="fileVo" />
 		<typeAlias type="homes.popup.vo.PopCommReqVo" alias="popVo" />
+		<typeAlias type="homes.batch.vo.BatchVo" alias="batchVo" />
+		<typeAlias type="homes.data.vo.BaseOutLineVo" alias="bsOutLineVo" />
+		<typeAlias type="homes.data.vo.BaseSummaryVo" alias="summryVo" />
+		<typeAlias type="homes.data.vo.LedgrMstrVo" alias="ledgrMstrVo" />
+		<typeAlias type="homes.data.vo.LedgrVo" alias="ledgrVo" />
 	</typeAliases>
 	
     <mappers>
@@ -19,6 +32,7 @@
         <mapper resource="mapper/broker/broker-mapper.xml"/>
         <mapper resource="mapper/broker/broker-complex-mapper.xml"/>
         <mapper resource="mapper/stuff/stuff-mapper.xml"/>
+        <mapper resource="mapper/buld/buld-mapper.xml"/>
         <mapper resource="mapper/manager/manager-mapper.xml"/>
         <mapper resource="mapper/system/system-mapper.xml"/>
         <mapper resource="mapper/complex/complex-mapper.xml"/>

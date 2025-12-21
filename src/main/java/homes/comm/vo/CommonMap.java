@@ -13,7 +13,7 @@ import homes.stuff.service.StuffServiceImpl;
 public class CommonMap extends HashMap<Object, Object> {
 	static final long serialVersionUID = 1L;
 	public final Logger Log = LogManager.getLogger(StuffServiceImpl.class) ;
-
+	
 	public Object put(Object key, Object val) {
 		return super.put(StringUtil.convCamelCase(String.valueOf(key)), val) ; 
 	}
@@ -50,5 +50,21 @@ public class CommonMap extends HashMap<Object, Object> {
 	
 	public String getStringValue(String key) {
 		return getStringValue(key, "") ;
+	}
+	
+	public boolean isEmpty(String key) {
+		Object val = super.get(key) ; 
+		if ( val == null ) return true ; 
+		else {
+			if ( val instanceof java.lang.String ) {
+				String s = getStringValue(key) ; 
+				return "".equals(s) ; 
+			}
+		}
+		return false ; 
+	}
+	
+	public boolean isNotEmpty(String key) {
+		return !this.isEmpty(key) ;
 	}
 }

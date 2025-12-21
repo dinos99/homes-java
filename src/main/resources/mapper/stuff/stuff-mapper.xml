@@ -145,6 +145,89 @@
 		AND    C.BRKNO = #{brkno}
 	</select>
 	
+	<select id="selectBuldGroup" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBuldGroup 집합건물 정보 조회 */
+		       A.GBULDNO, A.BULDNO, A.BULD_REGSTR_PK
+		       , A.BDADDR, A.BULDNM
+		       , A.ARCD, A.LEGCD
+		       , A.BUNJIB AS BUN
+		       , A.BUNJIJ AS JI
+		       , A.BULDCO, A.HSHLDCO, A.FMLYCO
+		       , B.MAIN_PPS_CD   AS PPSCD
+		       , B.ETC_PPS
+		       , E.AR_FULL_NM    AS ARNAME 
+		FROM   TB_HBD_BULD_GROUP          A
+		INNER  JOIN TB_BD_TITLE_LEDGR_PPS B ON A.BULD_REGSTR_PK = B.BULD_REGSTR_PK
+		INNER  JOIN TB_CM_COAREACODE      E ON A.ARCD = E.ARCODE AND A.LEGCD = E.LEGCODE 
+		WHERE  A.ARCD = #{arcd} 
+		AND    A.LEGCD = #{legcd}
+		AND    A.BUNJIB = #{bun}
+		AND    A.BUNJIJ = #{ji} 
+		<if test="buldnm != null and buldnm !=''">
+		AND    A.BULDNM = #{buldnm}
+		</if>
+		AND    E.USE_YN = 'Y'
+		AND    E.ARLEVEL = 3
+	</select>
+	
+	<select id="isBuldGroup" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.isBuldGroup 집합건물인지 확인한다. */
+		       CASE WHEN COUNT(1) <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS CNDO_YN
+		FROM   TB_HBD_BULD_GROUP A
+		WHERE  A.ARCD = #{arcd} 
+		AND    A.LEGCD = #{legcd}
+		AND    A.BUNJIB = #{bun}
+		AND    A.BUNJIJ = #{ji} 
+		<if test="buldnm != null and buldnm !=''">
+		AND    A.BULDNM = #{buldnm}
+		</if>
+	</select>
+	
+	<select id="selectPostcodeBuld" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectPostcodeBuld 다음주소검색을통한 건물조회 */
+		       A.BULD_REGSTR_PK  AS BULDNO 
+		       , A.PLOT_LOC      AS PLOT_LOC
+		       , A.BULD_NM       AS BULDNM
+		       , A.ARCD          AS ARCD
+		       , A.LEGCD         AS LEGCD
+		       , A.BUN           AS BUN
+		       , A.JI            AS JI
+		       , E.AR_FULL_NM    AS ARNAME 
+		       , B.MAIN_PPS_CD   AS PPS_CD
+		       , DATE_FORMAT(D.PRMISS_DE, '%Y.%m.%d') AS PRMISS_DE
+		       , SUBSTR(D.PRMISS_DE, 1, 4) AS PRMISS_YY
+		       , SUBSTR(D.PRMISS_DE, 5, 2) AS PRMISS_MM
+		       , SUBSTR(D.PRMISS_DE, 7, 2) AS PRMISS_DD
+		       , #{naverx}                 AS NAVERX /* 네이버 기준 (위도) */
+		       , #{navery}                 AS NAVERY /* 네이버 기준 (경도) */
+		       , #{kakaox}                 AS KAKAOX /* 카카오 기준 (경도) */
+		       , #{kakaoy}                 AS KAKAOY /* 카카오 기준 (위도) */ 
+		FROM   TB_BD_TITLE_LEDGR          A
+		INNER  JOIN TB_BD_TITLE_LEDGR_PPS B ON A.BULD_REGSTR_PK = B.BULD_REGSTR_PK
+		INNER  JOIN TB_BD_TITLE_LEDGR_PRMISS_DE D ON A.BULD_REGSTR_PK = D.BULD_REGSTR_PK
+		INNER  JOIN TB_CM_COAREACODE            E ON ( A.ARCD = E.ARCODE AND A.LEGCD = E.LEGCODE ) 
+		WHERE  A.ARCD = #{arcd} 
+		AND    A.LEGCD = #{legcd}
+		AND    A.BUN = #{bun}
+		AND    A.JI = #{ji} 
+		AND    E.USE_YN = 'Y'
+		AND    E.ARLEVEL = 3
+		<if test="buldnm != null and buldnm !=''">
+		AND    A.BULD_NM = #{buldnm}
+		</if>
+		LIMIT  1
+	</select>
+	
+	<select id="selectStuffPPscd" parameterType="string" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectStuffPPscd 부동산 용도코드 조회 */
+		       PPS_CD, PPS_NM
+		       , PPS_CD_01  , PPS_NM_01
+		       , PPS_CD_02, PPS_NM_02
+		       , PPS_CD_03, PPS_NM_03
+		FROM   VW_PPS_CD
+		WHERE  PPS_CD_03 = #{ppscd}
+	</select>
+	
 	<select id="isExistsStuff" parameterType="homes.stuff.vo.StuffVo" resultType="string">
 		SELECT /* homes.stuff.mapper.StuffMapper.isExistsStuff 물건등록여부 확인 */
 		       CASE WHEN COUNT(1) <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS IS_STUFF
@@ -153,6 +236,77 @@
 		<if test="pssionno != null and pssionno != ''">
 		AND    PSSIONNO = #{pssionno}
 		</if>
+	</select>
+	<select id="selectHbdLedgr" parameterType="homes.stuff.vo.StuffVo" resultType="homes.api.buld.vo.TitleLedgrVo">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectHbdLedgr 통합DB(표제부) 등록정보 확인 */
+		       A.HBDNO             AS BULDNO
+		       , A.HTBDNO          AS HTBDNO
+		       , A.BULD_REGSTR_PK  AS BREGSTR_PK
+		       , A.BULDGB          AS BULDGB
+		       , A.BDADDR          AS BDADDR
+		       , A.RDADDR          AS RDADDR
+		       , A.PPSCD           AS PPSCD
+		       , A.PPSETCNM        AS PPSETCNM
+		       , A.ESTCD           AS ESTCD
+		       , A.CFMVGB          AS CFMVGB
+		       , A.CONFDE          AS CONFDE
+		       , A.MOVEINDE        AS MOVEINDE
+		       , A.BULDNM          AS BULDNM
+		       , A.DONGNM          AS DONGNM
+		       , A.RIDNG_ELVTR_CO  AS RIDE_ELVTRCO
+		       , A.RIDNG_ELVTR_CO  AS EMGR_ELVTRCO
+		       , A.GRNDCO          AS FLGROUNDCO
+		       , A.UNDERCO         AS FLUNDERCO
+		FROM   TB_HBD_LEDGR A
+		WHERE  A.HTBDNO = #{htbdno} 
+		AND    A.BULDGB = #{buldgb}
+		ORDER  BY A.DONGNM ASC
+	</select>
+	<select id="selectTitleLedgrinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectTitleLedgrinfo 통합DB(표제부) 등록정보 확인 */
+		       A.BULD_REGSTR_PK AS LEDGRNO
+		       , A.REGSTR_GB_CD AS BULD_TY
+		       , A.PLOT_LOC     AS BDADDR
+		       , A.ARCD         AS ARCD
+		       , A.LEGCD        AS LEGCD
+		       , A.BUN          AS BUNJIB
+		       , A.JI           AS BUNJIJ
+		FROM   TB_BD_TITLE_LEDGR A
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd}
+		AND    A.BUN = #{bun}
+		AND    A.JI = #{ji}
+		<if test="buldnm != null and buldnm !=''">
+		AND    A.BULD_NM = #{buldnm}
+		</if>
+		LIMIT  1
+	</select>
+	<select id="selectHomesBuldinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectHomesBuldinfo 홈즈DB(개별DB) 등록정보 확인 */
+		       A.BULDNO           AS BULDNO
+		       , A.BULD_REGSTR_PK AS LEDGRNO
+		       , A.BULD_TY        AS BULD_TY
+		       , A.BULD_CD        AS BULDCD
+		       , A.BDADDR         AS BDADDR
+		       , A.RDADDR         AS RDADDR
+		       , A.BULDNM         AS BULDNM
+		       , A.BLOCKNM        AS BLOCKNM
+		       , A.HSHLDCO        AS HSHLDCO
+		       , A.FMLYCO         AS FMLYCO
+		       , A.DISP_YN        AS DISP_YN
+		       , A.ARCD           AS ARCD
+		       , A.LEGCD          AS LEGCD
+		       , A.BUNJIB         AS BUNJIB
+		       , A.BUNJIJ         AS BUNJIJ
+		FROM   TB_HBD_BULD A
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd}
+		AND    A.BUNJIB = #{bun}
+		AND    A.BUNJIJ = #{ji}
+		<if test="buldnm != null and buldnm !=''">
+		AND    A.BULDNM = #{buldnm}
+		</if>
+		LIMIT  1 
 	</select>
 	
 	<select id="createStuffno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
@@ -185,6 +339,213 @@
 		       CONCAT('OW', LPAD(NVL(MAX(REPLACE(OWNO, 'OW', '')), 0) + 1, 20, '0')) AS STUFFNO 
 		FROM   TB_BRK_BULD_OWNER 
 	</select>
+	
+	<select id="selectBrkStuff" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuff 중개사 물건목록조회 */
+		       A.STUFFNO, A.BULDNO, A.CPLXNO, A.PSSIONNO 
+		       , B.BRKNO, B.SFSTTUS 
+		FROM   TB_HBD_BULD_STUFF      A
+		INNER  JOIN TB_BRK_BULD_STUFF B ON A.STUFFNO = B.STUFFNO 
+		WHERE  B.BRKNO = #{brkno} 
+		AND    A.BULDNO = #{buldno} 
+	</select>
+	
+	<select id="getHtbdno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.getHtbdno HTBDNO 채번 */
+		       CONCAT('TBD', LPAD(COUNT(1) + 1, 30, '0')) AS HTBDNO 
+		FROM   TB_HBD_LEDGR_MASTER
+	</select>
+	<select id="getBuldno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
+		SELECT /* homes.stuff.mapper.StuffMapper.getBuldno BULDNO 채번 */
+		       CONCAT('HBD', LPAD(COUNT(1) + 1, 30, '0')) AS BULDNO
+		FROM   TB_HBD_LEDGR
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+		AND    BUNJIB = #{bun}
+		AND    BUNJIJ = #{ji}
+	</select>
+	
+	<select id="getHbdTitleLedgrCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.getHbdTitleLedgrCount 표제부 등록여부 확인 */
+		       COUNT(1) AS CNT 
+		FROM   TB_HBD_TITLE_LEDGR 
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+		AND    BUNJIB = #{bun}
+		AND    BUNJIJ = #{ji}
+	</select>
+	
+	<select id="selectMasterbunji" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectMasterbunji 대표지번 조회 */ 
+		       ARCODE
+		       , CONCAT(ARNAME_1, ' ', ARNAME_2, ' ', ARNAME_3, ' ', NVL(ARNAME_4, ''), ' ') AS ARNAME
+		       , BUNJIB      AS BUNJIB
+		       , '0000'      AS BUNJIJ
+		       , RDCODE      AS RDCODE
+		       , RD_MAIN_BUN AS RD_MAIN_BUN 
+		FROM   TB_RD_RDMASTER_JIBUN
+		WHERE  ARCODE = #{arcode}
+		AND    BUNJIB = #{bun}
+		AND    RD_MAIN_BUN = #{rdmainb}
+	</select>
+	
+	<select id="selectRelatedbunji" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectRelatedbunji 관련지번 조회 */ 
+		       ARCODE
+		       , CONCAT(ARNAME_1, ' ', ARNAME_2, ' ', ARNAME_3, ' ', NVL(ARNAME_4, ''), ' ') AS ARNAME
+		       , BUNJIB      AS BUNJIB
+		       , BUNJIJ      AS BUNJIJ
+		       , RDCODE      AS RDCODE
+		       , RD_MAIN_BUN AS RD_MAIN_BUN 
+		FROM   TB_RD_RDRELATE_JIBUN
+		WHERE  ARCODE = #{arcode}
+		AND    BUNJIB = #{bun}
+		AND    RDCODE = #{rdcode}
+		AND    RD_MAIN_BUN = #{rdmainb}
+	</select>
+	
+	<select id="selectHbdRegstrMaster" parameterType="homes.stuff.vo.StuffVo" resultType="homes.api.buld.vo.RecapLedgrVo">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectHbdRegstrMaster 홈즈_관리대장_총괄표제부 조회 */
+		       HTBDNO, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
+		       , BULDNM, BDADDR, RDADDR
+		       , BULD_REGSTR_PK
+		       , PPSCD, PPSETCNM, ESTCD
+		       , HSHLDCO, FMLYCO, BULDCO, BULDSUBCO, HOSILCO, PARKNGCO
+		       , RDCODE, RDLEGCD, UNDER_AT
+		       , TOTAL_AR, SUPPLY_AR, PLAT_AR, BULD_AR, BULK_CALC_TOT_AR
+		       , BULD_LND_RT, BULK_RT, CRDE
+		       , B.CODE_NM   AS ESTNM
+		       , RD_MAIN_BUN AS RDMBUN
+		       , RD_SUB_BUN  AS RDSBUN
+		       , ( SELECT AR_FULL_NM FROM TB_CM_COAREACODE AR WHERE AR.ARCODE = A.ARCD AND AR.LEGCODE = A.LEGCD ) AS ARNAME
+		       , ( SELECT COUNT(1) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO ) AS BULDCO 
+		       , ( SELECT MAX(GRNDCO) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO )  AS GRNDCO 
+		       , ( SELECT MAX(UNDERCO) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO ) AS UNDERCO
+		FROM   TB_HBD_LEDGR_MSTR  A
+		LEFT   JOIN TB_CM_COMMCODE B ON A.ESTCD = B.MXTR_COMM_CD
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd} 
+		AND    A.BUNJIB = #{bun}
+		AND    A.BUNJIJ = #{ji}
+		AND    A.USE_YN = 'Y' 
+	</select>
+	
+	<select id="getLedgrCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.getLedgrCount 홈즈_관리대장_표제부 카운트 */
+		       COUNT(1) AS LEDGR_CNT
+		FROM   TB_HBD_LEDGR 
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd} 
+		AND    BUNJIB = #{bun}
+		<if test="ji != null and ji != ''">
+		AND    BUNJIJ = #{ji}
+		</if>
+		<if test="useYn != null and useYn != ''">
+		AND    USE_YN = #{useYn}
+		</if> 
+	</select>
+	
+	<insert id="insertHbdRegstrMaster" parameterType="homes.api.buld.vo.RecapLedgrVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertHbdRegstrMaster 홈즈_관리대장_총괄표제부 등록 */ 
+		TB_HBD_LEDGR_MASTER (
+			HTBDNO, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDNM,
+			BULD_REGSTR_PK, BDADDR, RDADDR, PPSCD, PPSETCNM,
+			HSHLDCO, FMLYCO, BULDCO, BULDSUBCO,
+			ROOMCO, PARKNGCO, PLATGB, RDCODE, RDLEGCD, UNDER_AT,
+			RD_MAIN_BUN, RD_SUB_BUN, TOTAL_AR, SUPPLY_AR, PLAT_AR, BULD_AR, BULK_CALC_AR,
+			BULD_LND_RT, BULK_RT, CRDE,
+			USE_YN, BATCH_YN, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{htbdno}, 
+			#{buldgb}, 
+			#{arcd}, 
+			#{legcd}, 
+			#{bunjib}, 
+			#{bunjij}, 
+			#{buldnm}, 
+			#{buldRegstrPk}, 
+			#{bdaddr}, 
+			#{rdaddr}, 
+			#{ppscd}, 
+			#{ppsetcnm}, 
+			#{hshldco}, 
+			#{fmlyco}, 
+			#{buldco}, 
+			#{buldsubco}, 
+			#{roomco}, 
+			#{parkngco}, 
+			#{platgb}, 
+			#{rdcode}, 
+			#{rdlegcd}, 
+			#{underAt}, 
+			#{rdMainBun}, 
+			#{rdSubBun}, 
+			#{totalAr}, 
+			#{supplyAr}, 
+			#{platAr}, 
+			#{buldAr}, 
+			#{bulkCalcAr}, 
+			#{buldLndRt}, 
+			#{bulkRt}, 
+			#{crde}, 
+			#{useYn}, 
+			#{batchYn}, 
+			#{brkno}, 
+			#{brkno}
+		) 
+	</insert>
+	
+	<insert id="insertHbdLedgr" parameterType="homes.api.buld.vo.TitleLedgrVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertHbdLedgr 홈즈_관리대장_표제부 등록 */ 
+		TB_HBD_LEDGR (
+			BULDNO, HTBDNO, BULD_REGSTR_PK
+			, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDNM
+			, BDADDR, RDADDR, PPSCD, PPSETCNM
+			, CFMVGB, CNFMDE, MOVEINDE, RIDE_ELVTCO, EMGR_ELVTCO, FLGROUND, FLUNDER
+			, HSHLDCO, FMLYCO, PLATGB, RDCODE, RDLEGCD, UNDER_AT
+			, RD_MAIN_BUN, RD_SUB_BUN
+			, TOTAL_AR, SUPPLY_AR, PLAT_AR, BULD_AR, CRDE
+			, USE_YN, BATCH_YN, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+		    #{buldno},
+			#{htbdno}, 
+			#{bregstrPk},
+			#{buldgb}, 
+			#{arcd}, 
+			#{legcd}, 
+			#{bunjib}, 
+			#{bunjij}, 
+			#{buldnm}, 
+			#{bdaddr}, 
+			#{rdaddr}, 
+			#{ppscd}, 
+			#{ppsetcnm}, 
+			#{cfmvgb},
+			#{confde},
+			#{moveinde},
+			#{rideElvtrco},
+			#{emgrElvtrco},
+			#{flgroundco},
+			#{flunderco},
+			#{hshldco}, 
+			#{fmlyco}, 			
+			#{platgb}, 
+			#{rdcode}, 
+			#{rdlegcd}, 
+			#{underAt}, 
+			#{rdMainBun}, 
+			#{rdSubBun}, 
+			#{totalAr}, 
+			#{supplyAr}, 
+			#{platAr}, 
+			#{buldAr},
+			#{crde}, 
+			#{useYn}, 
+			#{batchYn}, 
+			#{brkno}, 
+			#{brkno}
+		) 
+	</insert>
 	
 	<insert id="insertHbdStuff" parameterType="homes.stuff.vo.StuffVo">
 		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertHbdStuff 물건등록 */ 
@@ -242,6 +603,36 @@
 		AND    STUFFNO = #{stuffno}
 	</delete>
 	
+	<update id="updateBrkStuffSttus" parameterType="homes.stuff.vo.StuffVo">
+		UPDATE /* homes.stuff.mapper.StuffMapper.deleteBrkStuff 중개사 물건 상태변경 */
+		TB_BRK_BULD_STUFF
+		SET    SFSTTUS = #{sfsttus}
+		WHERE  BRKNO = #{brkno}
+		AND    STUFFNO = #{stuffno}
+	</update>
+	
+	<update id="updateBrkOwner" parameterType="homes.owner.vo.OwnerVo">
+		UPDATE /* homes.stuff.mapper.StuffMapper.updateBrkOwner 소유주 수정 */
+		TB_BRK_BULD_OWNER
+		SET    UPDT_USER_NO = #{brkno}
+		       , UPDT_DT = NOW()
+		<if test="userno != null and userno != ''">
+		       , USERNO = #{userno}
+		</if>
+		<if test="cntcpersnYn != null and cntcpersnYn != ''">
+		       , CNTC_PERSN_YN = #{cntcpersnYn}
+		</if>
+		       , OWNER_TY = #{ownerTy}
+		       , OWNERNM = #{ownernm}
+		       , CCB_CD = #{ccbCd}
+		       , CTTPC = #{cttpc}
+		       , STFFNM01 = #{stffnm01}
+		       , STFFNM02 = #{stffnm02}
+		WHERE  OWNO = #{owno}
+		AND    OWSEQ = #{owseq}
+		AND    BRKNO = #{brkno}
+	</update>
+	
 	<update id="deleteBrkOwner" parameterType="homes.stuff.vo.StuffVo">
 		UPDATE /* homes.stuff.mapper.StuffMapper.deleteBrkOwner 소유주 삭제 */
 		TB_BRK_BULD_OWNER
@@ -250,7 +641,10 @@
 		       , OWNERNM = ''
 		       , CCB_CD = ''
 		       , CTTPC = ''
+		       , CNTC_PERSN_YN = 'N'
 		       , OWSTTUS = 'T'
+		       , UPDT_USER_NO = #{brkno}
+		       , UPDT_DT = NOW()
 		WHERE  OWNO = #{owno}
 		AND    OWSEQ = #{owseq}
 		AND    BRKNO = #{brkno}

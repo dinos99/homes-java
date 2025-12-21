@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getErrorJson(error)) ;
         
     }
+    
     @ExceptionHandler(MyBatisSystemException.class) 
     public ResponseEntity<?> handleMyBatisException(MyBatisSystemException ex) {
     	ErrorInfoVo error = new ErrorInfoVo() ; 
@@ -46,6 +47,17 @@ public class GlobalExceptionHandler {
     	*/
     	error.setErrorMessage("서버에서 에러가 발생하였습니다.");
     	error.setHttpSttusText("[Error-" + ex.getErrorCode() + "]");
+    	error.setHttpSttusCd(500);
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getErrorJson(error)) ;
+        
+    }
+    
+    @ExceptionHandler(NoClassDefFoundError.class)
+    public ResponseEntity<?> handleException(NoClassDefFoundError ex) {
+    	ex.printStackTrace();
+    	ErrorInfoVo error = new ErrorInfoVo() ; 
+    	error.setErrorMessage("서버에서 에러가 발생하였습니다.");
+    	error.setHttpSttusText("[Error-500]");
     	error.setHttpSttusCd(500);
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getErrorJson(error)) ;
         

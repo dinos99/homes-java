@@ -3,6 +3,10 @@ package homes.exception;
 import homes.comm.constants.EnumError;
 
 public class HomesException extends RuntimeException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int code ; 
 	private String title ; 
 	private String message ; 

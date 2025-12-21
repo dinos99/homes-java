@@ -3,6 +3,90 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="homes.batch.mapper.BatchMapper">
+
+	<select id="getHBT001Count" parameterType="batchVo" resultType="int">
+		SELECT /* homes.batch.mapper.BatchMapper.getHBT001Count */
+		       COUNT(1) AS BATCO
+		FROM   TB_HBD_TEMP_BSOUTLINE
+		WHERE  BATCH_DE = #{batchde}
+		AND    BATCH_AT = #{batchAt} 
+	</select>
+	<select id="getHbdLedgrMstrCount" parameterType="ledgrMstrVo" resultType="int">
+		SELECT /* homes.batch.mapper.BatchMapper.getHbdLedgrMstrCount */
+		       COUNT(1) AS CNT
+		FROM   (
+			<include refid="queryLedgrMstr" />
+		) A
+	</select>
+	<select id="getHbdLedgrCount" parameterType="ledgrVo" resultType="int">
+		SELECT /* homes.batch.mapper.BatchMapper.getHbdLedgrCount */
+		       COUNT(1) AS CNT
+		FROM   (
+			<include refid="queryLedgr" />
+		) A
+	</select>
+	<select id="getHbdBaseSummryCount" parameterType="bsOutLineVo" resultType="int">
+		SELECT /* homes.batch.mapper.BatchMapper.getHbdBaseSummryCount */
+		       COUNT(1) AS CNT
+		FROM   TB_HBD_BASE_SUMMRY A
+		WHERE  A.BULD_REGSTR_PK = #{buldRegstrPk}
+	</select>
+	<select id="getHomesHtbdno" parameterType="bsOutLineVo" resultType="string">
+		SELECT /* homes.batch.mapper.BatchMapper.getHomesHtbdno */
+		<if test="totalRegstrPk != null and totalRegstrPk !=''">
+		       CASE WHEN ( SELECT COUNT(1) FROM TB_HBD_BASE_SUMMRY WHERE TOTAL_REGSTR_PK = #{totalRegstrPk} ) = 0 
+		            THEN /* TOTAL_REGSTR_PK가 있고 COUNT가 0인경우 신규채번 */ 
+                         CONCAT('HTB', LPAD(#{buldgb}, 2, '0'), #{arcd}, #{legcd}
+                                     , LPAD(NVL(MAX(SUBSTR(A.HTBDNO, 15)), 0) + 1, 7, '0'))
+                    ELSE /* 기존사용하던 HTBDNO를 리턴 */
+                         ( SELECT HTBDNO FROM TB_HBD_BASE_SUMMRY WHERE TOTAL_REGSTR_PK = #{totalRegstrPk} LIMIT 1 )
+               END AS HTBDNO
+		</if>
+		<if test='totalRegstrPk == null or totalRegstrPk.equals("")'>
+		       /* 무조건 신규채번 */ 
+               CONCAT('HTB', LPAD(#{buldgb}, 2, '0'), #{arcd}, #{legcd}
+                           , LPAD(NVL(MAX(SUBSTR(A.HTBDNO, 15)), 0) + 1, 7, '0')) AS HTBDNO
+		</if>
+		FROM   TB_HBD_BASE_SUMMRY A
+		WHERE  BULDGB = #{buldgb}
+		AND    ARCD = #{arcd}
+		AND    LEGCD = #{legcd}  
+	</select>
+	<select id="getHomesBuldno" parameterType="bsOutLineVo" resultType="string">
+		SELECT /* homes.batch.mapper.BatchMapper.getHomesBuldno */
+               CONCAT('HBD', LPAD(#{buldgb}, 2, '0'), #{arcd}, #{legcd}
+                           , LPAD(NVL(MAX(SUBSTR(A.HBDNO, 15)), 0) + 1, 7, '0')) AS HBDNO
+		FROM   TB_HBD_BASE_SUMMRY A
+		WHERE  BULDGB = #{buldgb}
+		AND    ARCD = #{arcd}
+		AND    LEGCD = #{legcd}  
+	</select>
+	
+	<select id="selectBatchBaseOutLine" parameterType="bsOutLineVo" resultType="bsOutLineVo">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBatchBaseOutLine */
+		       A.TOTAL_REGSTR_PK                            AS TOTAL_REGSTR_PK
+		       , A.BULD_REGSTR_PK                           AS BULD_REGSTR_PK
+		       , A.BULDGB                                   AS BULDGB
+		       , A.BULDGB                                   AS CPLX_AT
+		       , A.ARCD                                     AS ARCD
+		       , A.LEGCD                                    AS LEGCD
+		       , A.BUNJIB                                   AS BUNJIB
+		       , A.BUNJIJ                                   AS BUNJIJ
+		       , A.RDCODE                                   AS RDCODE
+		       , A.RDLEGCD                                  AS RDLEGCD
+		       , A.UNDER_AT                                 AS UNDER_AT
+		       , A.RD_MAIN_BUN                              AS RD_MAIN_BUN
+		       , A.RD_SUB_BUN                               AS RD_SUB_BUN
+		FROM   TB_HBD_TEMP_BSOUTLINE  A
+		WHERE  A.BATCH_DE = #{batchde}
+		AND    A.BATCH_AT = #{batchAt}
+		<!-- 
+		AND    NOT EXISTS ( SELECT 'X'
+		                    FROM   TB_HBD_BASE_SUMMRY SM
+		                    WHERE   A.BULD_REGSTR_PK = SM.BULD_REGSTR_PK )
+		-->
+	</select>
+
 	<select id="selectBatchJobListCount" parameterType="homes.batch.vo.BatchReqVo" resultType="java.lang.Long">
 		SELECT /* homes.batch.mapper.BatchMapper.selectBatchJobListCount */
 		        COUNT(1) AS T_CNT
@@ -27,34 +111,335 @@
 		LIMIT  #{stno}, #{edno}
 	</select>
 	
-	<!-- 건측믈데징-기본개요 등록 -->
-	<insert id="insertBaseSummry" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertBaseSummry 기본개요 등록 */
-		INTO   TB_BD_BASESUMMRY_ORIGIN (
-			   MNGR_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM
-		       , PLOT_LOC, RDNM_PLOT_LOC, BULD_NM
-		       , ARCD, LEGCD, PLOT_GB_CD, BUN, JI, SP_PLOT_NM
-		       , BLOCK, LOT, OUT_LOT_CO
-		       , NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD, NW_ADDR_GRND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B
-		       , ZONE_CD, DISTRICT_CD, AREA_CD, ZONE_CD_NM, DISTRICT_CD_NM, AREA_CD_NM
-		       , CREAT_DE, BATCH_YN
-		) VALUES (
-		       #{mngrRegstrPk}, #{upperRegstrPk}, #{regstrGbCd}, #{regstrGbNm}, #{regstrKdCd}, #{regstrKdNm}
-		       , #{plotLoc}, #{rdnmPlotLoc}, #{buldNm}
-		       , #{arcd}, #{legcd}, #{plotGbCd}, #{bun}, #{ji}, #{spPlotNm}
-		       , #{block}, #{lot}, #{outLotCo}
-		       , #{nwAddrRoadCd}, #{nwAddrLegCd}, #{nwAddrGrndCd}, #{nwAddrMainB}, #{nwAddrSubB}
-		       , #{zoneCd}, #{districtCd}, #{areaCd}, #{zoneCdNm}, #{districtCdNm}, #{areaCdNm}
-		       , #{creatDe}, #{batchYn}
+	<select id="selectRelatedMaster" parameterType="commonMap" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectRelatedMaster 홈즈_관리대장_마스터에 등록된 대표지번 조회 */
+		      A.HTBDNO, A.BULD_REGSTR_PK, A.ARCD, A.LEGCD, A.BUNJIB
+		      , A.BDADDR, A.RDADDR, A.BULDNM, A.RDCODE, A.RD_MAIN_BUN 
+		FROM   TB_HBD_LEDGR_MASTER       A
+		INNER  JOIN TB_RD_RDMASTER_JIBUN B 
+		ON     ( A.ARCD = SUBSTR(B.ARCODE, 1, 5) 
+		         AND A.LEGCD = SUBSTR(B.ARCODE, 6, 5) 
+		         AND A.BUNJIB = B.BUNJIB
+		         AND A.RDCODE = B.RDCODE
+		         AND A.RD_MAIN_BUN = B.RD_MAIN_BUN 
+		        ) 
+		WHERE  A.ARCD   = #{arcd}
+		AND    A.LEGCD  = #{legcd}
+	</select>
+	
+	<select id="selectBaseOutLine" parameterType="bsOutLineVo" resultType = "bsOutLineVo">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBaseOutLine 홈즈_관리대장_기본개요 조회 */
+		       TOTAL_REGSTR_PK, BULD_REGSTR_PK, BULDGB, ARCD, LEGCD
+		FROM   TB_HBD_TEMP_BSOUTLINE
+		WHERE  BATCH_DE = #{batchde}
+		AND    BATCH_AT = #{batchAt}
+		<if test='isComplex.equals("Y")'> 
+		AND    TOTAL_REGSTR_PK IS NOT NULL 
+		AND    TOTAL_REGSTR_PK != ''
+		</if>
+		<if test='isComplex.equals("N")'> 
+		AND    ( TOTAL_REGSTR_PK IS NULL OR TOTAL_REGSTR_PK = '' )
+		</if>
+        AND    DEL_YN = 'N'
+	</select>
+	<select id="selectBaseLedgrMstr" parameterType="string" resultType = "ledgrMstrVo">
+		SELECT /* homes.batch.mapper.BatchMapper.selectBaseLedgrMstr 홈즈_관리대장_마스터 등록조회 */
+		       A.TOTAL_REGSTR_PK, A.BULDGB, A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ
+		       , A.BULDNM, A.BDADDR, A.RDADDR
+		       , A.PPSCD, A.PPSETCNM
+		       , A.HSHLDCO, A.FMLYCO, A.BULDCO, A.BULDSUBCO, A.HOSILCO, A.PARKNGCO
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+		       , A.TOTAL_REGSTR_PK, A.TOTAL_AR, A.PLAT_AR, A.BULD_AR, A.BULK_CALC_TOT_AR, A.BULD_LND_RT, A.BULK_RT
+		       , A.CONFDE, A.CRDE 
+		       , CASE WHEN NVL(B.HTBDNO, 'EMPTY') = 'EMPTY' THEN 'N' ELSE 'Y' END AS HAS_YN 
+		       , CASE WHEN NVL(B.HTBDNO, 'EMPTY') = 'EMPTY' THEN ( SELECT CONCAT('HTB'
+		                                                                         , LPAD(A.BULDGB, 2, '0'), A.ARCD, A.LEGCD
+		                                                                         , LPAD(NVL(MAX(SUBSTR(HT.HTBDNO, 15)), 0) + 1, 7, '0'))
+		                                                           FROM   TB_HBD_LEDGR_MSTR HT
+		                                                           WHERE  HT.BULDGB = A.BULDGB
+		                                                           AND    HT.ARCD = A.ARCD
+		                                                           AND    HT.LEGCD = A.LEGCD
+		                                                        )
+		              ELSE B.HTBDNO
+		         END AS HTBDNO 
+		       , CASE WHEN A.HSHLDCO <![CDATA[ >= ]]> 30 /* 30세대 이상 */
+		              AND  A.BULDCO  <![CDATA[ >= ]]> 1  /* 1개동 이상  */
+		         THEN '3' 
+		         ELSE A.BULDGB END AS CPLX_AT 
+		FROM   TB_HBD_TEMP_LEDGR_MSTR A
+		LEFT   JOIN TB_HBD_LEDGR_MSTR B ON A.TOTAL_REGSTR_PK = B.TOTAL_REGSTR_PK
+		WHERE  A.TOTAL_REGSTR_PK = #{totalRegstrPk}
+	</select>
+
+	<!-- 표제부 법정동코드 NULL변환 -->
+	<select id="selectNullLegcdList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectNullLegcdList */
+		       TA.ARCD, COUNT(1) AS HAS_CNT
+		FROM   ( SELECT ARCD 
+		         FROM   TB_BD_TITLE_LEDGR
+		         WHERE  LEGCD IS NULL 
+		         LIMIT  1
+		       ) TA
+		GROUP  BY TA.ARCD 
+	</select>
+	
+	<select id="selectConvArcodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.batch.mapper.BatchMapper.selectConvArcodeList */
+		       ARCODE, LEGCODE
+		       , AR_FULL_NM AS ARNAME
+		FROM   TB_CM_COAREACODE
+		WHERE  ARCODE = #{arcode}
+		AND    ARLEVEL = 3  
+	</select>
+	
+	<sql id="queryLedgrMstr">
+		WITH TMP_BASE_SUMMRY AS ( 
+		    SELECT HTBDNO, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
+		           , CASE WHEN TOTAL_REGSTR_PK IS NULL OR TOTAL_REGSTR_PK = '' THEN BULD_REGSTR_PK ELSE TOTAL_REGSTR_PK END AS BULD_REGSTR_PK
+		           , CASE WHEN TOTAL_REGSTR_PK IS NULL OR TOTAL_REGSTR_PK = '' THEN 'B'            ELSE 'T'             END AS PKEY_TY
+		           , COUNT(1) AS BULDCO
+		    FROM   TB_HBD_BASE_SUMMRY 
+		    WHERE  BATCH_DE = #{batchde}
+		    AND    BATCH_AT = #{batchAt}
+		    GROUP  BY HTBDNO, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
+		)
+		, TMP_BASE_SUMMRY_MSTR AS (
+		    SELECT HTBDNO
+		           , BULD_REGSTR_PK
+		           , BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
+		           , PKEY_TY
+		           , BULDCO
+		           , CASE WHEN PKEY_TY = 'T' THEN 
+		                  ( SELECT COUNT(1) FROM TB_HBD_TEMP_LEDGR_MSTR MS WHERE SM.BULD_REGSTR_PK = MS.TOTAL_REGSTR_PK ) 
+		                  WHEN PKEY_TY = 'B' THEN 
+		                  ( SELECT COUNT(1) FROM TB_HBD_TEMP_LEDGR      LD WHERE SM.BULD_REGSTR_PK = LD.BULD_REGSTR_PK ) 
+		             END AS HASCO
+		    FROM   TMP_BASE_SUMMRY SM
 		) 
+		, TMP_LEDGR_MSTR_T AS ( 
+		    SELECT A.HTBDNO
+		           , A.BULD_REGSTR_PK
+		           , NVL(B.BULDGB, A.BULDGB)            AS BULDGB
+		           , CASE WHEN NVL(B.BULDGB , A.BULDGB)      <![CDATA[  = ]]> '2' 
+		                       AND  NVL(B.BULDCO , A.BULDCO) <![CDATA[ >= ]]> 1
+		                       AND  NVL(B.HSHLDCO, 0       ) <![CDATA[ >= ]]> 30
+		                  THEN '3'
+		                  ELSE NVL(B.BULDGB, A.BULDGB)
+		             END                                AS CPLX_AT
+		           , NVL(B.ARCD  , A.ARCD)              AS ARCD
+		           , NVL(B.LEGCD , A.LEGCD)             AS LEGCD
+		           , NVL(B.BUNJIB, A.BUNJIB)            AS BUNJIB
+		           , NVL(B.BUNJIJ, A.BUNJIJ)            AS BUNJIJ
+		           , NVL(B.BULDNM, '')                  AS BULDNM
+		           , NVL(B.BDADDR, '')                  AS BDADDR
+		           , NVL(B.RDADDR, '')                  AS RDADDR
+		           , NVL(B.PPSCD , '')                  AS PPSCD
+		           , NVL(B.PPSETCNM, '')                AS PPSETCNM
+		           , ''                                 AS ESTCD
+		           , NVL(B.HSHLDCO  , 0)                AS HSHLDCO
+		           , NVL(B.FMLYCO   , 0)                AS FMLYCO
+		           , NVL(B.BULDCO   , A.BULDCO)         AS BULDCO
+		           , NVL(B.BULDSUBCO, 0)                AS BULDSUBCO
+		           , NVL(B.HOSILCO  , 0)                AS HOSILCO
+		           , NVL(B.PARKNGCO , 0)                AS PARKNGCO
+		           , NVL(B.RDCODE   , '000000000000')   AS RDCODE
+		           , NVL(B.RDLEGCD  , '00000')          AS RDLEGCD
+		           , NVL(B.UNDER_AT , '0')              AS UNDER_AT
+		           , NVL(B.RD_MAIN_BUN, '00000')        AS RD_MAIN_BUN
+		           , NVL(B.RD_SUB_BUN , '00000')        AS RD_SUB_BUN
+		           , NVL(B.TOTAL_AR   , 0.0)            AS TOTAL_AR
+		           , 0.0                                AS SUPPLY_AR
+		           , NVL(B.PLAT_AR         , 0.0)       AS PLAT_AR
+		           , NVL(B.BULD_AR         , 0.0)       AS BULD_AR
+		           , NVL(B.BULK_CALC_TOT_AR, 0.0)       AS BULK_CALC_TOT_AR
+		           , NVL(B.BULD_LND_RT     , 0.0)       AS BULD_LND_RT
+		           , NVL(B.BULK_RT         , 0.0)       AS BULK_RT
+		           , NVL(B.CONFDE, '')                  AS CONFDE
+		           , NVL(B.CRDE  , '')                  AS CRDE
+		           , A.HASCO                            AS HASCO
+		           , CASE WHEN A.HASCO <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS USE_YN
+		           , A.PKEY_TY                          AS PKEY_TY
+		           , #{batchde}                         AS BATCH_DE
+		           , CASE WHEN A.HASCO <![CDATA[ > ]]> 0 THEN '2' ELSE '1' END AS BATCH_AT
+		    FROM   TMP_BASE_SUMMRY_MSTR        A
+		    LEFT   JOIN TB_HBD_TEMP_LEDGR_MSTR B ON A.BULD_REGSTR_PK = B.TOTAL_REGSTR_PK
+		)
+		, TMP_LEDGR_MSTR_B AS ( 
+		    SELECT A.HTBDNO
+		           , A.BULD_REGSTR_PK
+		           , NVL(B.BULDGB, A.BULDGB)            AS BULDGB
+		           , CASE WHEN NVL(B.BULDGB , A.BULDGB)      <![CDATA[  = ]]> '2' 
+		                       AND  NVL(B.BULDCO , A.BULDCO) <![CDATA[ >= ]]> 1
+		                       AND  NVL(B.HSHLDCO, 0       ) <![CDATA[ >= ]]> 30
+		                  THEN '3'
+		                  ELSE NVL(B.BULDGB, A.BULDGB)
+		             END                                AS CPLX_AT
+		           , NVL(B.ARCD  , A.ARCD)              AS ARCD
+		           , NVL(B.LEGCD , A.LEGCD)             AS LEGCD
+		           , NVL(B.BUNJIB, A.BUNJIB)            AS BUNJIB
+		           , NVL(B.BUNJIJ, A.BUNJIJ)            AS BUNJIJ
+		           , NVL(B.BULDNM, '')                  AS BULDNM
+		           , NVL(B.BDADDR, '')                  AS BDADDR
+		           , NVL(B.RDADDR, '')                  AS RDADDR
+		           , NVL(B.PPSCD , '')                  AS PPSCD
+		           , NVL(B.PPSETCNM, '')                AS PPSETCNM
+		           , ''                                 AS ESTCD
+		           , NVL(B.HSHLDCO  , 0)                AS HSHLDCO
+		           , NVL(B.FMLYCO   , 0)                AS FMLYCO
+		           , NVL(B.BULDCO   , A.BULDCO)         AS BULDCO
+		           , 0                                  AS BULDSUBCO
+		           , NVL(B.HOSILCO  , 0)                AS HOSILCO
+		           , 0                                  AS PARKNGCO
+		           , NVL(B.RDCODE   , '000000000000')   AS RDCODE
+		           , NVL(B.RDLEGCD  , '00000')          AS RDLEGCD
+		           , NVL(B.UNDER_AT , '0')              AS UNDER_AT
+		           , NVL(B.RD_MAIN_BUN, '00000')        AS RD_MAIN_BUN
+		           , NVL(B.RD_SUB_BUN , '00000')        AS RD_SUB_BUN
+		           , NVL(B.TOTAL_AR   , 0.0)            AS TOTAL_AR
+		           , 0.0                                AS SUPPLY_AR
+		           , NVL(B.PLAT_AR         , 0.0)       AS PLAT_AR
+		           , NVL(B.BULD_AR         , 0.0)       AS BULD_AR
+		           , NVL(B.BULK_CALC_TOT_AR, 0.0)       AS BULK_CALC_TOT_AR
+		           , NVL(B.BULD_LND_RT     , 0.0)       AS BULD_LND_RT
+		           , NVL(B.BULK_RT         , 0.0)       AS BULK_RT
+		           , NVL(B.CONFDE, '')                  AS CONFDE
+		           , NVL(B.CRDE  , '')                  AS CRDE
+		           , A.HASCO                            AS HASCO
+		           , CASE WHEN A.HASCO <![CDATA[ > ]]> 0 THEN 'Y' ELSE 'N' END AS USE_YN
+		           , A.PKEY_TY                          AS PKEY_TY
+		           , #{batchde}                         AS BATCH_DE
+		           , CASE WHEN A.HASCO <![CDATA[ > ]]> 0 THEN '2' ELSE '1' END AS BATCH_AT
+		    FROM   TMP_BASE_SUMMRY_MSTR   A
+		    LEFT   JOIN TB_HBD_TEMP_LEDGR B ON A.BULD_REGSTR_PK = B.BULD_REGSTR_PK
+		)
+		SELECT A.HTBDNO, A.BULD_REGSTR_PK, A.PKEY_TY
+		       , A.BULDGB, T.CPLX_AT
+		       , A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ     
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULDNM           ELSE B.BULDNM           END AS BULDNM
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BDADDR           ELSE B.BDADDR           END AS BDADDR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.RDADDR           ELSE B.RDADDR           END AS RDADDR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.PPSCD            ELSE B.PPSCD            END AS PPSCD
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.PPSETCNM         ELSE B.PPSETCNM         END AS PPSETCNM
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.HSHLDCO          ELSE B.HSHLDCO          END AS HSHLDCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.FMLYCO           ELSE B.FMLYCO           END AS FMLYCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULDCO           ELSE B.BULDCO           END AS BULDCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULDSUBCO        ELSE B.BULDSUBCO        END AS BULDSUBCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.HOSILCO          ELSE B.HOSILCO          END AS HOSILCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.PARKNGCO         ELSE B.PARKNGCO         END AS PARKNGCO
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.RDCODE           ELSE B.RDCODE           END AS RDCODE
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.RDLEGCD          ELSE B.RDLEGCD          END AS RDLEGCD
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.UNDER_AT         ELSE B.UNDER_AT         END AS UNDER_AT
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.RD_MAIN_BUN      ELSE B.RD_MAIN_BUN      END AS RD_MAIN_BUN
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.RD_SUB_BUN       ELSE B.RD_SUB_BUN       END AS RD_SUB_BUN
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.TOTAL_AR         ELSE B.TOTAL_AR         END AS TOTAL_AR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.PLAT_AR          ELSE B.PLAT_AR          END AS PLAT_AR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULD_AR          ELSE B.BULD_AR          END AS BULD_AR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULK_CALC_TOT_AR ELSE B.BULK_CALC_TOT_AR END AS BULK_CALC_TOT_AR
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULD_LND_RT      ELSE B.BULD_LND_RT      END AS BULD_LND_RT
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BULK_RT          ELSE B.BULK_RT          END AS BULK_RT
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.CONFDE           ELSE B.CONFDE           END AS CONFDE
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.CRDE             ELSE B.CRDE             END AS CRDE
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BATCH_DE         ELSE B.BATCH_DE         END AS BATCH_DE
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.BATCH_AT         ELSE B.BATCH_AT         END AS BATCH_AT
+		       , CASE WHEN A.PKEY_TY = 'T' THEN T.USE_YN           ELSE B.USE_YN           END AS USE_YN
+		       , #{mngrno}                                                                     AS CREAT_USER_NO
+		       , #{mngrno}                                                                     AS UPDT_USER_NO
+		FROM   TMP_BASE_SUMMRY_MSTR  A
+		LEFT   JOIN TMP_LEDGR_MSTR_T T ON A.BULD_REGSTR_PK = T.BULD_REGSTR_PK
+		LEFT   JOIN TMP_LEDGR_MSTR_B B ON A.BULD_REGSTR_PK = B.BULD_REGSTR_PK
+		WHERE  NOT EXISTS ( SELECT 'X' FROM TB_HBD_LEDGR_MSTR MS WHERE A.HTBDNO = MS.HTBDNO )
+	</sql>
+	
+	<sql id="queryLedgr">
+		SELECT A.HTBDNO, A.HBDNO, A.BULD_REGSTR_PK
+		       , A.BULDGB, A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ
+		       , B.BULDNM, B.DONGNM, B.BDADDR, B.RDADDR, B.PPSCD, B.PPSETCNM
+		       , #{cfmvgb}      AS CFMVGB
+		       , B.CONFDE AS CONFDE
+		       , B.RIDNG_ELVTR_CO, B.EMGR_ELVTR_CO
+		       , B.GRNDCO, B.UNDERCO, B.HSHLDCO, B.FMLYCO, B.HOSILCO
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+		       , B.TOTAL_AR, B.BULD_AR, B.PLAT_AR
+		       , B.CRDE
+		       , A.BATCH_DE   AS BATCHDE
+		       , #{afBatchAt} AS BATCH_AT
+		       , #{mngrno}    AS CREAT_USER_NO
+		       , #{mngrno}    AS UPDT_USER_NO
+		FROM   TB_HBD_BASE_SUMMRY     A 
+		INNER  JOIN TB_HBD_TEMP_LEDGR B ON A.BULD_REGSTR_PK = B.BULD_REGSTR_PK
+		WHERE  NOT EXISTS ( SELECT 'X' FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO AND A.HBDNO = LD.HBDNO ) 
+		AND    A.BATCH_DE = #{batchde}
+		AND    A.BATCH_AT = #{batchAt}
+	</sql> 
+	
+	<insert id="insertLedgrMstr" parameterType="ledgrMstrVo">
+		INSERT /* homes.batch.mapper.BatchMapper.insertLedgrMstr 홈즈_건물관리대장_마스터 등록 */
+		INTO   TB_HBD_LEDGR_MSTR (
+			HTBDNO, BULD_REGSTR_PK, PKEY_TY, BULDGB, CPLX_AT, ARCD, LEGCD, BUNJIB, BUNJIJ
+		    , BULDNM, BDADDR, RDADDR, PPSCD, PPSETCNM
+		    , HSHLDCO, FMLYCO, BULDCO, BULDSUBCO, HOSILCO, PARKNGCO
+		    , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+		    , TOTAL_AR, PLAT_AR, BULD_AR, BULK_CALC_TOT_AR, BULD_LND_RT, BULK_RT
+		    , CONFDE, CRDE, BATCH_DE, BATCH_AT, USE_YN, CREAT_USER_NO, UPDT_USER_NO
+		)
+		<include refid="queryLedgrMstr" />
 	</insert>
 	
-	<!-- 건축물관리대장-총괄표제부 삭제 -->
-	<delete id="deleteTotalTitleLedgr" parameterType="string">
-		DELETE /* homes.batch.mapper.BatchMapper.deleteTotalTitleLedgr */
-		FROM   TB_BD_TOTAL_TITLLEDGR
-		WHERE  BULD_REGSTR_PK = #{pkBuldRegstr}
-	</delete>
+	<insert id="insertLedgr" parameterType="ledgrVo">
+		INSERT /* homes.batch.mapper.BatchMapper.insertLedgr 홈즈_관리대장_표제부 등록 */ 
+		INTO   TB_HBD_LEDGR (
+			HTBDNO, HBDNO, BULD_REGSTR_PK
+			, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
+			, BULDNM, DONGNM, BDADDR, RDADDR, PPSCD, PPSETCNM
+			, CFMVGB, CONFDE
+			, RIDNG_ELVTR_CO, EMGR_ELVTR_CO
+			, GRNDCO, UNDERCO, HSHLDCO, FMLYCO, HOSILCO
+			, RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+			, TOTAL_AR, BULD_AR, PLAT_AR
+			, CRDE, BATCH_DE, BATCH_AT
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) 
+		<include refid="queryLedgr" />
+	</insert>
+	
+	<!-- 건측믈대장 기본개요 등록 -->
+	<insert id="insertBaseSummry" parameterType="summryVo">
+		INSERT /* homes.batch.mapper.BatchMapper.insertBaseSummry 기본개요 등록 */
+		INTO   TB_HBD_BASE_SUMMRY (
+			HTBDNO, HBDNO, TOTAL_REGSTR_PK, BULD_REGSTR_PK
+			, BULDGB, CPLX_AT, ARCD, LEGCD, BUNJIB, BUNJIJ
+			, RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+			, BATCH_AT, BATCH_DE, USE_YN, CREAT_USER_NO, UPDT_USER_NO
+		) 
+		SELECT #{htbdno}                                    AS HTBDNO 
+		        , #{hbdno}                                  AS HBDNO 
+		       , A.TOTAL_REGSTR_PK                          AS TOTAL_REGSTR_PK
+		       , A.BULD_REGSTR_PK                           AS BULD_REGSTR_PK
+		       , A.BULDGB                                   AS BULDGB
+		       , A.BULDGB                                   AS CPLX_AT
+		       , A.ARCD                                     AS ARCD
+		       , A.LEGCD                                    AS LEGCD
+		       , A.BUNJIB                                   AS BUNJIB
+		       , A.BUNJIJ                                   AS BUNJIJ
+		       , A.RDCODE                                   AS RDCODE
+		       , A.RDLEGCD                                  AS RDLEGCD
+		       , A.UNDER_AT                                 AS UNDER_AT
+		       , A.RD_MAIN_BUN                              AS RD_MAIN_BUN
+		       , A.RD_SUB_BUN                               AS RD_SUB_BUN
+		       , '1'                                        AS BATCH_AT
+		       , #{batchde}                                 AS BATCH_DE
+		       , 'Y'                                        AS USE_YN
+		       , #{mngrno}                                  AS CREAT_USER_NO
+		       , #{mngrno}                                  AS UPDT_USER_NO
+		FROM   TB_HBD_TEMP_BSOUTLINE  A
+		WHERE  A.BULD_REGSTR_PK = #{buldRegstrPk}
+		<if test="totalRegstrPk != null and totalRegstrPk != ''">
+		AND    A.TOTAL_REGSTR_PK = #{totalRegstrPk}
+		</if>
+		AND    A.BATCH_DE = #{batchde}
+		AND    A.BATCH_AT = #{batchAt} 
+	</insert>
 	
 	<!-- 건축물관리대장-총괄표제부 등록 -->
 	<insert id="insertTotalTitleLedgr" parameterType="commonMap">
@@ -153,46 +538,6 @@
 		)
 	</insert>
 
-	<!-- 건축물관리대장-전유부입력 -->
-	<insert id="insertPssionLedgr" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertPssionLedgr 전유부 등록 */
-		INTO   TB_BD_PSSION_LEDGR (
-		  BULD_REGSTR_PK, REGSTR_GB_CD, REGSTR_GB_NM, REGSTR_KD_CD, REGSTR_KD_NM, PLOT_LOC, RDNM_PLOT_LOC, BULD_NM
-		  , ARCD, LEGCD, PLOT_GB_CD, BUN, JI, SP_PLOT_NM, BLOCK, LOT
-		  , NW_ADDR_ROAD_CD, NW_ADDR_LEG_CD, NW_ADDR_GRND_CD, NW_ADDR_MAIN_B, NW_ADDR_SUB_B
-		  , BLOCK_NM, HO_NM, FLOOR_GB_CD, FLOOR_GB_NM, FLOOR_NO, CREAT_DE
-		) VALUES (
-		  #{buldRegstrPk}
-		  , #{regstrGbCd}
-		  , #{regstrGbNm}
-		  , #{regstrKdCd}
-		  , #{regstrKdNm}
-		  , #{plotLoc}
-		  , #{rdnmPloLoc}
-		  , #{buldNm}
-		  , #{arcd}
-		  , #{legcd}
-		  , #{plogGbCd}
-		  , #{bun}
-		  , #{ji}
-		  , #{spPlotNm}
-		  , #{block}
-		  , #{lot}
-		  , #{nwAddrRoadCd}
-		  , #{nwAddrLegCd}
-		  , #{nwAddrGrndCd}
-		  , #{nwAddrMainB}
-		  , #{nwAddrSubB}
-		  , #{blockNm}
-		  , #{hoNm}
-		  , #{floorGbCd}
-		  , #{floorGbNm}
-		  , #{floorNo}
-		  , #{creatDe}
-		)
-	</insert>
-	
-	
 	<insert id="insertBatchjob" parameterType="commonMap">
 		INSERT /* homes.batch.mapper.BatchMapper.insertBatchjob */ 
 		INTO TB_CM_BATCHJOB (
@@ -222,6 +567,70 @@
 		)
 	</insert>
 	
+	<insert id="insertBatchLog" parameterType="batchVo">
+		INSERT /* homes.batch.mapper.BatchMapper.insertBatchLog */ 
+		INTO TB_CM_BATCHJOB (
+			BT_UUID
+			, BATCHTY
+			, BT_STTUS_CD
+	        , BT_EXCO 
+	        , BT_FILENM 
+			, BT_ERROR_MSG
+			, BT_ST_DT
+			, CREAT_USER_NO
+			, CREAT_DT
+			, UPDT_USER_NO
+			, UPDT_DT
+		) VALUES(
+			#{uuid}
+			, #{batchty}
+			, #{sttuscd}
+			, #{exco}
+			, #{filenm}
+			, #{message}
+			, NOW()
+			, #{mngrno}
+			, NOW()
+			, #{mngrno}
+			, NOW()
+		)
+	</insert>
+	
+	<update id="updateLegcdTotalLedger" parameterType="commonMap">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateLegcdTotalLedger */	
+		       TB_BD_TITLE_LEDGR
+		SET    LEGCD = #{legcode}
+		WHERE  ARCD = #{arcode}
+		AND    LEGCD IS NULL
+		AND    PLOT_LOC LIKE CONCAT(#{arname}, '%')
+	</update>
+	
+	<update id="updateBaseOutLine" parameterType="bsOutLineVo">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateBaseOutLine */
+		       TB_HBD_TEMP_BSOUTLINE
+		SET    BATCH_AT = #{afBatchAt}
+		       , UPDT_USER_NO = #{mngrno}
+		       , UPDT_DT = NOW()
+		WHERE  BATCH_DE = #{batchde}
+		AND    BATCH_AT = #{bfBatchAt}
+		AND    BULD_REGSTR_PK = #{buldRegstrPk}
+		<if test="totalRegstrPk != null and totalRegstrPk != ''">
+		AND    TOTAL_REGSTR_PK = #{totalRegstrPk}
+		</if>
+	</update>
+	
+	<update id="updateBatchLog" parameterType="batchVo">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateBatchLog */ 
+		       TB_CM_BATCHJOB
+		SET    BT_STTUS_CD = #{sttuscd}
+		       , BT_ED_DT = NOW()
+		       , BT_EXCO = #{exco}
+		       , BT_FILENM = #{filenm}
+		       , BT_ERROR_MSG = #{message}
+		       , UPDT_USER_NO = #{mngrno} 
+		       , UPDT_DT = NOW()
+		WHERE  BT_UUID = #{uuid}
+	</update>
 	<update id="updateBatchjob" parameterType="commonMap">
 		UPDATE /* homes.batch.mapper.BatchMapper.updateBatchjob */ 
 		       TB_CM_BATCHJOB
@@ -235,102 +644,17 @@
 		WHERE  BT_UUID = #{uuid}
 	</update>
 	
-	<update id="updatePssionLedger" parameterType="commonMap">
-		UPDATE /* homes.batch.mapper.BatchMapper.updatePssionLedger */ 
-		       TB_HBD_PSSION_BULD
-		SET    FLOOR_GB_CD      = #{floorGbCd}
-		       , FLOOR_GB_NM    = #{floorGbNm}
-		       , DONG_NM        = #{dongNm}
-		       , HO_NM          = #{hoNm}
-		       , FLOOR_NO       = #{floorNo}
-		       , CR_DE          = #{crde}
-		       , UPDT_USER_NO   = #{mngrno}
-		       , UPDT_DT        = NOW() 
-		WHERE  BULD_REGSTR_PK   = #{buldRegstrPk}
-	</update>
-	
-	<insert id="insertHbdBaseSummry" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertHbdBaseSummry */
-		INTO   TB_HBD_BASE_SUMMRY (
-			MNGR_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_GB_CD, REGSTR_KD_CD
-			, ARCD, LEGCD, BUN, JI
-			, REGSTR_CR_DE
-			, CR_DE
-		) VALUES (
-			#{mngrRegstrPk}
-			, #{upperRegstrPk}
-			, #{regstrGbCd}
-			, #{regstrKdCd}
-			, #{arcd}
-			, #{legcd}
-			, #{bun}
-			, #{ji}
-			, #{regstrCrde}
-			, DATE_FORMAT(NOW(), '%Y%m%d')
-		)
-	</insert>
-	
-	<insert id="insertHbdBuld" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertHbdBuld */
-		INTO   TB_HBD_BULD (
-			BULD_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_KD_CD
-		) VALUES (
-			#{mngrRegstrPk}
-			, #{upperRegstrPk}
-			, #{regstrKdCd}
-		)
-	</insert>
-	
-	<insert id="insertHbdAgBuld" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertHbdAgBuld */
-		INTO   TB_HBD_AG_BULD (
-			BULD_REGSTR_PK, UPPER_REGSTR_PK, REGSTR_KD_CD
-		) VALUES (
-			#{mngrRegstrPk}
-			, #{upperRegstrPk}
-			, #{regstrKdCd}
-		)
-	</insert>
-	
-	<insert id="insertHbdPssionBuld" parameterType="commonMap">
-		INSERT /* homes.batch.mapper.BatchMapper.insertHbdPssionBuld */
-		INTO   TB_HBD_PSSION_BULD (
-			BULD_REGSTR_PK, UPPER_REGSTR_PK
-		) VALUES (
-			#{mngrRegstrPk}
-			, #{upperRegstrPk}
-		)
-	</insert>
-	
-	
-	<!-- 표제부 법정동코드 NULL변환 -->
-	<select id="selectNullLegcdList" parameterType="string" resultType="commonMap">
-		SELECT /* homes.batch.mapper.BatchMapper.selectNullLegcdList */
-		       TA.ARCD, COUNT(1) AS HAS_CNT
-		FROM   ( SELECT ARCD 
-		         FROM   TB_BD_TITLE_LEDGR
-		         WHERE  LEGCD IS NULL 
-		         LIMIT  1
-		       ) TA
-		GROUP  BY TA.ARCD 
-	</select>
-	
-	<select id="selectConvArcodeList" parameterType="string" resultType="commonMap">
-		SELECT /* homes.batch.mapper.BatchMapper.selectConvArcodeList */
-		       ARCODE, LEGCODE
-		       , AR_FULL_NM AS ARNAME
-		FROM   TB_CM_COAREACODE
-		WHERE  ARCODE = #{arcode}
-		AND    ARLEVEL = 3  
-	</select>
-	
-	<update id="updateLegcdTotalLedger" parameterType="commonMap">
-		UPDATE /* homes.batch.mapper.BatchMapper.updateLegcdTotalLedger */	
-		       TB_BD_TITLE_LEDGR
-		SET    LEGCD = #{legcode}
-		WHERE  ARCD = #{arcode}
-		AND    LEGCD IS NULL
-		AND    PLOT_LOC LIKE CONCAT(#{arname}, '%')
+	<update id="updateLedgrHtbdno" parameterType="commonMap">
+		UPDATE /* homes.batch.mapper.BatchMapper.updateLedgrHtbdno */ 
+		       TB_HBD_LEDGR
+		SET    HTBDNO = #{htbdno}
+		       , TOTAL_REGSTR_PK = #{buldRegstrPk}
+		       , UPDT_DT = NOW() 
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+		AND    BUNJIB = #{bunjib}
+		AND    RDCODE = #{rdcode}
+		AND    RD_MAIN_BUN = #{rdMainBun}
 	</update>
 	
 	<delete id="deleteLegcdTotalLedger" parameterType="string">

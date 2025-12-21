@@ -114,4 +114,11 @@ public class DateTimeUtil {
 		sdf_hms.setTimeZone(new SimpleTimeZone(0, "KST")) ; 
 		return sdf_ymd.format(date) + "T" + sdf_hms.format(date) + "Z"; 
 	}
+	
+	/* Get System Timestamp */
+	public static String getCurrentDateTime() {
+		LocalDateTime now = LocalDateTime.now();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
+		return now.format(formatter);
+	}
 }

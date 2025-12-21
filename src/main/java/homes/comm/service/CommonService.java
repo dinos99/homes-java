@@ -17,6 +17,4 @@ public interface CommonService {
 	public Long insertCommuser( CommUserReqVo vo ) throws SQLException ;
 	
 	public long selectLastid() throws SQLException ; 
-	
-	public List<CommonMap> getCommCodeList(String grpcd) throws SQLException ; 
 }
