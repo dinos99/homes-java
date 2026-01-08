@@ -20,7 +20,10 @@ public class CommonMap extends HashMap<Object, Object> {
 	
 	public Long getLongValue(Object key) {
 		Object val = super.get(key) ;
-		if ( val instanceof java.lang.Long ) {
+		if ( val instanceof java.lang.Integer ) {
+			BigDecimal bd = new BigDecimal((int)val) ; 
+			return bd.longValue() ; 
+		} else if ( val instanceof java.lang.Long ) {
 			return ( Long ) val ; 
 		} else if ( val instanceof java.math.BigDecimal ) {
 			BigDecimal bd = new BigDecimal((long)val) ; 

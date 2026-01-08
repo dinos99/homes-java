@@ -91,7 +91,7 @@
 		SELECT /* homes.batch.mapper.BatchMapper.selectBatchJobListCount */
 		        COUNT(1) AS T_CNT
 		FROM   TB_CM_BATCHJOB 
-		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstDe}
+		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstde}
 	</select>
 	
 	<select id="selectBatchJobList" parameterType="homes.batch.vo.BatchReqVo" resultType="commonMap">
@@ -106,7 +106,7 @@
 		       , BT_FILENM                                  AS BT_FILENM
 		       , BT_ERROR_MSG                               AS BT_ERRORMSG
 		FROM   TB_CM_BATCHJOB 
-		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstDe}
+		WHERE  DATE_FORMAT(BT_ST_DT, '%Y%m%d') <![CDATA[ >= ]]> #{btstde}
 		ORDER  BY BATCHNO DESC
 		LIMIT  #{stno}, #{edno}
 	</select>

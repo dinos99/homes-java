@@ -4,7 +4,7 @@
 <mapper namespace="homes.comm.mapper.CommCodeMapper">
 
     <select id="getCodeAllList" parameterType="codeVo" resultType="codeVo">
-    	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList 모든 공통코드조회  */
+    	SELECT /* homes.common.mapper.CommonMapper.getCodeAllList 모든 공통코드조회  */
     	       MXTR_COMM_CD AS CODE
     	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
@@ -16,7 +16,7 @@
     </select>
     
     <select id="getCodeListbyUpcode" parameterType="string" resultType="CommonMap">
-    	SELECT /* homes.common.mapper.CommonMappe.getCodeListbyUpcode UPPER_CD로 공통코드조회  */
+    	SELECT /* homes.common.mapper.CommonMapper.getCodeListbyUpcode UPPER_CD로 공통코드조회  */
     	       MXTR_COMM_CD   AS CODE
     	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD       AS GRPCD
@@ -29,7 +29,7 @@
     </select>
     
     <select id="getCodeGroupList" parameterType="codeVo" resultType="codeVo">
-    	SELECT /* homes.common.mapper.CommonMappe.getCodeAllList GRP_CD로 공통코드조회  */
+    	SELECT /* homes.common.mapper.CommonMapper.getCodeAllList GRP_CD로 공통코드조회  */
     	       MXTR_COMM_CD AS CODE
     	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
@@ -46,7 +46,7 @@
     </select>
     
     <select id="getCommCodeList" parameterType="codeVo" resultType="commonMap">
-    	SELECT /* homes.common.mapper.CommonMappe.getCommCodeList 여러공통코드조회  */
+    	SELECT /* homes.common.mapper.CommonMapper.getCommCodeList 여러공통코드조회  */
     	       MXTR_COMM_CD AS CODE
     	       , MXTR_COMM_CD AS COMMCD
     	       , GRP_CD     AS GRPCD
@@ -62,7 +62,7 @@
     </select>
     
     <select id="getPpsCdList" parameterType="string" resultType="commonMap">
-		SELECT /* homes.common.mapper.CommonMappe.getPpsCdList 부동산 용도코드 조회  */
+		SELECT /* homes.common.mapper.CommonMapper.getPpsCdList 부동산 용도코드 조회  */
 		       PPS_CD, PPS_NM
 		       , PPS_CD_01  , PPS_NM_01
 		       , PPS_CD_02, PPS_NM_02
@@ -70,5 +70,13 @@
 		FROM   VW_PPS_CD
 		WHERE  1 = 1 
     </select>
-
+    
+   <select id="getppsCodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.comm.mapper.CommCodeMapper.getppsCodeList 용도코드 조회  */
+		       PPS_CD   AS PPSCD
+		       , PPS_NM AS PPSNM
+		FROM   TB_CM_REGSTR_PPSCODE 
+		WHERE  USE_YN = 'Y'
+		ORDER  BY PPS_CD ASC
+    </select>
 </mapper>

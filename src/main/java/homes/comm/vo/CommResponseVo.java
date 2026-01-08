@@ -38,7 +38,64 @@ public class CommResponseVo {
 		this.dataMap = dMap ; 
 		this.dataList = dList ;
 	}
-	
+
+	public CommResponseVo( Long tcnt, int rcnt, int pgno, CommonMap dMap, List<CommonMap> dList ) {
+		this.t_cnt = tcnt ;
+		this.pgno  = pgno ;
+		
+		/* 기본값 셋팅 */ 
+		this.order = "DESC" ;
+		this.r_cnt = rcnt ; 
+		this.f_pageno = 1 ;
+		
+		if ( this.t_cnt == 0 ) {
+			this.l_pageno = 1 ; 
+		} else {
+			Long lastpg = Math.ceilDiv(t_cnt, r_cnt) ;
+			this.l_pageno = Integer.parseInt(String.valueOf(lastpg)) ;
+		}
+		
+		if ( this.pgno > this.l_pageno ) {
+			this.pgno = this.l_pageno ; 
+		}
+		
+		/* 페이지번호를 10개씩 보여준다(고정) ex) 1page ~ 10page */ 
+		this.pg_st = (((this.pgno - 1) / 10) * 10) + 1  ;   
+		this.pg_ed = this.pg_st + 9 ;  
+		
+		if ( this.pg_ed > this.l_pageno ) this.pg_ed = this.l_pageno ; 
+		
+		this.dataMap = dMap ; 
+		this.dataList = dList ;
+	}
+
+	public CommResponseVo( Long tcnt, int rcnt, int pgno, List<CommonMap> dList ) {
+		this.t_cnt = tcnt ;
+		this.pgno  = pgno ;
+		
+		/* 기본값 셋팅 */ 
+		this.order = "DESC" ;
+		this.r_cnt = rcnt ; 
+		this.f_pageno = 1 ;
+		
+		if ( this.t_cnt == 0 ) {
+			this.l_pageno = 1 ; 
+		} else {
+			Long lastpg = Math.ceilDiv(t_cnt, r_cnt) ;
+			this.l_pageno = Integer.parseInt(String.valueOf(lastpg)) ;
+		}
+		
+		if ( this.pgno > this.l_pageno ) {
+			this.pgno = this.l_pageno ; 
+		}
+		
+		/* 페이지번호를 10개씩 보여준다(고정) ex) 1page ~ 10page */ 
+		this.pg_st = (((this.pgno - 1) / 10) * 10) + 1  ;   
+		this.pg_ed = this.pg_st + 9 ;  
+		
+		if ( this.pg_ed > this.l_pageno ) this.pg_ed = this.l_pageno ;
+		this.dataList = dList ;
+	}
 	private Long t_cnt ; /* 전체카운트 */ 
 	private Long r_num ; /* rownum */ 
 	

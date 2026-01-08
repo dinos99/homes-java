@@ -38,9 +38,10 @@ public class CommonServiceImpl implements CommonService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> selectSidoList() throws SQLException {
+	public List<CommonMap> selectSidoList() {
 		return mapper.selectSidoList() ; 
 	}
+	
 	@Override
 	@Transactional(readOnly = true)
 	public List<CommonMap> selectSggList( String sdcode ) throws SQLException {

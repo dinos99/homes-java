@@ -23,4 +23,6 @@ public interface CommCodeMapper {
 	
 	/* View를 통하여 부동산 용도코드를 조회한다 */
 	public List<CommonMap> getPpsCdList( String ppscd ) ; 
+	
+	public List<CommonMap> getppsCodeList(String ppscd) ; 
 }

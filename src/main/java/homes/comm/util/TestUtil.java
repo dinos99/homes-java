@@ -43,17 +43,20 @@ public class TestUtil {
 		System.out.println(sdcode.substring(0, 2)) ;
 		  
  */
-		
-		int a = 100;
-		int b = 122;
+        // 1. 원본 JSON 문자열
+        String jsonInput = "{\"mgmBldrgstPk\":1000000000000002931707, \"otherKey\":12345}, {\"mgmBldrgstPk\": 2054564878798743131345678 }";
 
-		// 결과를 double로 변환 후 나눗셈하고 올림
-		double result = Math.ceil((double) a / b);
+        // 2. 정규식 패턴 설정
+        // 설명: mgmBldrgstPk 뒤의 콜론(:) 다음에 오는 숫자들(\\d+)을 찾아서 그룹화합니다.
+        String regex = "\"mgmBldrgstPk\"\\s*:\\s*(\\d+)";
+        
+        // 3. 변환 실행 ($1은 첫 번째 괄호에서 찾은 숫자 그룹을 의미함)
+        String replacement = "\"mgmBldrgstPk\":\"$1\"";
+        String result = jsonInput.replaceAll(regex, replacement);
 
-		// int로 형변환
-		int finalResult = (int) result;
-
-		System.out.println(finalResult); // 4가 출력됩니다.
+        // 4. 결과 출력
+        System.out.println("변환 전: " + jsonInput);
+        System.out.println("변환 후: " + result);
 
 	}
 	

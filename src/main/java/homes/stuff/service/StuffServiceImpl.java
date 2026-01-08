@@ -3,7 +3,6 @@ package homes.stuff.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -261,50 +260,8 @@ public class StuffServiceImpl implements StuffService {
 	@Transactional( rollbackFor = Exception.class )
 	public RecapLedgrVo getHomesBuldMaster( StuffVo paramVo ) {
 		/* 관련지번 조회 */ 
-		CommonMap remap = mapper.selectMasterbunji(paramVo) ;
-		if ( ObjectUtil.isNotEmpty(remap)) {
-			/* 관련지번이 존재하면 대표지번으로 총괄표제부 검색 */
-			paramVo.setBun(remap.getStringValue("bunjib"));
-			paramVo.setJi(remap.getStringValue("bunjij"));
-		} 
-		String arcd   = paramVo.getArcd() ; 
-		String legcd  = paramVo.getLegcd() ; 
-		String bunjib = paramVo.getBun() ;
-		String bunjij = paramVo.getJi() ; 
-		/* ***************************************************
-		 * 총괄표제부가 미존재시 임의로 총괄표제부를 생성한다.
-		 * 1. DB 총괄표제부 검색 
-		 *    1.1 DB 총괄표제부 존재
-		 *    1.2 DB 총괄표제부 미존재
-		 *      1.2.1 API 총괄표제부 검색
-		 *        1.2.1.1 API 총괄표제부 존재 
-		 *        1.2.1.2 API 총괄표제부 미존재 
-		 * 단지 총 동수, 총 세대수만 받을건데 ......
-		 * 이렇게까지 해야하나 싶다 ...... 
-		 * ***************************************************/
-		/* 건축물 Hub API로부터 기본개요 정보조회 */
-		RecapLedgrVo recapVo = null ; 
+		int has_co = mapper.selectRelatedJibunCount(paramVo) ;
 		RecapLedgrVo db_recapVo = mapper.selectHbdRegstrMaster(paramVo) ; /* 홈즈_관리대장_총괄표제부 조회 */ ;
-		if ( ObjectUtil.isEmpty(db_recapVo)) { /* 1.2 DB 총괄표제부 미존재 */
-			BuldApiReqVo reqVo = new BuldApiReqVo(env, arcd, legcd, bunjib, bunjij, 1) ; /* 1건만 조회 */ 
-			/* 1.2.1 API 총괄표제부 검색 */ 
-			recapVo = apiService.getRecapLedgrinfo("/getBrRecapTitleInfo", reqVo) ;
-			/* 홈즈_관리대장_총괄표제부 등록 */
-			paramVo.setBuldgb(recapVo.getBuldgb()) ; 
-			String htbdno  = mapper.getHtbdno(paramVo) ;
-			recapVo.setHtbdno(htbdno) ; 
-			recapVo.setUserno(paramVo.getBrkno()) ;
-			recapVo.setBrkno(paramVo.getBrkno()) ;
-			String buldnm = recapVo.getBuldnm().trim() ; 
-			if ("".equals(buldnm)) {
-				buldnm = Optional.ofNullable(paramVo.getBuldnm()).orElse("") ; 
-				recapVo.setBuldnm(buldnm) ;
-			}
-			int in_co = mapper.insertHbdRegstrMaster(recapVo) ; 
-			recapVo.setInco(in_co) ; 
-//			Log.error(recapVo.toString()) ;
-			return recapVo ; 
-		} 
 		return db_recapVo ; 
 	}
 	
@@ -454,6 +411,8 @@ public class StuffServiceImpl implements StuffService {
 	@Override
 	@Transactional( readOnly = true )
 	public List<TitleLedgrVo> selectHbdLedgr(StuffVo paramVo) {
+		int has_cnt = mapper.selectRelatedJibunCount(paramVo) ; 
+		paramVo.setHasRelcount(has_cnt);
 		return mapper.selectHbdLedgr(paramVo);
 	}
 }

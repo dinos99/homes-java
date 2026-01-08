@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="homes.buldapi.mapper.BuldHubMapper">
+	<select id="selectRdRelateJibunCount" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="Long">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectRdRelateJibunCount 관련지번카운트 조회 */ 
+		       COUNT(1) AS CNT 
+		FROM   TB_RD_RDRELATE_JIBUN
+		WHERE  ARCODE = #{arcode}
+		<if test="bunjib != null and bunjib != ''">
+		AND    BUNJIB = #{bunjib}
+		</if>
+		ORDER  BY ARCODE, BUNJIB, BUNJIJ
+	</select>
+	<select id="selectRdRelateJibun" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectRdRelateJibun 관련지번 조회 */ 
+		       ARCODE, ARNAME_1, ARNAME_2, ARNAME_3, BUNJIB, BUNJIJ
+		       , RDCODE, RD_MAIN_BUN, RD_SUB_BUN
+		FROM   TB_RD_RDRELATE_JIBUN
+		WHERE  ARCODE = #{arcode}
+		<if test="bunjib != null and bunjib != ''">
+		AND    BUNJIB = #{bunjib}
+		</if>
+		ORDER  BY ARCODE, BUNJIB, BUNJIJ
+		LIMIT  #{stno}, #{edno}
+	</select>
+	
+	<select id="selectTempLedgrMstrCount" parameterType="string" resultType="int">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectTempLedgrMstrCount 총괄표제부카운트 조회 */
+		       COUNT(1) AS CNT 
+		FROM   TB_HBD_TEMP_LEDGR_MSTR
+		WHERE  TOTAL_REGSTR_PK = #{totalRegstrPk} 
+	</select>
+	
+	<select id="selectTempLedgrCount" parameterType="string" resultType="int">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectLedgrCount 표제부카운트 조회 */
+		       COUNT(1) AS CNT 
+		FROM   TB_HBD_TEMP_LEDGR
+		WHERE  BULD_REGSTR_PK = #{buldRegstrPk} 
+	</select>
+
+	<select id="selectBaseOutLineCount" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="Long">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectBaseOutLineCount 기본개요카운트 조회 */ 
+				COUNT(1) AS CNT 
+		FROM   TB_HBD_TEMP_BSOUTLINE
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd} 
+		<if test="bunjib != null and bunjib != ''">
+		AND    BUNJIB = #{bunjib}
+		</if>
+		<if test="bunjij != null and bunjij != ''">
+		AND    BUNJIJ = #{bunjij}
+		</if>
+	</select>
+	
+	<select id="selectHbdLedgrMstrCount" parameterType="string" resultType="int">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectHbdLedgrMstrCount 홈즈관리대장마스터 등록여부조회 */
+		       COUNT(1) AS CNT 
+		FROM   TB_HBD_LEDGR_MSTR
+		WHERE  HTBDNO = #{htbdno} 
+	</select>
+	
+	<select id="selectBaseOutLine" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectBaseOutLine 기본개요 조회 */ 
+		       BULD_REGSTR_PK, TOTAL_REGSTR_PK, BULDGB, ARCD, LEGCD
+		       , BUNJIB, BUNJIJ, RDCODE, RDLEGCD, UNDER_AT
+		       , RD_MAIN_BUN, RD_SUB_BUN
+		       , CRDE, BATCH_DE, BATCH_AT
+		FROM   TB_HBD_TEMP_BSOUTLINE
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd} 
+		<if test="bunjib != null and bunjib != ''">
+		AND    BUNJIB = #{bunjib}
+		</if>
+		<if test="bunjij != null and bunjij != ''">
+		AND    BUNJIJ = #{bunjij}
+		</if>
+		ORDER  BY ARCD, LEGCD, BUNJIB, BUNJIJ
+		LIMIT  #{stno}, #{edno}
+	</select>
+	
+	<select id="selectMasterUpdateList" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectMasterUpdateList 업데이트 대상목록조회 */
+		       A.HTBDNO, B.TOTAL_REGSTR_PK, B.BULDCO
+               , C.BUNJIB, C.BUNJIJ, C.BULDNM, C.BDADDR, C.RDADDR
+		       , C.HSHLDCO
+		       , C.FMLYCO
+		       , CASE WHEN C.HOSILCO = 0 THEN A.HOSILCO ELSE C.HOSILCO END AS HOSILCO
+		       , C.PARKNGCO
+		       , C.TOTAL_AR
+		       , C.PLAT_AR
+		       , C.BULD_AR
+		       , C.BULK_CALC_TOT_AR
+		       , C.BULD_LND_RT
+		       , C.BULK_RT
+		       , C.CONFDE
+		       , C.CRDE
+		       , 2                                          AS BATCH_AT
+		       , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
+		       , 'Y'                                        AS USE_YN
+		FROM   TB_HBD_LEDGR_MSTR       A
+		INNER  JOIN ( SELECT HTBDNO, TOTAL_REGSTR_PK
+		                     , COUNT(1) AS BULDCO 
+		              FROM   TB_HBD_BASE_SUMMRY 
+		              WHERE  PKEY_TY = 'T' 
+		              GROUP  BY HTBDNO, TOTAL_REGSTR_PK
+		            ) B ON A.HTBDNO = B.HTBDNO
+		INNER   JOIN TB_HBD_TEMP_LEDGR_MSTR C ON B.TOTAL_REGSTR_PK = C.TOTAL_REGSTR_PK 
+		WHERE   A.ARCD = #{arcd}
+		AND     A.LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND     A.BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    A.BUNJIJ = #{bunjij}
+	    </if>
+	</select>
+	
+	<sql id="queryMasterSource">
+		SELECT A.HTBDNO
+		       , A.BULD_REGSTR_PK
+		       , A.BULDGB
+		       , A.BULDGB    AS CPLX_AT
+		       , A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ, A.BULDNM
+		       , A.BDADDR, A.RDADDR, A.PPSCD, A.PPSETCNM
+		       , ( SELECT SUM(LD.HSHLDCO)  FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS HSHLDCO
+		       , ( SELECT SUM(LD.FMLYCO)   FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS FMLYCO
+		       , ( SELECT COUNT(1)         FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS BULDCO
+		       , ( SELECT SUM(LD.HOSILCO)  FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS HOSILCO
+		       , ( SELECT MAX(LD.PARKNGCO) FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS PARKNGCO
+		       , ( SELECT MAX(LD.GRNDCO)   FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS TOP_FLOOR
+		       , ( SELECT MAX(LD.UNDERCO)  FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO )  AS BTM_UNDER
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+		       , ( SELECT MAX(LD.TOTAL_AR) FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO ) AS TOTAL_AR
+		       , ( SELECT MAX(LD.PLAT_AR)  FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO ) AS PLAT_AR
+		       , ( SELECT MAX(LD.BULD_AR)  FROM TB_HBD_LEDGR LD WHERE A.HTBDNO = LD.HTBDNO ) AS BULD_AR
+		       , A.CONFDE
+		       , A.CRDE
+		FROM   TB_HBD_LEDGR A
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    BUNJIJ = #{bunjij}
+	    </if>
+		<if test="htbdno != null and htbdno != ''">
+		AND    HTBDNO = #{htbdno}
+		AND    BULD_REGSTR_PK = #{buldRegstrPk}
+		</if>
+	    AND    NOT EXISTS ( SELECT 'X' 
+	                        FROM   TB_HBD_LEDGR_MSTR MS
+	                        WHERE  A.HTBDNO = MS.HTBDNO )
+	</sql>
+	
+	<select id="selectMasterSource" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectMasterSource 홈즈관리대장 마스터 등록대상조회 */
+		       *
+        FROM   (
+        	<include refid="queryMasterSource" />
+        ) A
+	</select>
+	
+	<select id="selectBuldList" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectBuldList 홈즈관리대장 마스터 건물명 조회 */
+		       A.HTBDNO
+		       , CONCAT(CASE WHEN A.BULDGB = '1' THEN '일반 / ' ELSE '집합 / ' END
+		                , A.BDADDR, ' / '
+		                , A.BULDNM) 
+		       AS BULDNM
+		       , BUNJIB, BUNJIJ
+		FROM   TB_HBD_LEDGR_MSTR A
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    BUNJIJ = #{bunjij}
+	    </if>
+	    <if test="buldgb != null and buldgb != ''">
+	    AND    BULDGB = #{buldgb}
+	    </if>
+		ORDER  BY A.BULDGB DESC, A.BUNJIJ, A.HTBDNO, A.BULDNM
+	</select>
+	
+	<select id="selectDongList" parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectDongList 홈즈관리대장 마스터 건물동 조회 */
+		       HBDNO, DONGNM
+		FROM   TB_HBD_LEDGR
+		WHERE  HTBDNO = #{htbdno}
+		ORDER  BY DONGNM ASC
+	</select>
+	
+	<sql id="queryHBDLedgrList">
+		SELECT HTBDNO, HBDNO, BULD_REGSTR_PK, BULDGB
+		       , ARCD, LEGCD, BUNJIB, BUNJIJ
+		       , BULDNM, DONGNM, BDADDR, RDADDR
+		       , PPSCD, PPSETCNM, CFMVGB, CONFDE, MOVEINDE
+		       , RIDNG_ELVTR_CO, EMGR_ELVTR_CO, GRNDCO, UNDERCO, HSHLDCO, FMLYCO, HOSILCO
+		       , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+		       , TOTAL_AR, SUPPLY_AR, BULD_AR, PLAT_AR
+		       , 0.00        AS BULD_LND_RT
+		       , 0.00        AS BULK_CALC_TOT_AR
+		       , 0.00        AS BULK_RT
+		       , 1           AS BULDCO
+		       , PARKNGCO
+		       , CRDE
+		FROM   TB_HBD_LEDGR
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    BUNJIJ = #{bunjij}
+	    </if>
+	    <if test="buldgb != null and buldgb != ''">
+	    AND    BULDGB = #{buldgb}
+	    </if>
+	</sql>
+		<sql id="queryHBDLedgrMasterList">
+		SELECT A.BULD_REGSTR_PK AS TOTAL_REGSTR_PK
+		       , A.BULDGB
+		       , A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ, A.BULDNM
+		       , '' AS DONGNM
+		       , A.BDADDR, A.RDADDR, A.PPSCD, A.PPSETCNM
+		       , A.HSHLDCO, A.FMLYCO, A.HOSILCO, A.BULDCO, A.BULDSUBCO
+		       , A.PARKNGCO
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+		       , A.TOTAL_AR, A.PLAT_AR, A.BULD_AR, A.SUPPLY_AR
+		       , A.BULD_LND_RT, A.BULK_CALC_TOT_AR, A.BULK_RT
+		       , A.CONFDE, A.CRDE
+		FROM   TB_HBD_LEDGR_MSTR A
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    BUNJIJ = #{bunjij}
+	    </if>
+	    <if test="buldgb != null and buldgb != ''">
+	    AND    BULDGB = #{buldgb}
+	    </if>
+	</sql>
+	
+	<select id="selectHBDLedgrCount"  parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="int">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectHBDLedgrCount 홈즈관리대장(표제부) 전체건수조회 */
+		       COUNT(1) AS CNT
+		FROM   ( <include refid="queryHBDLedgrList" /> ) A
+	</select>
+
+	<select id="selectHBDLedgrList"  parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectHBDLedgrList 홈즈관리대장(표제부) 조회 */
+		       HTBDNO, HBDNO, BULD_REGSTR_PK, BULDGB
+		       , ARCD, LEGCD, BUNJIB, BUNJIJ
+		       , BULDNM, DONGNM, BDADDR, RDADDR
+		       , PPSCD, PPSETCNM, CFMVGB, CONFDE, MOVEINDE
+		       , RIDNG_ELVTR_CO, EMGR_ELVTR_CO, GRNDCO, UNDERCO, HSHLDCO, FMLYCO, HOSILCO
+		       , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+		       , TOTAL_AR, SUPPLY_AR, BULD_AR, PLAT_AR
+		       , BULD_LND_RT, BULK_CALC_TOT_AR, BULK_RT /* DB추가 필요 */ 
+		       , BULDCO, PARKNGCO, CRDE
+		FROM   ( <include refid="queryHBDLedgrList" /> ) A
+		ORDER  BY BUNJIJ, BULDNM, DONGNM, BULDGB	
+		LIMIT  #{stno}, #{edno}		
+	</select>
+	
+	<select id="selectHBDLedgrMasterCount"  parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="int">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectHBDLedgrMasterCount 홈즈관리대장 마스터 전체건수조회 */
+		       COUNT(1) AS CNT
+		FROM   ( <include refid="queryHBDLedgrMasterList" /> ) A
+	</select>
+	
+	<select id="selectHBDLedgrMasterList"  parameterType="homes.buldapi.vo.BuldHubReqVo" resultType="commonMap">
+		SELECT /* homes.buldapi.mapper.BuldHubMapper.selectHBDLedgrList 홈즈관리대장(표제부) 조회 */
+		       A.TOTAL_REGSTR_PK
+		       , A.BULDGB
+		       , A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ, A.BULDNM
+		       , A.DONGNM
+		       , A.BDADDR, A.RDADDR, A.PPSCD, A.PPSETCNM
+		       , A.HSHLDCO, A.FMLYCO, A.HOSILCO, A.BULDCO, A.BULDSUBCO
+		       , A.PARKNGCO
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+		       , A.TOTAL_AR, A.PLAT_AR, A.BULD_AR, A.SUPPLY_AR
+		       , A.BULD_LND_RT, A.BULK_CALC_TOT_AR, A.BULK_RT
+		       , A.CONFDE, A.CRDE
+		FROM   ( <include refid="queryHBDLedgrMasterList" /> ) A
+		ORDER  BY BUNJIJ, BULDNM, DONGNM, BULDGB	
+		LIMIT  #{stno}, #{edno}		
+	</select>
+	
+	
+	<insert id="insertHbdSummary" parameterType="homes.buldapi.vo.BuldHubReqVo" >
+	    INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertHbdSummary 기본개요 등록 */ 
+	    TB_HBD_BASE_SUMMRY (
+	        HBDNO, HTBDNO, PKEY_TY, TOTAL_REGSTR_PK, BULD_REGSTR_PK, BULDGB
+	        , ARCD, LEGCD, BUNJIB, BUNJIJ
+	        , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+	        , CRDE, BATCH_AT, BATCH_DE, USE_YN
+	        , CREAT_USER_NO, UPDT_USER_NO
+	    )
+	    SELECT FN_GET_HBDNO(A.BULDGB, A.ARCD, A.LEGCD) AS HBDNO
+		       , FN_GET_HTBDNO( A.BULDGB, A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ, A.RDCODE, A.RD_MAIN_BUN, A.RD_SUB_BUN) AS HTBDNO
+	           , CASE WHEN A.TOTAL_REGSTR_PK = '' THEN 'B' ELSE 'T' END AS PKEY_TY
+	           , A.TOTAL_REGSTR_PK
+	           , A.BULD_REGSTR_PK
+	           , A.BULDGB, A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ
+	           , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN
+	           , A.CRDE
+	           , #{batchAt}                                      AS BATCH_AT
+	           , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCH_DE
+	           , 'Y' AS USE_YN
+	           , #{mngrno} AS CREAT_USER_NO
+	           , #{mngrno} AS UPDT_USER_NO
+	    FROM   TB_HBD_TEMP_BSOUTLINE A
+	    WHERE  ARCD = #{arcd}
+	    AND    LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    BUNJIJ = #{bunjij}
+	    </if>
+	    AND    NOT EXISTS ( SELECT 'X' 
+	                        FROM   TB_HBD_BASE_SUMMRY SM
+	                        WHERE  A.BULD_REGSTR_PK = SM.BULD_REGSTR_PK )
+	</insert>
+	
+	<insert id="insertHbdLedgrMstr" parameterType="homes.buldapi.vo.BuldHubReqVo" >
+		INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertHbdLedgr 홈즈관리대장_마스터 등록 */ 
+		TB_HBD_LEDGR_MSTR (
+			HTBDNO, BULD_REGSTR_PK, BULDGB, CPLX_AT
+			, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDNM
+			, BDADDR, RDADDR, PPSCD, PPSETCNM
+			, HSHLDCO, FMLYCO, BULDCO, HOSILCO, PARKNGCO
+			, TOP_FLOOR, BTM_UNDER
+			, RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+			, TOTAL_AR, PLAT_AR, BULD_AR
+			, CONFDE, CRDE
+		)
+        <include refid="queryMasterSource" />
+	</insert>
+	
+	<insert id="insertHbdLedgr" parameterType="homes.buldapi.vo.BuldHubReqVo" >
+		INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertHbdLedgr 홈즈관리대장_표제부 등록 */ 
+		TB_HBD_LEDGR (
+		    HTBDNO, HBDNO, BULD_REGSTR_PK, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDGB, BDADDR, RDADDR, BULDNM
+		    , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN, DONGNM
+		    , PLAT_AR, SUPPLY_AR, BULD_AR, TOTAL_AR
+		    , PPSCD, PPSETCNM, HSHLDCO, FMLYCO, GRNDCO, UNDERCO, HOSILCO
+		    , RIDNG_ELVTR_CO, PARKNGCO, CONFDE, CRDE
+		    , USE_YN, BATCH_AT, BATCH_DE
+		    , CREAT_USER_NO, UPDT_USER_NO
+		)
+		SELECT B.HTBDNO, B.HBDNO, A.BULD_REGSTR_PK, A.ARCD, A.LEGCD, B.BUNJIB, B.BUNJIJ, A.BULDGB, A.BDADDR, A.RDADDR, A.BULDNM
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT, A.RD_MAIN_BUN, A.RD_SUB_BUN, A.DONGNM
+		       , A.PLAT_AR, A.SUPPLY_AR, A.BULD_AR, A.TOTAL_AR
+		       , A.PPSCD, A.PPSETCNM, A.HSHLDCO, A.FMLYCO, A.GRNDCO, A.UNDERCO, A.HOSILCO
+		       , A.RIDNG_ELVTR_CO, A.PARKNGCO, A.CONFDE, A.CRDE
+		       , 'Y' AS USE_YN
+		       , #{batchAt} AS BATCH_AT
+		       , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCH_DE
+		       , #{mngrno} AS CREAT_USER_NO
+		       , #{mngrno} AS UPDT_USER_NO
+		FROM   TB_HBD_TEMP_LEDGR       A
+		INNER  JOIN TB_HBD_BASE_SUMMRY B ON ( A.BULD_REGSTR_PK = B.BULD_REGSTR_PK ) 
+		WHERE  A.ARCD = #{arcd}
+		AND    A.LEGCD = #{legcd}
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    A.BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    A.BUNJIJ = #{bunjij}
+	    </if>
+		AND    NOT EXISTS ( SELECT 'X' 
+		                    FROM   TB_HBD_LEDGR LD
+		                    WHERE  A.BULD_REGSTR_PK = LD.BULD_REGSTR_PK ) 
+	</insert>
+	
+	<insert id="insertTempLedgr" parameterType="commonMap" >
+	    INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertLedgr 홈즈관리대장_표제부 등록 */
+	    TB_HBD_TEMP_LEDGR (
+	        BULD_REGSTR_PK, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDGB, BDADDR, RDADDR, BULDNM
+	        , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN, DONGNM
+	        , PLAT_AR, SUPPLY_AR, BULD_AR, BULD_LND_RT, TOTAL_AR, BULK_CALC_TOT_AR, BULK_RT
+	        , PPSCD, PPSETCNM, HSHLDCO, FMLYCO, GRNDCO, UNDERCO, BULDCO, HOSILCO
+	        , RIDNG_ELVTR_CO, EMGR_ELVTR_CO, PARKNGCO, CONFDE, CRDE
+	    ) VALUES (
+			#{buldRegstrPk}, #{arcd}, #{legcd}, #{bunjib}, #{bunjij}, #{buldgb}, #{bdaddr}, #{rdaddr}, #{buldnm}
+			, #{rdcode}, #{rdlegcd}, #{underAt}, #{rdMainBun}, #{rdSubBun}, #{dongnm}
+			, #{platAr}, #{supplyAr}, #{buldAr}, #{buldLndRt}, #{totalAr}, #{bulkCalcTotAr}, #{bulkRt}
+			, #{ppscd}, #{ppsetcnm}, #{hshldco}, #{fmlyco}, #{grndco}, #{underco}, #{buldco}, #{hosilco}
+			, #{ridngElvtrCo}, #{emgrElvtrCo}, #{parkngco}, #{confde}, #{crde}
+	    )
+	</insert>
+	
+	<insert id="insertTempLedgrMstr" parameterType="commonMap" >
+	    INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertTempLedgrMstr 홈즈관리대장_총괄표제부 등록 */
+	    TB_HBD_TEMP_LEDGR_MSTR (
+	        TOTAL_REGSTR_PK, ARCD, LEGCD, BUNJIB, BUNJIJ, BULDGB, BDADDR, RDADDR, BULDNM
+	        , RDCODE, RDLEGCD, UNDER_AT, RD_MAIN_BUN, RD_SUB_BUN
+	        , PLAT_AR, BULD_AR, BULD_LND_RT, TOTAL_AR
+	        , PPSCD, PPSETCNM, HSHLDCO, FMLYCO, BULDCO, HOSILCO
+	        , PARKNGCO, CONFDE, CRDE
+	    ) VALUES (
+			#{totalRegstrPk}, #{arcd}, #{legcd}, #{bunjib}, #{bunjij}, #{buldgb}, #{bdaddr}, #{rdaddr}, #{buldnm}
+			, #{rdcode}, #{rdlegcd}, #{underAt}, #{rdMainBun}, #{rdSubBun}
+			, #{platAr}, #{buldAr}, #{buldLndRt}, #{totalAr}
+			, #{ppscd}, #{ppsetcnm}, #{hshldco}, #{fmlyco}, #{buldco}, #{hosilco}
+			, #{parkngco}, #{confde}, #{crde}
+	    )
+	</insert>
+	
+	<insert id="insertTempLedgrFloor" parameterType="commonMap">
+		INSERT INTO /* homes.buldapi.mapper.BuldHubMapper.insertTempLedgrFloor 층별개요(임시) 생성 */
+		TB_HBD_TEMP_LEDGR_FLOOR (
+			BULD_REGSTR_PK, BULDNM, DONGNM, FLGBCD, FLGBNM, FLOORNO, FLOORNM
+			, PPSCD, PPSETCNM, TOTAL_AR, AR_EXCLD_AT, MAIN_BULD_AT, CRDE
+			, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{buldRegstrPk}
+			, #{buldnm}
+			, #{dongnm}
+			, #{flgbcd}
+			, #{flgbnm}
+			, #{floorno}
+			, #{floornm}
+			, #{ppscd}
+			, #{ppsetcnm}
+			, #{totalAr}
+			, #{arExcldAt}
+			, #{mainBuldAt}
+			, #{crde}
+			, #{mngrno}
+			, #{mngrno}
+		)
+	</insert>
+	
+	<insert id="insertLedgrFloor" parameterType="homes.buldapi.vo.BuldHubReqVo">
+		INSERT /* homes.buldapi.mapper.BuldHubMapper.insertLedgrFloor 층별개요 생성 */
+		INTO   TB_HBD_LEDGR_FLOOR (
+		    HTBDNO, HBDNO, FLGBCD, FLNO, BULD_REGSTR_PK
+		    , BATCH_AT, BATCH_DE
+		) 
+		SELECT LD.HTBDNO                                    AS HTBDNO
+		       , LD.HBDNO                                   AS HBDNO
+		       , D.FLGBCD                                   AS FLGBCD
+		       , D.FLOORNO                                  AS FLNO 
+		       , LD.BULD_REGSTR_PK                          AS BULD_REGSTR_PK
+		       , '4'                                        AS BATCH_AT
+		       , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
+		FROM   TB_HBD_LEDGR                  LD
+		INNER  JOIN TZ_01_BSOUTLINE_11710    A ON A.REGSTR_PK = LD.BULD_REGSTR_PK
+		INNER  JOIN TZ_01_BSOUTLINE_11710    B ON A.REGSTR_PK = B.UP_REGSTR_PK
+		INNER  JOIN TZ_09_PSSION_LEDGR_11710 C ON B.REGSTR_PK = C.REGSTR_PK
+		INNER  JOIN TZ_06_PSSION_AREA_11710  D ON C.REGSTR_PK = D.REGSTR_PK
+		WHERE  LD.ARCD = #{arcd}
+		AND    LD.LEGCD = #{legcd} 
+	    <if test="bunjib != null and bunjib != ''">
+	    AND    LD.BUNJIB = #{bunjib}
+	    </if>
+	    <if test="bunjij != null and bunjij != ''">
+	    AND    LD.BUNJIJ = #{bunjij}
+	    </if>
+	    <if test="buldgb != null and buldgb != ''">
+	    AND    LD.BULDGB = #{buldgb}
+	    </if>
+		AND    A.REGSTRGBCD = '3'
+		AND    D.FLOORNO <![CDATA[ > ]]> 0  
+		AND    NOT EXISTS ( SELECT 'X'
+		                    FROM   TB_HBD_LEDGR_FLOOR FL
+		                    WHERE  FL.HTBDNO = LD.HTBDNO
+		                    AND    FL.HBDNO = LD.HBDNO
+		                    AND    FL.FLGBCD = D.FLGBCD
+		                    AND    FL.FLNO = D.FLOORNO
+		                  ) 
+		GROUP  BY LD.HTBDNO, LD.HBDNO, LD.BULD_REGSTR_PK
+		       , A.REGSTR_PK
+		       , D.FLGBCD
+		       , D.FLOORNO
+		ORDER  BY A.REGSTR_PK, D.FLGBCD, D.FLOORNO ASC 
+	</insert>
+	
+	<insert id="insertLedgrPssion" parameterType="homes.buldapi.vo.BuldHubReqVo">
+		INSERT /* homes.buldapi.mapper.BuldHubMapper.insertLedgrPssion 전유공유면적(전유부) 생성 */
+		INTO   TB_HBD_LEDGR_PSSION_AREA (
+		    HTBDNO, HBDNO, HPSNO, PSSN_REGSTR_PK
+		    , FLGBCD, FLNO, FLNM
+		    , HSNO
+		    , HOSILNM, PPSCD, PPSETCNM, TOTAL_AR, CRDE
+		    , USE_YN, BATCH_AT, BATCH_DE
+		) 
+		SELECT HTBDNO, HBDNO
+		       , CONCAT('PSN', FLGBCD, SUBSTR(HBDNO, 16, 25), LPAD(HPSNO, 5, '0')) AS HPSNO
+		       , PSSN_REGSTR_PK
+		       , FLGBCD
+		       , FLNO
+		       , FLNM
+		       , HPSNO AS HSNO
+		       , HOSILNM, PPSCD, PPSETCNM, TOTAL_AR, CRDE
+		       , USE_YN, BATCH_AT, BATCHDE
+		FROM   ( SELECT LD.HTBDNO      AS HTBDNO
+		                , LD.HBDNO     AS HBDNO
+		                , ROW_NUMBER() OVER( PARTITION BY LD.HTBDNO, LD.HBDNO, C.FLGBCD
+		                                     ORDER     BY LD.HTBDNO, LD.HBDNO, C.FLGBCD, C.FLOORNO ) AS HPSNO 
+		                , C.REGSTR_PK  AS PSSN_REGSTR_PK
+		                , C.FLGBCD     AS FLGBCD
+		                , C.FLOORNO    AS FLNO
+		                , C.FLNM       AS FLNM
+		                , C.HOSILNM    AS HOSILNM
+		                , C.PPSCD      AS PPSCD
+		                , C.PPSETCNM   AS PPSETCNM
+		                , C.TOTAL_AR   AS TOTAL_AR
+		                , C.CRDE       AS CRDE
+		                , 'Y'          AS USE_YN
+		                , '6'          AS BATCH_AT
+		                , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
+		         FROM   TB_HBD_LEDGR                  LD
+		         INNER  JOIN TZ_01_BSOUTLINE_11710    A ON A.REGSTR_PK = LD.BULD_REGSTR_PK
+		         INNER  JOIN TZ_01_BSOUTLINE_11710    B ON A.REGSTR_PK = B.UP_REGSTR_PK
+		         INNER  JOIN TZ_06_PSSION_AREA_11710  C ON B.REGSTR_PK = C.REGSTR_PK
+		         WHERE  A.REGSTRGBCD = '3'
+				 AND    C.FLOORNO <![CDATA[ > ]]> 0  
+			    <if test="bunjib != null and bunjib != ''">
+			     AND    LD.BUNJIB = #{bunjib}
+			    </if>
+			    <if test="bunjij != null and bunjij != ''">
+			     AND    LD.BUNJIJ = #{bunjij}
+			    </if>
+			    <if test="buldgb != null and buldgb != ''">
+			     AND    LD.BULDGB = #{buldgb}
+			    </if>
+	        ) A
+			WHERE  NOT EXISTS ( SELECT 'X'
+			                    FROM   TB_HBD_LEDGR_PSSION_AREA AR
+			                    WHERE  AR.HTBDNO = A.HTBDNO
+			                    AND    AR.HBDNO  = A.HBDNO
+			                    AND    AR.HPSNO  = A.HPSNO ) 
+			ORDER  BY A.HBDNO, HPSNO 
+	</insert>
+	
+	<update id="updateHbdLedgrMaster" parameterType="commonMap">
+		UPDATE /* homes.buldapi.mapper.BuldHubMapper.updateHbdLedgrMaster 마스터정보 변경 */
+		       TB_HBD_LEDGR_MSTR
+		SET    BUNJIJ = #{bunjij}
+		       , BDADDR = #{bdaddr}
+		       , RDADDR = #{rdaddr}
+		       , BULDNM = #{buldnm} 
+		       , BULDCO = #{buldco} /* 주건축물수에서 단지동수로 변경 */ 
+		       , HSHLDCO  = #{hshldco}
+		       , FMLYCO   = #{fmlyco}
+		       , HOSILCO  = #{hosilco}
+		       , PARKNGCO = #{parkngco}
+		       , TOTAL_AR = #{totalAr}
+		       , PLAT_AR  = #{platAr}
+		       , BULD_AR  = #{buldAr}
+		       , BULK_CALC_TOT_AR  = #{bulkCalcTotAr} /* 용적률_산정_연_면적 */ 
+		       , BULD_LND_RT = #{buldLndRt}
+		       , BULK_RT  = #{bulkRt}
+		       , CONFDE   = #{confde}
+		       , CRDE     = #{crde}
+		       , BATCH_AT = #{batchAt}
+		       , BATCH_DE = #{batchde}
+		       , USE_YN   = 'Y' 
+		       , UPDT_USER_NO = #{mngrno}
+		       , UPDT_DT = CURRENT_TIMESTAMP() 
+		WHERE  HTBDNO = #{htbdno}
+	</update>	
+	
+</mapper>

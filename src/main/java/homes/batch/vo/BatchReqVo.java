@@ -13,7 +13,8 @@ public class BatchReqVo {
 		this.pgno = 1 ; 
 		this.stno = 0 ; 
 		this.edno = 10 ;
-		this.offset = 10 ; 
+		this.offset  = 10 ; 
+		this.numrows = 10 ;
 	}
 
 	
@@ -21,13 +22,14 @@ public class BatchReqVo {
 	private int stno ;
 	private int edno ; 
 	private int offset ;
+	private int numrows ; 
 	
 	public void setPage() {
 		int pgno = this.getPgno() <= 0 ? 1 : this.getPgno() ; 
 		
-		int stno = (( pgno -  1) * 10 ) ; 
+		int stno = (( pgno -  1) * this.numrows ) ; 
 //		int edno = stno + 10 ;
-		int edno = 10 ;
+		int edno = this.numrows ;
 		
 		this.setPgno(pgno) ;
 		this.setStno(stno) ;
@@ -36,6 +38,6 @@ public class BatchReqVo {
 //		Log.info("*** [ pgno: {}, from stno[{}] to edno[{}] ", pgno, stno, edno) ;
 	}
 	
-	private String   btstDe ;
+	private String   btstde ;
 	private String   batchTy ;
 }

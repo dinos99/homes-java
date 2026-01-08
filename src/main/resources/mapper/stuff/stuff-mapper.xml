@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="homes.stuff.mapper.StuffMapper">
+
+	<select id="selectRelatedJibunCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectRelatedJibunCount 관련지번 포함여부 */
+		       COUNT(SHTBDNO) AS HAS_RELJIBUN
+		FROM   TB_HBD_LEDGR_MSTR_RELJIBUN A
+		<if test="htbdno != null and htbdno != ''">
+		WHERE  SHTBDNO = #{htbdno}
+		</if>
+		<if test="htbdno == null or htbdno ==''">
+		WHERE  ARCD = #{arcd}
+		AND    LEGCD = #{legcd}
+		AND    BUNJIB = #{bun}
+		</if>
+	</select>
+
 	<select id="selectBrkComplexList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuffList 중개사 물건 목록 */
 		        A.CPLXNO           AS CPLXNO     /* 단지번호 */
@@ -239,7 +254,7 @@
 	</select>
 	<select id="selectHbdLedgr" parameterType="homes.stuff.vo.StuffVo" resultType="homes.api.buld.vo.TitleLedgrVo">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectHbdLedgr 통합DB(표제부) 등록정보 확인 */
-		       A.HBDNO             AS BULDNO
+		       A.HBDNO             AS HBDNO
 		       , A.HTBDNO          AS HTBDNO
 		       , A.BULD_REGSTR_PK  AS BREGSTR_PK
 		       , A.BULDGB          AS BULDGB
@@ -254,12 +269,19 @@
 		       , A.BULDNM          AS BULDNM
 		       , A.DONGNM          AS DONGNM
 		       , A.RIDNG_ELVTR_CO  AS RIDE_ELVTRCO
-		       , A.RIDNG_ELVTR_CO  AS EMGR_ELVTRCO
-		       , A.GRNDCO          AS FLGROUNDCO
-		       , A.UNDERCO         AS FLUNDERCO
+		       , A.GRNDCO          AS GRNDCO
+		       , A.UNDERCO         AS UNDERCO
 		FROM   TB_HBD_LEDGR A
-		WHERE  A.HTBDNO = #{htbdno} 
-		AND    A.BULDGB = #{buldgb}
+		WHERE  A.BULDGB = #{buldgb}
+		<if test="hasRelcount &gt; 0">
+		AND    A.HTBDNO IN ( SELECT C.SHTBDNO  
+		                     FROM   TB_HBD_LEDGR_MSTR_RELJIBUN      C
+		                     INNER  JOIN TB_HBD_LEDGR_MSTR_RELJIBUN D ON C.MHTBDNO = D.MHTBDNO
+		                     WHERE  D.SHTBDNO = #{htbdno}  )
+		</if>
+		<if test="hasRelcount == 0">
+		AND    A.HTBDNO = #{htbdno}
+		</if>
 		ORDER  BY A.DONGNM ASC
 	</select>
 	<select id="selectTitleLedgrinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
@@ -352,8 +374,12 @@
 	
 	<select id="getHtbdno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
 		SELECT /* homes.stuff.mapper.StuffMapper.getHtbdno HTBDNO 채번 */
-		       CONCAT('TBD', LPAD(COUNT(1) + 1, 30, '0')) AS HTBDNO 
-		FROM   TB_HBD_LEDGR_MASTER
+               CONCAT('HTB', LPAD(#{buldgb}, 2, '0'), #{arcd}, #{legcd}
+                           , LPAD(NVL(MAX(SUBSTR(A.HTBDNO, 15)), 0) + 1, 7, '0')) AS HTBDNO
+		FROM   TB_HBD_BASE_SUMMRY A
+		WHERE  BULDGB = #{buldgb}
+		AND    ARCD = #{arcd}
+		AND    LEGCD = #{legcd}  
 	</select>
 	<select id="getBuldno" parameterType="homes.stuff.vo.StuffVo" resultType="string">
 		SELECT /* homes.stuff.mapper.StuffMapper.getBuldno BULDNO 채번 */
@@ -406,27 +432,28 @@
 	
 	<select id="selectHbdRegstrMaster" parameterType="homes.stuff.vo.StuffVo" resultType="homes.api.buld.vo.RecapLedgrVo">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectHbdRegstrMaster 홈즈_관리대장_총괄표제부 조회 */
-		       HTBDNO, BULDGB, ARCD, LEGCD, BUNJIB, BUNJIJ
-		       , BULDNM, BDADDR, RDADDR
-		       , BULD_REGSTR_PK
-		       , PPSCD, PPSETCNM, ESTCD
-		       , HSHLDCO, FMLYCO, BULDCO, BULDSUBCO, HOSILCO, PARKNGCO
-		       , RDCODE, RDLEGCD, UNDER_AT
-		       , TOTAL_AR, SUPPLY_AR, PLAT_AR, BULD_AR, BULK_CALC_TOT_AR
-		       , BULD_LND_RT, BULK_RT, CRDE
+		       A.HTBDNO, C.SHTBDNO, A.BULDGB, A.ARCD, A.LEGCD, A.BUNJIB, A.BUNJIJ
+		       , A.BULDNM, A.BDADDR, A.RDADDR
+		       , A.BULD_REGSTR_PK
+		       , A.PPSCD, A.PPSETCNM, A.ESTCD
+		       , A.HSHLDCO, A.FMLYCO, A.BULDCO, A.BULDSUBCO, A.HOSILCO, A.PARKNGCO
+		       , A.RDCODE, A.RDLEGCD, A.UNDER_AT
+		       , A.TOTAL_AR, A.SUPPLY_AR, A.PLAT_AR, A.BULD_AR, A.BULK_CALC_TOT_AR
+		       , A.BULD_LND_RT, A.BULK_RT, A.CRDE
 		       , B.CODE_NM   AS ESTNM
-		       , RD_MAIN_BUN AS RDMBUN
-		       , RD_SUB_BUN  AS RDSBUN
+		       , A.RD_MAIN_BUN AS RDMBUN
+		       , A.RD_SUB_BUN  AS RDSBUN
 		       , ( SELECT AR_FULL_NM FROM TB_CM_COAREACODE AR WHERE AR.ARCODE = A.ARCD AND AR.LEGCODE = A.LEGCD ) AS ARNAME
 		       , ( SELECT COUNT(1) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO ) AS BULDCO 
 		       , ( SELECT MAX(GRNDCO) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO )  AS GRNDCO 
 		       , ( SELECT MAX(UNDERCO) FROM TB_HBD_LEDGR B WHERE A.HTBDNO = B.HTBDNO ) AS UNDERCO
 		FROM   TB_HBD_LEDGR_MSTR  A
 		LEFT   JOIN TB_CM_COMMCODE B ON A.ESTCD = B.MXTR_COMM_CD
+        LEFT   JOIN TB_HBD_LEDGR_MSTR_RELJIBUN C ON A.HTBDNO = C.SHTBDNO 
 		WHERE  A.ARCD = #{arcd}
 		AND    A.LEGCD = #{legcd} 
 		AND    A.BUNJIB = #{bun}
-		AND    A.BUNJIJ = #{ji}
+		AND    ( C.MBUNJIJ = #{ji} OR C.BUNJIJ = #{ji} ) 
 		AND    A.USE_YN = 'Y' 
 	</select>
 	

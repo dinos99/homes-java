@@ -12,6 +12,7 @@ public class StuffVo {
 	int roomCo ; 
 	int owseq ; 
 	int histno ; 
+	int hasRelcount ; 
 	
 	Long brkno ;
 	Long userno ; 

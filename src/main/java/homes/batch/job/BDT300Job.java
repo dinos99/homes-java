@@ -136,8 +136,8 @@ public class BDT300Job implements Job {
 		vo.setCfmvgb("1"); 
 		vo.setConfde(confde);
 		vo.setMoveinde("");
-		vo.setFlgroundco(n_groundco);
-		vo.setFlunderco(n_underco);
+		vo.setGrndco(n_groundco);
+		vo.setUnderco(n_underco);
 		vo.setRideElvtrco(rideEvltco);
 		vo.setEmgrElvtrco(emgrEvltco);
 		vo.setHshldco(n_hshldco);

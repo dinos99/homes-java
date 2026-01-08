@@ -172,4 +172,22 @@ public class JsonUtil {
 		
 		return json ; 
 	}
+	
+	public static String convString( String key, String str_json ) {
+
+        // 2. 정규식 패턴 설정
+        // 설명: mgmBldrgstPk 뒤의 콜론(:) 다음에 오는 숫자들(\\d+)을 찾아서 그룹화합니다.
+//        String regex = "\"mgmBldrgstPk\"\\s*:\\s*(\\d+)";
+        String regex = "\"" + key + "\"\\s*:\\s*(\\d+)" ; 
+//        System.out.println("regexp: " + regex) ; 
+        // 3. 변환 실행 ($1은 첫 번째 괄호에서 찾은 숫자 그룹을 의미함)
+        String replacement = "\"mgmBldrgstPk\":\"$1\"";
+        String convStr     = str_json.replaceAll(regex, replacement);
+
+        // 4. 결과 출력
+//        System.out.println("변환 전: " + str_json);
+//        System.out.println("변환 후: " + convStr);
+        
+        return convStr ; 
+	}
 }

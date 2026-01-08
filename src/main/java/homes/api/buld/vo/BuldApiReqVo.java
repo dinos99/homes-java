@@ -58,6 +58,10 @@ public class BuldApiReqVo {
 		String profile = env.getActiveProfiles()[0] ;
 		if ( "LOCAL".equals(profile)) {
 			return this._API_DEV_SERVICE_KEY ; 
+		} else if ( "DEV".equals(profile)) {
+			return this._API_DEV_SERVICE_KEY ; 
+		} else if ( "TEST".equals(profile)) {
+			return this._API_DEV_SERVICE_KEY ; 
 		}
 		return "" ; 
 	}
@@ -65,6 +69,10 @@ public class BuldApiReqVo {
 	public String getApiBaseUrl() {
 		String profile = env.getActiveProfiles()[0] ;
 		if ( "LOCAL".equals(profile)) {
+			return this._API_DEV_BASE_URL ; 
+		} else if ( "DEV".equals(profile)) {
+			return this._API_DEV_BASE_URL ; 
+		} else if ( "TEST".equals(profile)) {
 			return this._API_DEV_BASE_URL ; 
 		}
 		return "" ; 

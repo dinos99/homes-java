@@ -33,6 +33,7 @@
         <mapper resource="mapper/broker/broker-complex-mapper.xml"/>
         <mapper resource="mapper/stuff/stuff-mapper.xml"/>
         <mapper resource="mapper/buld/buld-mapper.xml"/>
+        <mapper resource="mapper/buldapi/buld-api-mapper.xml"/>
         <mapper resource="mapper/manager/manager-mapper.xml"/>
         <mapper resource="mapper/system/system-mapper.xml"/>
         <mapper resource="mapper/complex/complex-mapper.xml"/>

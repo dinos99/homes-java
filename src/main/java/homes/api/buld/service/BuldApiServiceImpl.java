@@ -164,11 +164,13 @@ public class BuldApiServiceImpl implements BuldApiService {
 	/* 표제부 API 조회 */ 
 	@Override
 	public TitleLedgrVo getTitleLedgrinfo(String operation, BuldApiReqVo reqVo)  {
+		//getBrTitleInfo
 		String strOutline = this.get(operation, reqVo) ;
         String respCode = this.getApiRespCode(strOutline) ;
         Log.error("*** respCode: {}", respCode) ; 
         TitleLedgrVo bdVo = new TitleLedgrVo() ;
     	if ( "00".equals( respCode )) {
+    		
     		JSONArray jsonItems = this.getApiDataList(strOutline) ;
     		if ( jsonItems != null && jsonItems.size() > 0) {
     			JSONObject item = (JSONObject)jsonItems.get(0) ;
@@ -210,14 +212,14 @@ public class BuldApiServiceImpl implements BuldApiService {
     			bdVo.setBuldnm(StringUtil.getJsonString(item   , "bldNm"));          /* 건물명 */
     			bdVo.setBdaddr(StringUtil.getJsonString(item   , "platPlc"));        /* 건물주소(지번) */
     			bdVo.setRdaddr(StringUtil.getJsonString(item   , "newPlatPlc"));     /* 건물주소(도로명) */
-    			bdVo.setBlocknm(StringUtil.getJsonString(item  , "newPlatPlc"));     /* 건물_동_명 */ 
+    			bdVo.setBlocknm(StringUtil.getJsonString(item  , "dongNm"));         /* 건물_동_명 */ 
     			bdVo.setPpscd(StringUtil.getJsonString(item    , "mainPurpsCd"));    /* 건물_용도_코드 */
     			bdVo.setPpsnm(StringUtil.getJsonString(item    , "mainPurpsCdNm"));  /* 건물_용도_명 */
     			bdVo.setPpsetcnm(StringUtil.getJsonString(item , "etcPurps"));       /* 건물_용도_기타_명 */
 
     			bdVo.setCrde(StringUtil.getJsonString(item     , "crtnDay")) ;       /* 생성_일자 */
-    			bdVo.setFlgroundco(StringUtil.getJsonInt(item  , "grndFlrCnt"));     /* 지상_층수 */
-    			bdVo.setFlunderco(StringUtil.getJsonInt(item   , "ugrndFlrCnt"));    /* 지하_층수 */ 
+    			bdVo.setGrndco(StringUtil.getJsonInt(item  , "grndFlrCnt"));     /* 지상_층수 */
+    			bdVo.setUnderco(StringUtil.getJsonInt(item   , "ugrndFlrCnt"));    /* 지하_층수 */ 
     			bdVo.setRideElvtrco(StringUtil.getJsonInt(item , "rideUseElvtCnt")); /* 승용_엘리베이터_수 */
     			bdVo.setEmgrElvtrco(StringUtil.getJsonInt(item , "emgenUseElvtCnt"));/* 비상_엘리베이터_수 */
     			bdVo.setHshldco(StringUtil.getJsonInt(item     , "hhldCnt"));        /* 세대_수(세대) */
@@ -292,8 +294,8 @@ public class BuldApiServiceImpl implements BuldApiService {
 	    			bdVo.setPpsetcnm(StringUtil.getJsonString(item , "etcPurps"));       /* 건물_용도_기타_명 */
 
 	    			bdVo.setCrde(StringUtil.getJsonString(item     , "crtnDay")) ;       /* 생성_일자 */
-	    			bdVo.setFlgroundco(StringUtil.getJsonInt(item  , "grndFlrCnt"));     /* 지상_층수 */
-	    			bdVo.setFlunderco(StringUtil.getJsonInt(item   , "ugrndFlrCnt"));    /* 지하_층수 */ 
+	    			bdVo.setGrndco(StringUtil.getJsonInt(item  , "grndFlrCnt"));     /* 지상_층수 */
+	    			bdVo.setUnderco(StringUtil.getJsonInt(item   , "ugrndFlrCnt"));    /* 지하_층수 */ 
 	    			bdVo.setRideElvtrco(StringUtil.getJsonInt(item , "rideUseElvtCnt")); /* 승용_엘리베이터_수 */
 	    			bdVo.setEmgrElvtrco(StringUtil.getJsonInt(item , "emgenUseElvtCnt"));/* 비상_엘리베이터_수 */
 	    			bdVo.setHshldco(StringUtil.getJsonInt(item     , "hhldCnt"));        /* 세대_수(세대) */

@@ -13,14 +13,12 @@ public interface CommonMapper {
 	public CommonMap selectArCode(String areacode ) throws SQLException ; 
 	public CommonMap selectSidoCode(String sdcode ) throws SQLException ; 
 	
-	public List<CommonMap> selectSidoList() throws SQLException; 
+	public List<CommonMap> selectSidoList() ; 
 	public List<CommonMap> selectSggList(String sdcode) throws SQLException; 
 	public List<CommonMap> selectEmdList(String arcode) throws SQLException; 
 	
 	public int addfile(FileVo fileVo) throws SQLException ; 
 	public Long getLastfileno(long userno) throws SQLException ; 
 	
-	public List<CommonMap> getCommCodeList(String upcd) throws SQLException; 
-	
-	
+	public List<CommonMap> getCommCodeList(String upcd) throws SQLException;
 }

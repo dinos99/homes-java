@@ -3,6 +3,24 @@
   
 <mapper namespace="homes.manager.mapper.ManagerMapper">
 
+	<select id="getWkidCount" parameterType="homes.manager.vo.TodoVo" resultType="int">
+		SELECT /* homes.manager.mapper.ManagerMapper.getWkidCount */
+		       COUNT(1) AS CNT 
+		FROM   TB_MNGR_TODOLIST
+		WHERE  MNGRNO = #{mngrno}
+		AND    SUBSTR(WKID, 1, 9) = #{wkid}
+	</select>
+
+	<select id="selectTodoList" parameterType="homes.manager.vo.TodoVo" resultType="homes.manager.vo.TodoVo">
+		SELECT /* homes.manager.mapper.ManagerMapper.selectTodoList */
+		       WKID, MNGRNO, STDE, EDDE, DONE_YN, WKCONT
+		FROM   TB_MNGR_TODOLIST
+		WHERE  MNGRNO = #{mngrno}
+		<if test='doneYn.equals("N")'>
+		AND    DONE_YN = 'N'
+		</if>
+	</select>
+
 	<select id="isExistManager" parameterType="long" resultType="string">
 		SELECT /* homes.manager.mapper.ManagerMapper.isExistManager */
 		       CASE WHEN COUNT(1) = 0 THEN 'N' ELSE 'Y' END AS EXIST_YN
@@ -20,6 +38,15 @@
 		         WHERE  MID(EMP_NO, 3, 6) = DATE_FORMAT(NOW(), '%Y%m') 
 		       ) TA 
 	</select>
+	
+	<insert id="insertTodoList" parameterType="homes.manager.vo.TodoVo">
+		INSERT INTO /* homes.manager.mapper.ManagerMapper.insertTodoList */
+		TB_MNGR_TODOLIST (
+			WKID, MNGRNO, STDE, EDDE, DONE_YN, WKCONT
+		) VALUES (
+			#{wkid}, #{mngrno}, #{stde}, #{edde}, #{doneYn}, #{wkcont}
+		) 
+	</insert>
 
     <insert id="insertManager" parameterType="homes.broker.vo.BrokerVo">
     	INSERT INTO TB_CM_ADMIN (
@@ -130,5 +157,19 @@
 			, NOW()
 		)
     </insert>
+    
+    <update id="updateTodoList" parameterType="homes.manager.vo.TodoVo">
+    	UPDATE /* homes.manager.mapper.ManagerMapper.insertTodoList */
+    	       TB_MNGR_TODOLIST
+    	SET    UPDT_USER_NO = #{mngrno}
+    	<if test="doneYn != null and doneYn != ''">
+		       , DONE_YN = #{doneYn}
+		       , EDDE = CASE WHEN #{doneYn} = 'Y' THEN DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d')
+		                     ELSE ''
+		                END 
+    	</if>
+    	WHERE  WKID = #{wkid}
+    	AND    MNGRNO = #{mngrno}
+    </update>
     
 </mapper>

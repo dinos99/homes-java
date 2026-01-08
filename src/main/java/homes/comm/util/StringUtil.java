@@ -127,6 +127,11 @@ public class StringUtil extends JdbcUtils {
 	public static long getLongValue(String lstr) {
 		return getLongValue(lstr, 0l) ; 
 	}
+
+	public static long getLongValue(int n) {
+		String lstr = String.valueOf(n) ;
+		return getLongValue(lstr, 0l) ; 
+	}
 	
 	public static String getCurrencyFormat( int iVal ) {
 		DecimalFormat df = new DecimalFormat("#,###") ;

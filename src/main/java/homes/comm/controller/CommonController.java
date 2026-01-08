@@ -31,6 +31,24 @@ public class CommonController {
 
 	private final CommonService service ; 
 	private final CommCodeService commCodeService ; 
+
+	@GetMapping("/api/v1/common/arcode/sdList")
+	public ResponseEntity<String> selectSdList() {
+		Log.info("*********************************************************************************") ; 
+		Log.info("*** 지역코드-시도목록조회 ") ;  
+		Log.info("*********************************************************************************") ;
+		List<CommonMap> sdList = service.selectSidoList() ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sdList)) ;
+	}
+	
+	@GetMapping("/api/v1/common/arcode/sidoList")
+	public ResponseEntity<String> sidoList(HttpServletRequest request) {
+		Log.info("*********************************************************************************") ; 
+		Log.info("*** 지역코드-시도목록조회 ") ;  
+		Log.info("*********************************************************************************") ;
+		List<CommonMap> sidoList = service.selectSidoList() ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sidoList)) ;
+	}
 	
 	@GetMapping("/api/v1/common/arcode/{arcode}")
 	public ResponseEntity<String> selectArCode(@PathVariable String arcode) {
@@ -42,17 +60,6 @@ public class CommonController {
 	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
 		} 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(armap)) ;
-	}
-
-	@GetMapping("/api/v1/common/arcode/sdList")
-	public ResponseEntity<String> selectSdList() {
-		List<CommonMap> sdList = null ; 
-		try {
-			sdList = service.selectSidoList() ;
-		} catch (SQLException e) {
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} 
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(sdList)) ;
 	}
 
 	@GetMapping("/api/v1/common/arcode/sgg/{sdcode}")
@@ -113,6 +120,13 @@ public class CommonController {
 	@GetMapping("/api/v1/commcode/ppsList")
 	public ResponseEntity<String> getPpsCdList(HttpServletRequest request) {
 		List<CommonMap> ppsList = commCodeService.getPpsCdList("") ;
+		Log.info("*** get ppscd List: {}", ppsList) ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ppsList)) ;
+	}
+	
+	@GetMapping("/api/v1/commcode/ppscdList")
+	public ResponseEntity<String> ppscdList(HttpServletRequest request) {
+		List<CommonMap> ppsList = commCodeService.getppsCodeList("") ;
 		Log.info("*** get ppscd List: {}", ppsList) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ppsList)) ;
 	}

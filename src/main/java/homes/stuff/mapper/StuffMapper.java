@@ -51,5 +51,6 @@ public interface StuffMapper {
 	public int deleteBrkOwner(StuffVo paramVo) ; 
 	public int getLedgrCount(StuffVo paramVo) ; /* 홈즈_관리대장_표제부_카운트 */ 
 	public int getHbdTitleLedgrCount(StuffVo paramVo) ; /* 홈즈건물_표제부 등록여부 확인 */	
+	public int selectRelatedJibunCount(StuffVo paramVo) ; /* 관련지번 포함여부 */
 	
 }

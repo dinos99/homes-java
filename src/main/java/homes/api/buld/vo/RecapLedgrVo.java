@@ -78,8 +78,8 @@ public class RecapLedgrVo {
   private String arname ; 
   
   private int inco ; 
-  private int flground ; /* 지상_층_수 */ 
-  private int flunder ;  /* 지하_층_수 */ 
+  private int grndco ; /* 지상_층_수 */ 
+  private int underco ;  /* 지하_층_수 */ 
   
   private Long userno ; 
   private Long brkno ; 

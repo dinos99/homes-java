@@ -21,8 +21,8 @@ public class TitleLedgrVo {
 		this.rnum    = 0 ;
 	}
 	
-	private int flgroundco ;   /* 지상층수 */
-	private int flunderco ;    /* 지하층수 */ 
+	private int grndco ;   /* 지상층수 */
+	private int underco ;    /* 지하층수 */ 
 	private int rideElvtrco ;  /* 승용_엘리베이터_수 */
 	private int emgrElvtrco ;  /* 비상_엘리베이터_수 */
 	private int hshldco ;      /* 세대_수(세대) */

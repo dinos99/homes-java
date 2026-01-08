@@ -9,7 +9,7 @@ import homes.comm.vo.CommonMap;
 public interface CommonService {
 	public CommonMap selectArCode(String areacode ) throws SQLException ;
 
-	public List<CommonMap> selectSidoList() throws SQLException; 
+	public List<CommonMap> selectSidoList() ; 
 	public List<CommonMap> selectSggList(String sdcode) throws SQLException; 
 	public List<CommonMap> selectEmdList(String arcode) throws SQLException; 
 		
@@ -17,4 +17,5 @@ public interface CommonService {
 	public Long insertCommuser( CommUserReqVo vo ) throws SQLException ;
 	
 	public long selectLastid() throws SQLException ; 
+	
 }

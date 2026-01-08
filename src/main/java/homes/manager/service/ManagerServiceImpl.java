@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,10 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import homes.comm.constants.EnumError;
 import homes.comm.util.HomesProperty;
+import homes.comm.util.StringUtil;
 import homes.comm.vo.CommUserReqVo;
+import homes.comm.vo.CommonMap;
 import homes.exception.HomesException;
 import homes.manager.mapper.ManagerMapper;
 import homes.manager.vo.ManagerVo;
+import homes.manager.vo.TodoVo;
 import homes.security.mapper.CommUserMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -149,6 +153,41 @@ public class ManagerServiceImpl implements ManagerService {
         	throw new HomesException(EnumError.INTERNAL_SERVER_ERROR.getSttusCd()) ;
         } 
 		return fileidx ;
+	}
+	
+	@Override
+	public List<TodoVo> getTodoList( TodoVo paramVo ) {
+		return mapper.selectTodoList(paramVo) ; 
+	}
+	
+	@Override
+	public CommonMap saveTodoList( Long mngrno,   List<TodoVo> paramVo ) {
+		int in_co = 0 ; 
+		for ( TodoVo todoVo : paramVo) {
+			todoVo.setMngrno(mngrno);
+			todoVo.setUserno(mngrno);
+			String wkid = todoVo.getWkid() ; 
+			int wk_co  = mapper.getWkidCount(todoVo) + 1 ;
+			String idx = StringUtil.strLpad(String.valueOf(wk_co), 3, '0') ;
+			todoVo.setWkid(wkid + idx);
+			in_co += mapper.insertTodoList(todoVo) ; 
+		}
+		
+		CommonMap insMap = new CommonMap() ; 
+		insMap.put("inco"   , in_co) ; 
+		insMap.put("message", in_co + "건이 등록되었습니다.") ;
+		return insMap ;
+	}
+	
+	@Override
+	public CommonMap updateTodoList( Long mngrno,  TodoVo paramVo ) {
+		int up_co = 0 ; 
+		CommonMap insMap = new CommonMap() ; 
+		paramVo.setMngrno(mngrno);
+		up_co = mapper.updateTodoList(paramVo) ; 
+		insMap.put("upco"   , up_co) ; 
+		insMap.put("message", up_co + "건이 수정되었습니다.") ;
+		return insMap ;
 	}
 
 }

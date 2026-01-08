@@ -89,7 +89,7 @@ public class HBT000Job implements Job {
 		outVo.setBatchde(batchde);
 		outVo.setMngrno(mngrno);
 		outVo.setBfBatchAt(EnumBatchJob.BATCH_AT_000.getCode()); /* 이전상태: 작업대기 */
-		outVo.setAfBatchAt(EnumBatchJob.BATCH_AT_010.getCode()); /* 변경 후 상태: 기본개요등록완료*/
+		outVo.setAfBatchAt(EnumBatchJob.BATCH_AT_010.getCode()); /* 변경 후 상태: 기본개요등록완료 */
 		outVo.setBatchAt  (EnumBatchJob.BATCH_AT_000.getCode()); /* 현재상태: 작업대기 */
 		/* 배치상태 업데이트 */ 
 		return mapper.updateBaseOutLine(outVo) ; 
@@ -120,7 +120,7 @@ public class HBT000Job implements Job {
 
 	public BatchVo doExecute( CommonMap params ) {		
 		do_ready( params ) ;
-		do_work( params ) ;
+//		do_work( params ) ;
 		do_finish( params ) ;
 		return this.batchVo ; 
 	}
