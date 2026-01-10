@@ -33,6 +33,8 @@ public enum EnumBatchJob {
 	SPLIT_PSSION_LEDGER("BDT040", "표제부-파일분할"),
 	INSERT_PSSION_LEDGER("BDT041", "건축물대장-표제부등록"),
 
+	SPLIT_PSSION_AREA("BDT060" , "[06]전유공용면적-지역별파일분할"),
+	
 	MNG_BASE_SUMMRY("HBT000", "홈즈관리대장 기본개요관리"),
 	MNG_LEDGR_MSTR ("HBT001", "홈즈관리대장 총괄표제부관리"),
 	MNG_LEDGR      ("HBT002", "홈즈관리대장 표제부관리"),

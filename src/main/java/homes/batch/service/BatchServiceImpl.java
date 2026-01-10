@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import homes.batch.job.BDT060Job;
 import homes.batch.job.HBT000Job;
 import homes.batch.job.HBT001Job;
 import homes.batch.job.HBT002Job;
@@ -28,9 +29,13 @@ public class BatchServiceImpl implements BatchService {
 	private final String HBT001 = EnumBatchJob.MNG_LEDGR_MSTR.getCode() ; 
 	private final String HBT002 = EnumBatchJob.MNG_LEDGR.getCode() ; 
 	
+	private final String BDT060 = EnumBatchJob.SPLIT_PSSION_AREA.getCode() ; 
+	
 	private final HBT000Job job_hbt_000 ; /* 홈즈 건물관리대장 개본개요   작업 */ 
 	private final HBT001Job job_hbt_001 ; /* 홈즈 건물관리대장 총괄표제부 작업 */ 
 	private final HBT002Job job_hbt_002 ; /* 홈즈 건물관리대장 표제부     작업 */ 
+	
+	private final BDT060Job job_bdt_060 ; /* 홈즈 건물관리대장 전유공용면적 파일분할작업 */ 
 			
 	private final BatchMapper mapper ;
 
@@ -38,12 +43,15 @@ public class BatchServiceImpl implements BatchService {
 
 	@Override
 	public BatchVo doExecute(String jobid, CommonMap params) {
+
 		if ( HBT000.equals(jobid)) {
 			batchVo = job_hbt_000.doExecute(params) ; 
 		} else if ( HBT001.equals(jobid)) {
 			batchVo = job_hbt_001.doExecute(params) ; 
 		} else if ( HBT002.equals(jobid)) {
 			batchVo = job_hbt_002.doExecute(params) ; 
+		} else if ( BDT060.equals(jobid)) {
+			batchVo = job_bdt_060.doExecute(params) ;
 		}
 		
 		return this.batchVo ; 
@@ -55,7 +63,7 @@ public class BatchServiceImpl implements BatchService {
 		paramVo.setPage(); 
 		Long t_cnt = mapper.selectBatchJobListCount(paramVo) ;
 		List<CommonMap> dataList = mapper.selectBatchJobList(paramVo) ;
-		return new CommResponseVo(t_cnt, paramVo.getPgno(), null, dataList) ;
+		return new CommResponseVo(t_cnt, paramVo.getNumrows(), paramVo.getPgno(), dataList ) ; 
 	}
 
 	@Override

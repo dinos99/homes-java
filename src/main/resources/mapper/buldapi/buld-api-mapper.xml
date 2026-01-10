@@ -487,42 +487,46 @@
 	<insert id="insertLedgrPssion" parameterType="homes.buldapi.vo.BuldHubReqVo">
 		INSERT /* homes.buldapi.mapper.BuldHubMapper.insertLedgrPssion 전유공유면적(전유부) 생성 */
 		INTO   TB_HBD_LEDGR_PSSION_AREA (
-		    HTBDNO, HBDNO, HPSNO, PSSN_REGSTR_PK
-		    , FLGBCD, FLNO, FLNM
-		    , HSNO
-		    , HOSILNM, PPSCD, PPSETCNM, TOTAL_AR, CRDE
-		    , USE_YN, BATCH_AT, BATCH_DE
+		        HTBDNO, HBDNO, HPSNO, PSSN_REGSTR_PK
+		        , FLGBCD, FLNO, FLNM
+		        , HSNO
+		        , HOSILNM, PPSCD, PPSETCNM
+		        , PSSION_AR, PUBLIC_AR, SUPPLY_AR
+		        , CRDE
+		        , USE_YN, BATCH_AT, BATCH_DE
 		) 
 		SELECT HTBDNO, HBDNO
 		       , CONCAT('PSN', FLGBCD, SUBSTR(HBDNO, 16, 25), LPAD(HPSNO, 5, '0')) AS HPSNO
 		       , PSSN_REGSTR_PK
-		       , FLGBCD
-		       , FLNO
-		       , FLNM
+		       , FLGBCD, FLNO, FLNM
 		       , HPSNO AS HSNO
-		       , HOSILNM, PPSCD, PPSETCNM, TOTAL_AR, CRDE
+		       , HOSILNM, PPSCD, PPSETCNM
+		       , PSSION_AR, PUBLIC_AR, SUPPLY_AR
+		       , CRDE
 		       , USE_YN, BATCH_AT, BATCHDE
 		FROM   ( SELECT LD.HTBDNO      AS HTBDNO
-		                , LD.HBDNO     AS HBDNO
-		                , ROW_NUMBER() OVER( PARTITION BY LD.HTBDNO, LD.HBDNO, C.FLGBCD
-		                                     ORDER     BY LD.HTBDNO, LD.HBDNO, C.FLGBCD, C.FLOORNO ) AS HPSNO 
-		                , C.REGSTR_PK  AS PSSN_REGSTR_PK
-		                , C.FLGBCD     AS FLGBCD
-		                , C.FLOORNO    AS FLNO
-		                , C.FLNM       AS FLNM
-		                , C.HOSILNM    AS HOSILNM
-		                , C.PPSCD      AS PPSCD
-		                , C.PPSETCNM   AS PPSETCNM
-		                , C.TOTAL_AR   AS TOTAL_AR
-		                , C.CRDE       AS CRDE
-		                , 'Y'          AS USE_YN
-		                , '6'          AS BATCH_AT
-		                , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
-		         FROM   TB_HBD_LEDGR                  LD
-		         INNER  JOIN TZ_01_BSOUTLINE_11710    A ON A.REGSTR_PK = LD.BULD_REGSTR_PK
-		         INNER  JOIN TZ_01_BSOUTLINE_11710    B ON A.REGSTR_PK = B.UP_REGSTR_PK
-		         INNER  JOIN TZ_06_PSSION_AREA_11710  C ON B.REGSTR_PK = C.REGSTR_PK
-		         WHERE  A.REGSTRGBCD = '3'
+			            , LD.HBDNO     AS HBDNO
+			            , ROW_NUMBER() OVER( PARTITION BY LD.HTBDNO, LD.HBDNO, C.FLGBCD
+			                                 ORDER     BY LD.HTBDNO, LD.HBDNO, C.FLGBCD, C.FLNO ) AS HPSNO 
+			            , C.REGSTR_PK  AS PSSN_REGSTR_PK
+			            , C.FLGBCD     AS FLGBCD
+			            , C.FLNO       AS FLNO
+			            , C.FLNM       AS FLNM
+			            , C.HOSILNM    AS HOSILNM
+			            , C.PPSCD      AS PPSCD
+			            , C.PPSETCNM   AS PPSETCNM
+			            , C.PSSION_AR  AS PSSION_AR
+			            , C.PUBLIC_AR  AS PUBLIC_AR
+			            , C.SUPPLY_AR  AS SUPPLY_AR
+			            , C.CRDE       AS CRDE
+			            , 'Y'          AS USE_YN
+			            , '6'          AS BATCH_AT
+			            , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
+			     FROM   TB_HBD_LEDGR                  LD
+			     INNER  JOIN TZ_01_BSOUTLINE_11710    A ON A.REGSTR_PK = LD.BULD_REGSTR_PK
+			     INNER  JOIN TZ_01_BSOUTLINE_11710    B ON A.REGSTR_PK = B.UP_REGSTR_PK
+			     INNER  JOIN TZ_06_PSSION_AREA        C ON B.REGSTR_PK = C.REGSTR_PK
+			     WHERE  A.REGSTRGBCD = '3'
 				 AND    C.FLOORNO <![CDATA[ > ]]> 0  
 			    <if test="bunjib != null and bunjib != ''">
 			     AND    LD.BUNJIB = #{bunjib}
