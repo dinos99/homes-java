@@ -13,9 +13,9 @@ import homes.stuff.vo.StuffVo;
 
 @Mapper
 public interface StuffMapper {
-	public List<CommonMap> selectBrkComplexList(StuffVo paramVo) throws SQLException ; 
-	public List<CommonMap> selectBrkBlockList(StuffVo paramVo) throws SQLException ; 
-	public List<CommonMap> selectFloorRoomList(StuffVo paramVo) throws SQLException ;
+	public List<CommonMap> selectBrkComplexList(StuffVo paramVo) ; 
+	public List<CommonMap> selectBrkBlockList(StuffVo paramVo) ; 
+	public List<CommonMap> selectFloorRoomList(StuffVo paramVo) ;
 	public List<CommonMap> selectBrkStuff(StuffVo paramVo) ;
 	public List<CommonMap> selectStuffOwnerList(StuffVo paramVo) ; 
 	public List<CommonMap> selectRelatedbunji(StuffVo paramVo) ; /* 관련지번 조회 */ 

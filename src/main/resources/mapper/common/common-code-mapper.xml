@@ -79,4 +79,18 @@
 		WHERE  USE_YN = 'Y'
 		ORDER  BY PPS_CD ASC
     </select>
+    
+   <select id="gethppsCodeList" parameterType="string" resultType="commonMap">
+		SELECT /* homes.comm.mapper.CommCodeMapper.gethppsCodeList 홈즈용도코드 조회  */
+		       CD_ORDR        AS RN
+		       , ( SELECT CODE_NM FROM TB_CM_COMMCODE WHERE MXTR_COMM_CD = A.UPPER_CD ) AS UP_HPPSCD
+		       , MXTR_COMM_CD AS HPPSCD
+		       , CODE_NM      AS HPPSNM
+		       , FILLER_V1    AS BGCOLOR
+		       , USE_YN       AS USE_YN
+		FROM   TB_CM_COMMCODE A
+		WHERE  GRP_CD   = 'HPS' 
+		AND    UPPER_CD = #{upHppscd}
+		ORDER  BY CD_ORDR 
+    </select>
 </mapper>

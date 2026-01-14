@@ -51,8 +51,8 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** 건축물관리대장  기본개요 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		
-		Long mngrno = RequestUtil.getUserno(request) ;
+
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		BuldHubResVo resVo = service.insertHbdSummary(paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(resVo)) ;
@@ -73,7 +73,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** 건축물관리대장 표제부 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		BuldHubResVo resVo = service.insertHbdLedgr(paramVo) ;  
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(resVo)) ;
@@ -93,7 +93,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** 건축물관리대장 마스터 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		BuldHubResVo resVo = service.insertHdbLedgrMst(paramVo) ;  
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(resVo)) ;
@@ -120,7 +120,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0503] 건축물관리대장 API 층별개요 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		CommResponseVo floorVo = service.getFloorOutLine(paramVo) ;  
 		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(floorVo)) ;
@@ -131,7 +131,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0504] 건축물관리대장 층별개요(임시) 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		BuldHubResVo resVo = service.insertTempLedgrFloor(paramVo) ;  
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(resVo)) ;
@@ -142,7 +142,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0505] 건축물관리대장 층별개요 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		paramVo.setBatchAt("4") ; 
 		paramVo.setBatchde(DateTimeUtil.getToday()) ;
@@ -155,7 +155,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0601] 건축물관리대장 API 전유부조회 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		CommResponseVo floorVo = service.getBrExposInfo(paramVo) ;  
 		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(floorVo)) ;
@@ -165,7 +165,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0701] 건축물관리대장 API 전유부조회 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		CommResponseVo floorVo = service.getBrExposPubuseAreaInfo(paramVo) ;  
 		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(floorVo)) ;
@@ -175,7 +175,7 @@ public class BuldHubController {
 		Log.info("*********************************************************************************") ; 
 		Log.info("*** [0702] 건축물관리대장 전유공용면적(전유부) 등록 ") ;  
 		Log.info("*********************************************************************************") ;
-		Long mngrno = RequestUtil.getUserno(request) ;
+		int mngrno = RequestUtil.getUserno(request) ;
 		paramVo.setMngrno(mngrno) ;
 		paramVo.setBatchAt("6") ; 
 		paramVo.setBatchde(DateTimeUtil.getToday()) ;

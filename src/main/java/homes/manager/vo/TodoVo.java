@@ -10,6 +10,6 @@ public class TodoVo {
 	private String doneYn ; 
 	private String wkcont ;
 	
-	private Long mngrno ;
-	private Long userno ; 
+	private int mngrno ;
+	private int userno ; 
 }

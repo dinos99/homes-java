@@ -8,22 +8,26 @@ import lombok.Data;
 @Data
 public class StuffVo {
 	int flno ;
-	int floorCo ; 
-	int roomCo ; 
+	int floorco ; 
+	int roomco ; 
 	int owseq ; 
 	int histno ; 
 	int hasRelcount ; 
 	
-	Long brkno ;
-	Long userno ; 
-
+	int officeno ; 
+	int brkno ; 
+	int userno ; 
+	int custno ;  
+	
+	String htbdno ; /* 홈즈_건물관리대장_마스터_PK */ 
+	String hbdno  ; /* 홈즈_건물관리대장_표제부_PK */  
+	String flgbcd ; /* 건물구분 */
+	
 	String stuffno ; 
 	String cplxno ;
 	String pssionno ;
 	String owno ; 
 	String sfsttus ; 
-	
-	String flgbcd ; 
 	String arcd ; 
 	String arcode ; 
 	String legcd ;  
@@ -59,8 +63,6 @@ public class StuffVo {
 	List<CommonMap> remap ; /* 관련지번 목록 */  
 	
 	/* 홈즈_건축물관리대장 PK */
-	String htbdno ; /* 홈즈_건물관리대장_마스터_PK */ 
-	String buldno ; /* 홈즈_건물관리대장_표제부_PK */  
 	String useYn ;  /* 사용_여부 */
 	String buldgb ; /* 건물_구분 ([1]: 일반건물, [2]: 집합건물) */  
 }

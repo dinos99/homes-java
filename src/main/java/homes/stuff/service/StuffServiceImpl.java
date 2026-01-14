@@ -15,11 +15,11 @@ import homes.api.buld.vo.BaseOutlineVo;
 import homes.api.buld.vo.BuldApiReqVo;
 import homes.api.buld.vo.RecapLedgrVo;
 import homes.api.buld.vo.TitleLedgrVo;
+import homes.broker.vo.BrokerVo;
 import homes.buld.mapper.BuldMapper;
-import homes.comm.util.JwtUtil;
 import homes.comm.util.ObjectUtil;
+import homes.comm.util.RequestUtil;
 import homes.comm.util.StringUtil;
-import homes.comm.vo.AccessTokenVo;
 import homes.comm.vo.CommonMap;
 import homes.exception.HomesException;
 import homes.owner.vo.OwnerVo;
@@ -37,27 +37,21 @@ public class StuffServiceImpl implements StuffService {
 	private final Environment env ; 
 	private final StuffMapper mapper ;
 	private final BuldMapper buldMapper ;
-	private final BuldApiService apiService ; 
-	private final JwtUtil tokenUtil = new JwtUtil() ;
+	private final BuldApiService apiService ;
+	
+//	private final JwtUtil tokenUtil = new JwtUtil() ;
+//	private final String _EMPTY = "EMPTY" ; 
 	
 	@Override
 	@Transactional(readOnly = true)
 	public CommonMap selectBrkStuffList(HttpServletRequest request, StuffVo paramVo) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
 		CommonMap stuffmap = new CommonMap() ;
-		List<CommonMap> cplxList = null ;
-		/* Token 정보조회 */
-		String token = StringUtil.getStringValue(request, "accessToken") ;
-		AccessTokenVo tokenVo = tokenUtil.getTokenInfo(token) ;
-		paramVo.setBrkno(tokenVo.getUserno()) ;
-		
-		try {
-			/* 중개사 단지목록 조회 */ 
-			cplxList =  mapper.selectBrkComplexList(paramVo) ; 
-			stuffmap.put("cplxList", cplxList) ;
-		} catch (SQLException e) {
-			Log.error("StuffServiceImpl Error", e.getMessage());
-			throw new HomesException(e.getErrorCode(), "[Error-" + e.getErrorCode() + "]", "데이터조회중 에러발생") ;
-		}
+		paramVo.setOfficeno(bvo.getOfficeno());
+		Log.error("*** officeno: {}", bvo.getOfficeno()) ;
+		List<CommonMap> cplxList = mapper.selectBrkComplexList(paramVo) ;
+		/* 중개사 단지목록 조회 */ 
+		stuffmap.put("cplxList", cplxList) ; 
 		return stuffmap ; 
 	}
 	
@@ -70,96 +64,40 @@ public class StuffServiceImpl implements StuffService {
 	
 	@Override
 	@Transactional(readOnly = true) 
-	public List<CommonMap> selectBrkBlockList( StuffVo paramVo ) {
-		List<CommonMap> blockList = null ; 
-//		List<CommonMap> blockList = new ArrayList<CommonMap>() ; 
-		try {
-			blockList = mapper.selectBrkBlockList(paramVo) ; 
-			/*
-			for ( CommonMap block : bdList ) {
-				CommonMap binfo = new CommonMap() ; 
-				String buldno = block.getStringValue("buldno") ;
-				Log.info("*** buldno: {}", buldno) ;
-				binfo.put("buldno" , buldno) ; 
-				binfo.put("blockno", block.get("blockno")) ; 
-				binfo.put("blocknm", block.get("blocknm")) ;
-				paramVo.setBuldno(buldno);
-				paramVo.setFlgbcd("10"); 
-				CommonMap ucount = mapper.selectFloorCount(paramVo) ; 
-				paramVo.setFlgbcd("20"); 
-				CommonMap fcount = mapper.selectFloorCount(paramVo) ; 
-				paramVo.setFlgbcd("30"); 
-				CommonMap rcount = mapper.selectFloorCount(paramVo) ;
-				binfo.put("ucount", ucount) ; 
-				binfo.put("fcount", fcount) ; 
-				binfo.put("rcount", rcount) ; 
-				blockList.add(binfo) ;
-			}
-			*/
-		} catch (SQLException e) {
-			Log.error("StuffServiceImpl Error", e.getMessage());
-			throw new HomesException(e.getErrorCode(), "[Error-" + e.getErrorCode() + "]", "데이터조회중 에러발생") ;
-		}
+	public List<CommonMap> selectBrkBlockList(HttpServletRequest request, StuffVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno());
+		Log.error("*** officeno: {}", bvo.getOfficeno()) ;
+		List<CommonMap> blockList = mapper.selectBrkBlockList(paramVo) ;
 		return blockList ; 
 	}
 
-	public CommonMap getDefaultFloorCo(StuffVo paramVo, String flgbcd ) throws SQLException {
-		paramVo.setFlgbcd(flgbcd) ; 
-		CommonMap count = mapper.selectFloorCount(paramVo) ;
-		if ( count == null ) {
-			count = new CommonMap() ;
-			count.put("buldno" , paramVo.getBuldno()) ; 
-			count.put("floorCo", 0) ;
-			count.put("roomCo" , 0) ; 
-		}
-		return count ; 
-	}
-	
 	@Override
 	@Transactional(readOnly = true) 
-	public CommonMap selectFloorRoomInfo( StuffVo paramVo ) {
-		CommonMap frinfo = new CommonMap() ; 
-		try {
-			CommonMap under = this.getDefaultFloorCo(paramVo, "10") ; /* 지하층 검색 */
-			CommonMap floor = this.getDefaultFloorCo(paramVo, "20") ; /* 지상층 검색 */ 
-			CommonMap rftop = this.getDefaultFloorCo(paramVo, "30") ; /* 옥탑층 검색 */ 
+	public List<CommonMap> selectFloorRoomInfo( StuffVo paramVo ) {
+		/* 지상/지하/옥탑 층수 및 방정보 조회 */ 
+		/* 옥탑조회 */
+		paramVo.setFlgbcd("10"); 
+		List<CommonMap> topList = mapper.selectFloorRoomList(paramVo) ; 
+		/* 지상층조회 */ 
+		paramVo.setFlgbcd("20"); 
+		List<CommonMap> grndList = mapper.selectFloorRoomList(paramVo) ;
+		/* 지하층조회 */ 
+		paramVo.setFlgbcd("30"); 
+		List<CommonMap> undrList = mapper.selectFloorRoomList(paramVo) ;
+		
+		List<CommonMap> f_List = new ArrayList<CommonMap>() ; 
 
-			for ( int i = 0; i < under.getIntValue("floorCo"); i ++ ) {
-				int flno = i + 1 ;  
-				paramVo.setFlgbcd("10");
-				paramVo.setFlno(flno) ;
-				paramVo.setFloorCo(under.getIntValue("floorCo"));
-				paramVo.setRoomCo(under.getIntValue("roomCo"));
-				List<CommonMap> rmList = mapper.selectFloorRoomList(paramVo) ;
-				under.put("floor" + flno, rmList) ; 
-			} 
-			for ( int i = 0; i < floor.getIntValue("floorCo"); i ++ ) {
-				int flno = i + 1 ;  
-				paramVo.setFlgbcd("20");
-				paramVo.setFlno(flno) ;
-				paramVo.setFloorCo(floor.getIntValue("floorCo"));
-				paramVo.setRoomCo(floor.getIntValue("roomCo"));
-				List<CommonMap> rmList = mapper.selectFloorRoomList(paramVo) ;
-				floor.put("floor" + flno, rmList) ; 
-			}
-			for ( int i = 0; i < rftop.getIntValue("floorCo"); i ++ ) {
-				int flno = i + 1 ;  
-				paramVo.setFlgbcd("30");
-				paramVo.setFlno(flno) ;
-				paramVo.setFloorCo(rftop.getIntValue("floorCo"));
-				paramVo.setRoomCo(rftop.getIntValue("roomCo"));
-				List<CommonMap> rmList = mapper.selectFloorRoomList(paramVo) ;
-				rftop.put("rftop" + flno, rmList) ; 
-			} 
-			
-			frinfo.put("under", under) ; 
-			frinfo.put("floor", floor) ; 
-			frinfo.put("rftop", rftop) ; 
-		} catch (SQLException e) {
-			Log.error("StuffServiceImpl Error", e.getMessage());
-			throw new HomesException(e.getErrorCode(), "[Error-" + e.getErrorCode() + "]", "데이터조회중 에러발생") ;
+		if ( undrList !=null && undrList.size() > 0 ) {
+			for ( CommonMap under: undrList ) f_List.add(under) ;
 		}
-		return frinfo ; 
+		if ( grndList !=null && grndList.size() > 0 ) {
+			for ( CommonMap ground: grndList ) f_List.add(ground) ;
+		}
+		if ( topList !=null && topList.size() > 0 ) {
+			for ( CommonMap top: topList ) f_List.add(top) ;
+		}
+		return f_List ; 
 	}
 
 	@Override
@@ -173,7 +111,7 @@ public class StuffServiceImpl implements StuffService {
 	public int updateBrkSttuf( Long brkno, StuffListVo paramVo ) {
 		int up_co = 0 ; 
 		for ( StuffVo vo : paramVo.getStuffListVo() ) {
-			vo.setBrkno(brkno);
+			vo.setBrkno(Integer.parseInt(String.valueOf(brkno)));
 			vo.setSfsttus("D");
 			up_co = mapper.updateBrkStuffSttus(vo) ; 
 		}
@@ -260,7 +198,7 @@ public class StuffServiceImpl implements StuffService {
 	@Transactional( rollbackFor = Exception.class )
 	public RecapLedgrVo getHomesBuldMaster( StuffVo paramVo ) {
 		/* 관련지번 조회 */ 
-		int has_co = mapper.selectRelatedJibunCount(paramVo) ;
+//		int has_co = mapper.selectRelatedJibunCount(paramVo) ;
 		RecapLedgrVo db_recapVo = mapper.selectHbdRegstrMaster(paramVo) ; /* 홈즈_관리대장_총괄표제부 조회 */ ;
 		return db_recapVo ; 
 	}
@@ -320,7 +258,7 @@ public class StuffServiceImpl implements StuffService {
 				tvo.setHtbdno(htbdno) ; 
 				tvo.setUseYn("Y") ;
 				tvo.setBatchYn("N") ;
-				tvo.setBrkno(paramVo.getBrkno()) ; 
+				tvo.setBrkno(Long.valueOf(String.valueOf(paramVo.getBrkno())));
 				in_co = in_co + mapper.insertHbdLedgr(tvo) ; 
 				tvo.setInco(in_co) ;
 				ledgrList.add(tvo) ;

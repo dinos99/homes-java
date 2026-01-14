@@ -19,47 +19,38 @@
 
 	<select id="selectBrkComplexList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuffList 중개사 물건 목록 */
-		        A.CPLXNO           AS CPLXNO     /* 단지번호 */
-		        , B.BULDNO         AS BULDNO     /* 단지내 대표건물번호 */ 
-		        , B.BRKNO          AS BRKNO
-		        , A.ARCD           AS ARCD
-		        , A.LEGCD          AS LEGCD
-		        , A.PLOT_LOC       AS PLOT_LOC
-		        , B.CPLXNM         AS CPLXNM
-		        , B.BULDNM         AS BULDNM
-		        , B.CPLX_TY        AS CPLX_TY
-		        , B.CPLX_HSHLD_CO  AS HSHLD_CO
-		        , B.CPLX_DONG_CO   AS DONG_CO
-		        , B.LOC_X          AS LOC_X
-		        , B.LOC_Y          AS LOC_Y
-		        , B.CPLX_TY        AS EST_TY
-		        , 'Y'              AS IS_COMPLEX
-		        , CD.FILLER_V1     AS EST_COLOR
-		        , CD.CODE_NM       AS EST_TYNM 
-		FROM   TB_HBD_COMPLEX      A
-		INNER  JOIN TB_BRK_COMPLEX B  ON ( A.CPLXNO = B.CPLXNO ) 
-		INNER  JOIN TB_CM_COMMCODE CD ON ( B.CPLX_TY = CD.MXTR_COMM_CD )
-		WHERE  B.BRKNO = #{brkno}
-		ORDER  BY B.CPLXNM ASC 
+		       STF.STUFFNO, STF.BRKNO, STF.HTBDNO
+		       , STF.HPPSCD
+		       , HPS.CODE_NM AS HPPSNM
+		       , DATE_FORMAT(STF.CREAT_DT, '%Y.%m.%d') AS CRDE
+		       , MST.ARCD, MST.LEGCD, MST.BDADDR
+		       , MST.PPSCD
+		       , PPS.PPS_NM
+		       , MST.BULDNM, MST.HSHLDCO, MST.FMLYCO, MST.BULDCO
+		       , HPS.FILLER_V1 AS BGCOLOR
+		FROM   TB_BRK_BULD_STUFF         STF
+		INNER  JOIN TB_HBD_LEDGR_MSTR    MST ON STF.HTBDNO = MST.HTBDNO
+		INNER  JOIN TB_CM_COMMCODE       HPS ON HPS.MXTR_COMM_CD = STF.HPPSCD 
+		INNER  JOIN TB_CM_REGSTR_PPSCODE PPS ON MST.PPSCD   = PPS.PPS_CD
+		WHERE  OFFICENO = #{officeno}
 	</select>
 	
 	<select id="selectBrkBlockList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkBlockList 단지내 포함된 동명조회 */
-		       CPLXNO, BULDNO, REPRE_YN, CPLXNM, BLOCKNM, BLOCKRN
-        FROM   ( SELECT A.CPLXNO, A.BULDNO
-		                , A.REPRE_BULD_YN AS REPRE_YN
-		                , A.CPLXNM
-		                , A.BLOCKNM
-		                , CONVERT(SUBSTR(A.BLOCKNM, 1, INSTR(A.BLOCKNM, '동') - 1), UNSIGNED) AS BLOCKRN
-		         FROM   TB_HBD_COMPLEX_BULD A
-		         WHERE  CPLXNO = #{cplxno}
-		       ) A
-		<!-- =====================================================================================
-		     관리사무소/전기실/발전기실/주민공동시설등을 걸러내려면 주석을 해제한다
-		     현재는 상가때문에 일단 사용함 
-        WHERE  BLOCKRN <![CDATA[ > ]]> 0  
-		-->
-		ORDER  BY BLOCKNM ASC 
+		       STF.STUFFNO
+		       , STF.HTBDNO 
+		       , LGR.HBDNO
+		       , LGR.BULDGB
+		       , LGR.BULDNM
+		       , LGR.DONGNM
+		       , CASE WHEN INSTR(LGR.DONGNM, '동') = 0 THEN 999999999999
+		              ELSE CONVERT(SUBSTR(LGR.DONGNM, 1, INSTR(LGR.DONGNM, '동') -1), UNSIGNED) 
+		         END  AS DONGNO 
+		FROM   TB_BRK_BULD_STUFF STF
+		INNER  JOIN TB_HBD_LEDGR LGR ON STF.HTBDNO = LGR.HTBDNO 
+		WHERE  STF.HTBDNO = #{htbdno}
+		AND    OFFICENO = #{officeno}
+		ORDER  BY DONGNM ASC 
 	</select>
 	
 	<select id="selectFloorCount" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
@@ -80,53 +71,66 @@
 	</select>
 	
 	<select id="selectFloorRoomList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
-		WITH RECURSIVE TB_LEV(RN) AS (
-			SELECT 1
-			UNION ALL
-			SELECT RN + 1 FROM TB_LEV WHERE RN <![CDATA[ < ]]> #{roomCo}
+		WITH RECURSIVE TB_MAX_FLOOR AS (
+		    SELECT 1 AS RN 
+		    UNION ALL
+		    SELECT RN + 1 FROM TB_MAX_FLOOR 
+		    WHERE  RN <![CDATA[ < ]]> FN_GET_MAX_FLOOR( #{hbdno}, #{flgbcd}) 
 		)
-		, TB_FLOOR AS  (
-			SELECT A.FLOOR_NO                                                         AS FLNO 
-			       , MOD(REGEXP_REPLACE(A.HO_NM, '[^0-9]+', ''), 10)                  AS RN
-			       , MOD(FLOOR(REGEXP_REPLACE(A.HO_NM, '[^0-9]+', '') / 10), 10) * 10 AS FRN
-			       , A.UPPER_REGSTR_PK                                                AS BULDNO 
-			       , A.BULD_REGSTR_PK                                                 AS PSS_REGSTR_PK 
-			       , A.HO_NM                                                          AS HO_NM
-		           , ( SELECT STUFFNO 
-		               FROM   TB_BRK_BULD_STUFF
-		               WHERE  BRKNO = #{brkno}
-		               AND    STUFFNO = B.STUFFNO 
-		           ) AS STUFFNO
-		           , ( SELECT SFSTTUS
-		               FROM   TB_BRK_BULD_STUFF
-		               WHERE  BRKNO = #{brkno}
-		               AND    STUFFNO = B.STUFFNO 
-		           ) AS SFSTTUS
-			FROM   TB_HBD_PSSION_BULD     A
-		    LEFT   JOIN TB_HBD_BULD_STUFF B ON A.UPPER_REGSTR_PK = B.BULDNO AND A.BULD_REGSTR_PK = B.PSSIONNO 
-			WHERE  A.UPPER_REGSTR_PK = #{buldno}
-			AND    A.FLOOR_GB_CD = #{flgbcd}
-			AND    A.FLOOR_NO = #{flno}
-		)
-		SELECT /* homes.stuff.mapper.StuffMapper.selectFloorRoomList 각 층별 호실번호목록 조회 */
-		       #{flno}                AS FLNO
-		       , #{flgbcd}            AS FLGBCD
-		       , FL.BULDNO            AS BULDNO
-		       , FL.PSS_REGSTR_PK     AS PSSIONNO
-		       , FL.HO_NM             AS ROOM_NM
-		       , NVL(FL.STUFFNO, 0)   AS STUFFNO
-		       , NVL(FL.SFSTTUS, 'T') AS SFSTTUS
-		FROM   TB_LEV LV
-		LEFT   JOIN ( SELECT RN + FRN             AS RN 
-		                     , FLNO               AS FLNO
-		                     , BULDNO             AS BULDNO 
-		                     , PSS_REGSTR_PK      AS PSS_REGSTR_PK
-		                     , HO_NM              AS HO_NM
-		                     , STUFFNO            AS STUFFNO
-		                     , SFSTTUS            AS SFSTTUS
-		              FROM   TB_FLOOR A
-		            ) FL
-		ON     LV.RN = FL.RN
+		, TB_FLOOR AS ( 
+		    SELECT NVL(FLR.HBDNO , #{hbdno})    AS HBDNO 
+		           , NVL(FLR.FLGBCD, #{flgbcd}) AS FLGBCD 
+		           , MXF.RN                     AS RN 
+		           , NVL(FLR.FLNO  , 0)         AS FLNO 
+		    FROM   TB_MAX_FLOOR MXF
+		    LEFT   JOIN ( SELECT FLR.HTBDNO, FLR.HBDNO
+		                         , FLR.FLGBCD, FLR.FLNO
+		                         FROM   TB_HBD_LEDGR_FLOOR  FLR
+		                         WHERE  FLR.HBDNO  = #{hbdno} 
+		                         AND    FLR.FLGBCD = #{flgbcd} 
+		                ) FLR
+		           ON MXF.RN = FLR.FLNO 
+		) 
+		, TB_ROOM AS ( 
+		    SELECT PSN.HBDNO, PSN.FLNO
+		           , GROUP_CONCAT(PSN.HPSNO   ORDER BY HPSNO   SEPARATOR '|') AS HPSNOS
+		           , GROUP_CONCAT(PSN.HOSILNM ORDER BY HOSILNM SEPARATOR '|') AS HOSILNMS
+		    FROM   TB_HBD_LEDGR_PSSION_AREA PSN
+		    WHERE  PSN.HBDNO = #{hbdno} 
+		    AND    PSN.FLGBCD = #{flgbcd} 
+		    GROUP  BY PSN.HBDNO, PSN.FLNO
+		    ORDER  BY PSN.HPSNO ASC 
+		) 
+		, TB_MAX_ROOM AS ( 
+		    SELECT PSN.HBDNO
+		           , 1           AS MIN_ROOMCO
+		           , MAX(ROOMCO) AS MAX_ROOMCO
+		    FROM   ( SELECT PSN.HBDNO, PSN.FLNO
+		                    , COUNT(1) AS ROOMCO
+		             FROM   TB_HBD_LEDGR_PSSION_AREA PSN
+		             WHERE  PSN.HBDNO = #{hbdno} 
+		             AND    PSN.FLGBCD = #{flgbcd} 
+		             GROUP  BY PSN.HBDNO, PSN.FLNO
+		           ) PSN
+		    GROUP  BY PSN.HBDNO 
+		) 
+		SELECT FL.HBDNO, FL.FLGBCD, FL.RN
+		       , NVL(RM.HPSNOS  , 'EMPTY') AS HPSNOS
+		       , NVL(RM.HOSILNMS, 'EMPTY') AS HOSILNMS
+		       , NVL(MR.MIN_ROOMCO,     0) AS MIN_ROOM_CO
+		       , NVL(MR.MAX_ROOMCO,     0) AS MAX_ROOM_CO
+		FROM   TB_FLOOR         FL
+		LEFT   JOIN TB_ROOM     RM ON FL.FLNO  = RM.FLNO 
+		LEFT   JOIN TB_MAX_ROOM MR ON FL.HBDNO = MR.HBDNO 
+		<if test='"10".equals(flgbcd)'>
+		ORDER  BY FL.RN ASC
+		</if>  
+		<if test='"20".equals(flgbcd)'>
+		ORDER  BY FL.RN DESC
+		</if> 
+		<if test='"30".equals(flgbcd)'>
+		ORDER  BY FL.RN ASC
+		</if> 
 	</select>
 	
 	<select id="selectStuffOwnerList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">

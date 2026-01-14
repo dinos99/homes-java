@@ -83,24 +83,22 @@
 	
 	<select id="selectComplexinfo" parameterType="homes.broker.vo.BrokerComplexVo" resultType="commonMap">
 		SELECT /* homes.broker.mapper.BrokerComplexMapper.selectComplexinfo 단지 통합정보 조회 */
-		       A.CPLXNO, A.BULDNO, A.BRKNO
-		       , A.CPLXNM
-		       , A.ARCD, A.LEGCD 
-		       , ( SELECT ARNAME FROM TB_CM_COAREACODE WHERE ARCODE = A.ARCD AND LEGCODE = A.LEGCD ) AS ARNAME 
-		       , B.PLOT_LOC
-		       , B.BULD_NM                            AS BULDNM
-		       , DATE_FORMAT(C.PRMISS_DE, '%Y.%m.%d') AS PRMISSDE /* 승인일자 */ 
-		       , TIMESTAMPDIFF(YEAR, STR_TO_DATE(C.PRMISS_DE, '%Y%m%d'), CURDATE()) AS DIFFY /* 현재년도 - 승인년도 */ 
-		       , A.CPLX_HSHLD_CO                      AS HSHLDCO  /* 단지내 총 세대수 */ 
-		       , A.CPLX_DONG_CO                       AS DONGCO   /* 단지내 총 동수 */ 
-		       , 0                                    AS MARKETCO /* 단지내 상가동 수 */
-		       , D.RDNG_ELVTR_CO                      AS ELVTRCO  /* 엘레베이터 수(비상용 제외) */  
-		FROM   TB_BRK_COMPLEX                   A
-		INNER  JOIN TB_BD_TITLE_LEDGR           B ON A.BULDNO = B.BULD_REGSTR_PK 
-		INNER  JOIN TB_BD_TITLE_LEDGR_PRMISS_DE C ON A.BULDNO = C.BULD_REGSTR_PK
-		INNER  JOIN TB_BD_TITLE_LEDGR_UNIT_CO   D ON A.BULDNO = D.BULD_REGSTR_PK
-		WHERE  A.BRKNO = #{brkno}
-		AND    A.BULDNO = #{buldno}
+		       STF.STUFFNO
+		       , STF.HTBDNO 
+		       , MST.BULDNM AS CPLXNM
+		       , MST.ARCD, MST.LEGCD
+		       , ( SELECT ARNAME FROM TB_CM_COAREACODE WHERE ARCODE = MST.ARCD AND LEGCODE = MST.LEGCD ) AS ARNAME 
+		       , MST.BDADDR AS PLOT_LOC
+		       , MST.BULDNM
+		       , DATE_FORMAT(MST.CONFDE, '%Y.%m.%d') AS PRMISSDE /* 승인일자 */ 
+		       , TIMESTAMPDIFF(YEAR, STR_TO_DATE(MST.CONFDE, '%Y%m%d'), CURDATE()) AS DIFFY /* 현재년도 - 승인년도 */ 
+		       , MST.HSHLDCO
+		       , MST.HSHLDCO
+		       , MST.BULDCO   AS DONGCO
+		FROM   TB_BRK_BULD_STUFF      STF
+		INNER  JOIN TB_HBD_LEDGR_MSTR MST ON MST.HTBDNO = STF.HTBDNO
+		WHERE  STF.HTBDNO = #{htbdno}
+		AND    STF.OFFICENO = #{officeno}
 	</select> 
 	
 	<insert id="insertHbdBuldStuff" parameterType="homes.broker.vo.BrokerComplexVo">

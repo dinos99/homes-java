@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import homes.broker.service.BrokerComplexService;
 import homes.broker.vo.BrokerComplexVo;
+import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
 import homes.comm.util.RequestUtil;
 import homes.comm.vo.CommonMap;
-import homes.exception.HomesException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -29,15 +29,10 @@ public class BrokerComplexController {
 
 	@PostMapping("/api/v1/broker/complex-info")
 	public ResponseEntity<String> complexInfo(@RequestBody BrokerComplexVo paramVo, HttpServletRequest request ) {
-		CommonMap complex = null ; 
-		try {
-			Long userno = RequestUtil.getUserno(request) ; 
-			paramVo.setBrkno(userno) ; 
-			complex = service.selectComplexinfo(paramVo) ;
-		} catch (HomesException e) {
-			Log.error("*** 단지통합정보 조회중 에러: {}", e.getMessage()) ;
-	        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(EnumError.INTERNAL_SERVER_ERROR.getSttusCd())) ;
-		} 
+		BrokerVo bvo = RequestUtil.getBroker(request) ;
+		paramVo.setBrkno(bvo.getBrokerno()) ;
+		paramVo.setOfficeno(bvo.getOfficeno()) ; 
+		CommonMap complex = service.selectComplexinfo(paramVo) ;
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(complex)) ;
 	}
 	
@@ -45,7 +40,7 @@ public class BrokerComplexController {
 	public ResponseEntity<String> complexList(@RequestBody BrokerComplexVo paramVo, HttpServletRequest request ) {
 		CommonMap complex = null ; 
 		try {
-			Long userno = RequestUtil.getUserno(request) ; 
+			int userno = RequestUtil.getUserno(request) ; 
 			paramVo.setBrkno(userno) ; 
 			complex = service.selectComplexList(paramVo) ;
 		} catch (SQLException e) {

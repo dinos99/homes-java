@@ -38,7 +38,7 @@ public class BuldHubReqVo {
 	private int updco = 0 ; 
 	private int delco = 0 ; 
 	
-	private Long mngrno ;
+	private int mngrno ;
 	
 	private String htbdno ; 
 	private String hbdno ; 

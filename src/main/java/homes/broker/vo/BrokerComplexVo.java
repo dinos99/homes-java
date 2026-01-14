@@ -4,7 +4,11 @@ import lombok.Data;
 
 @Data
 public class BrokerComplexVo {
-	Long   brkno ; 
+	int   brkno ; 
+	int   officeno ; 
+	
+	String htbdno ;
+	
 	String cplxno ; 
 	String cplxTy ;
 	String arcd ; 

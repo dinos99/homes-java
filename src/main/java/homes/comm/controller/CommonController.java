@@ -123,11 +123,12 @@ public class CommonController {
 		Log.info("*** get ppscd List: {}", ppsList) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ppsList)) ;
 	}
-	
-	@GetMapping("/api/v1/commcode/ppscdList")
-	public ResponseEntity<String> ppscdList(HttpServletRequest request) {
-		List<CommonMap> ppsList = commCodeService.getppsCodeList("") ;
-		Log.info("*** get ppscd List: {}", ppsList) ; 
-        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ppsList)) ;
+
+	@GetMapping("/api/v1/commcode/hppscd/{upHppscd}")
+	public ResponseEntity<String> getHppsCdList(HttpServletRequest request, @PathVariable String upHppscd ) {
+		List<CommonMap> hppsList = commCodeService.gethppsCodeList(upHppscd) ; 
+//		Log.info("*** get hppsCdList List: {}", hppsList) ; 
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(hppsList)) ;
 	}
+
 }

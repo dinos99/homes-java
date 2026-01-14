@@ -448,7 +448,7 @@
 		SELECT LD.HTBDNO                                    AS HTBDNO
 		       , LD.HBDNO                                   AS HBDNO
 		       , D.FLGBCD                                   AS FLGBCD
-		       , D.FLOORNO                                  AS FLNO 
+		       , D.FLNO                                     AS FLNO 
 		       , LD.BULD_REGSTR_PK                          AS BULD_REGSTR_PK
 		       , '4'                                        AS BATCH_AT
 		       , DATE_FORMAT(CURRENT_TIMESTAMP(), '%Y%m%d') AS BATCHDE
@@ -458,7 +458,9 @@
 		INNER  JOIN TZ_09_PSSION_LEDGR_11710 C ON B.REGSTR_PK = C.REGSTR_PK
 		INNER  JOIN TZ_06_PSSION_AREA_11710  D ON C.REGSTR_PK = D.REGSTR_PK
 		WHERE  LD.ARCD = #{arcd}
+	    <if test="legcd != null and legcd != ''">
 		AND    LD.LEGCD = #{legcd} 
+	    </if>
 	    <if test="bunjib != null and bunjib != ''">
 	    AND    LD.BUNJIB = #{bunjib}
 	    </if>
@@ -469,18 +471,18 @@
 	    AND    LD.BULDGB = #{buldgb}
 	    </if>
 		AND    A.REGSTRGBCD = '3'
-		AND    D.FLOORNO <![CDATA[ > ]]> 0  
+		AND    D.FLNO <![CDATA[ > ]]> 0  
 		AND    NOT EXISTS ( SELECT 'X'
 		                    FROM   TB_HBD_LEDGR_FLOOR FL
 		                    WHERE  FL.HTBDNO = LD.HTBDNO
 		                    AND    FL.HBDNO = LD.HBDNO
 		                    AND    FL.FLGBCD = D.FLGBCD
-		                    AND    FL.FLNO = D.FLOORNO
+		                    AND    FL.FLNO = D.FLNO
 		                  ) 
 		GROUP  BY LD.HTBDNO, LD.HBDNO, LD.BULD_REGSTR_PK
 		       , A.REGSTR_PK
 		       , D.FLGBCD
-		       , D.FLOORNO
+		       , D.FLNO
 		ORDER  BY A.REGSTR_PK, D.FLGBCD, D.FLOORNO ASC 
 	</insert>
 	

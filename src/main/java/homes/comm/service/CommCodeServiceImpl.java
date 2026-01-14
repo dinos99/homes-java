@@ -81,4 +81,11 @@ public class CommCodeServiceImpl implements CommCodeService {
     	Log.error("*** Execute Cacheable within key *************************************");
     	return mapper.getppsCodeList(ppscd) ;
     }
+    
+    @Cacheable(key = "'hppsCdList'")
+    @Transactional(readOnly = true)
+    public List<CommonMap> gethppsCodeList( String upHppscd ) {
+    	Log.error("*** Execute Cacheable within key *************************************");
+    	return mapper.gethppsCodeList(upHppscd) ;
+    }
 }

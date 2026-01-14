@@ -19,5 +19,8 @@ public interface CommCodeService {
 	public CommCodeListVo getEstGroupList() ; 
 	/* 부동산구분 용도코드를 조회한다.(View 사용) */
 	public List<CommonMap> getPpsCdList( String ppscd ) ; 
-	public List<CommonMap> getppsCodeList( String ppscd ) ; 
+	public List<CommonMap> getppsCodeList( String ppscd ) ;
+	
+	/* 홈즈용도코드 조회 */
+	public List<CommonMap> gethppsCodeList( String ppscd ) ; 
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import homes.api.buld.vo.RecapLedgrVo;
 import homes.api.buld.vo.TitleLedgrVo;
+import homes.broker.vo.BrokerVo;
 import homes.comm.util.JsonUtil;
 import homes.comm.util.RequestUtil;
 import homes.comm.vo.CommonMap;
@@ -31,12 +32,13 @@ public class StuffController {
 	
 	@PostMapping("/api/v1/stuff/stuffList")
 	public ResponseEntity<String> stuffList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		Log.error("*** api call: /api/v1/stuff/stuffList") ;
 		CommonMap stuffList = service.selectBrkStuffList(request, paramVo);
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(stuffList)) ;
 	}
 	@PostMapping("/api/v1/stuff/brker-stuff")
 	public ResponseEntity<String> brkerStuff(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		Long brkno = RequestUtil.getUserno(request) ; 
+		int brkno = RequestUtil.getUserno(request) ; 
 		paramVo.setBrkno(brkno) ;
 		List<CommonMap> stuffList = service.selectBrkStuff(paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(stuffList)) ;
@@ -44,22 +46,23 @@ public class StuffController {
 	
 
 	@PostMapping("/api/v1/stuff/blockList")
-	public ResponseEntity<String> blockList(@RequestBody StuffVo paramVo ) {
-		List<CommonMap> blockList = service.selectBrkBlockList(paramVo) ; 
+	public ResponseEntity<String> blockList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		List<CommonMap> blockList = service.selectBrkBlockList(request, paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(blockList)) ;
 	}
 
 	@PostMapping("/api/v1/stuff/floorList")
 	public ResponseEntity<String> floorList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		Long brkno = RequestUtil.getUserno(request) ; 
-		paramVo.setBrkno(brkno) ;
-		CommonMap flinfo = service.selectFloorRoomInfo(paramVo) ; 
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setBrkno(bvo.getBrokerno()) ;
+		paramVo.setOfficeno(bvo.getOfficeno()) ; 
+		List<CommonMap> flinfo = service.selectFloorRoomInfo(paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(flinfo)) ;
 	}
 
 	@PostMapping("/api/v1/stuff/ownerList") 
 	public ResponseEntity<String> ownerList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		Long brkno = RequestUtil.getUserno(request) ; 
+		int brkno = RequestUtil.getUserno(request) ; 
 		paramVo.setBrkno(brkno) ; 
 		List<CommonMap> ownerList = service.selectStuffOwnerList(paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ownerList)) ;
@@ -67,7 +70,7 @@ public class StuffController {
 
 	@PostMapping("/api/v1/stuff/add-stuff") 
 	public ResponseEntity<String> addStuff(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		Long brkno = RequestUtil.getUserno(request) ; 
+		int brkno = RequestUtil.getUserno(request) ; 
 		paramVo.setBrkno(brkno) ;
 		List<CommonMap> ownerList = null ; 
 		try {
@@ -81,7 +84,7 @@ public class StuffController {
 
 	@PostMapping("/api/v1/stuff/delete-owner") 
 	public ResponseEntity<String> deleteOwner(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		Long brkno = RequestUtil.getUserno(request) ; 
+		int brkno = RequestUtil.getUserno(request) ; 
 		paramVo.setBrkno(brkno) ;
 		List<CommonMap> ownerList = null ; 
 		try {
@@ -97,10 +100,11 @@ public class StuffController {
 	@PostMapping("/api/v1/stuff/update-stuff")
 	public ResponseEntity<String> updateBrkSttuf(HttpServletRequest request, @RequestBody StuffListVo paramVo ) {
 		Log.error(paramVo) ;
-		Long brkno = RequestUtil.getUserno(request) ; 
+//		int brkno = RequestUtil.getUserno(request) ; 
 		CommonMap result = new CommonMap() ; 
 		try {
-			int up_co = service.updateBrkSttuf(brkno, paramVo) ;
+			int up_co = 0 ; 
+//			int up_co = service.updateBrkSttuf(brkno, paramVo) ;
 			result.put("up_co", up_co) ; 
 		} catch ( Exception e ) {
 			e.printStackTrace() ; 
@@ -116,7 +120,7 @@ public class StuffController {
 	@PostMapping("/api/v1/stuff/total-buld")
 	public ResponseEntity<String> selectTitleLedgrinfo(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
 		Log.info("*** 건축물대장 통합DB조회 **********************************************");
-		Long brkno = RequestUtil.getUserno(request) ;
+		int brkno = RequestUtil.getUserno(request) ;
 		paramVo.setBrkno(brkno);
 		RecapLedgrVo recapVo = service.getHomesBuldMaster( paramVo ) ;
 		paramVo.setHtbdno(recapVo.getHtbdno()) ; 
