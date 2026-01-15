@@ -1,6 +1,7 @@
 package homes.broker.controller;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,12 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import homes.broker.service.BrokerService;
+import homes.broker.vo.BrokerMemoVo;
 import homes.broker.vo.BrokerOfficeVo;
 import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.util.JsonUtil;
 import homes.comm.vo.CommonMap;
 import homes.comm.vo.FileVo;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -70,5 +73,22 @@ public class BrokerController {
 		} 
 		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(paramVo)) ;
 	}
+	
+	@PostMapping("/api/v1/broker/ins-memo")
+	public ResponseEntity<String> insertMemo(HttpServletRequest request, @RequestBody BrokerMemoVo paramVo ) {
+		CommonMap inmap = service.insertMemo(request, paramVo) ; 
+		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(inmap)) ;
+	}
+	
+	@PostMapping("/api/v1/broker/memoList")
+	public ResponseEntity<String> memoList(HttpServletRequest request, @RequestBody BrokerMemoVo paramVo ) {
+		List<BrokerMemoVo> mList = service.selectMemoList(request, paramVo) ; 
+		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(mList)) ;
+	}
 
+	@PostMapping("/api/v1/broker/memo-count")
+	public ResponseEntity<String> memoCount(HttpServletRequest request, @RequestBody BrokerMemoVo paramVo ) {
+		CommonMap memo = service.selectMemoCount(request, paramVo) ; 
+		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(memo)) ;
+	}
 }

@@ -9,6 +9,25 @@
 		FROM   TB_BRK_USER
 		WHERE  USER_NO = #{userno}
 	</select>
+	
+	<select id="selectBrokerMemo" parameterType="homes.broker.vo.BrokerMemoVo" resultType="homes.broker.vo.BrokerMemoVo">
+		SELECT /* homes.broker.mapper.BrokerMapper.selectBrokerMemo */
+		       OFFICENO, BRKNO, MEMONO, MEMOCN, SCHDUL_AT
+		       , STUFFNO
+		       , DATE_FORMAT(UPDT_DT, '%Y.%m.%d %H:%m:%s') AS MEMODT 
+		FROM   TB_BRK_MEMO
+		WHERE  OFFICENO = #{officeno}
+		AND    BRKNO = #{brkno}
+		ORDER  BY CREAT_DT DESC 
+	</select>
+	
+	<select id="selectBrokerMemoCount" parameterType="homes.broker.vo.BrokerMemoVo" resultType="commonMap">
+		SELECT /* homes.broker.mapper.BrokerMapper.selectBrokerMemo */
+		       COUNT(1) AS MCNT
+		FROM   TB_BRK_MEMO
+		WHERE  OFFICENO = #{officeno}
+		AND    BRKNO = #{brkno} 
+	</select>
 
     <insert id="insertBrokerUser" parameterType="homes.broker.vo.BrokerVo">
     	INSERT INTO TB_BRK_USER (
@@ -119,6 +138,22 @@
 			, NOW()
 			, #{brokerno}
 			, NOW()
+		)
+    </insert>
+    
+    <insert id="insertBrkMemo" parameterType="homes.broker.vo.BrokerMemoVo">
+		INSERT /* homes.broker.mapper.BrokerMapper.inertBrkMemo */
+		INTO  TB_BRK_MEMO (
+			OFFICENO, BRKNO, MEMONO, MEMOCN, SCHDUL_AT, STUFFNO, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{officeno}
+			, #{brkno}
+			, ( SELECT NVL(MAX(MEMONO), 0) + 1 FROM TB_BRK_MEMO WHERE OFFICENO = #{officeno} )
+			, #{memocn}
+			, '0'
+			, #{stuffno}
+			, #{brkno}
+			, #{brkno}
 		)
     </insert>
     

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,13 +16,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import homes.broker.mapper.BrokerMapper;
+import homes.broker.vo.BrokerMemoVo;
 import homes.broker.vo.BrokerOfficeVo;
 import homes.broker.vo.BrokerVo;
 import homes.comm.constants.EnumError;
 import homes.comm.mapper.CommonMapper;
 import homes.comm.util.HomesProperty;
+import homes.comm.util.RequestUtil;
+import homes.comm.vo.CommonMap;
 import homes.comm.vo.FileVo;
 import homes.exception.HomesException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -93,5 +98,40 @@ public class BrokerServiceImpl implements BrokerService {
 			mapper.insertBrokerUser(paramVo) ;
 		}
 		return paramVo.getBrokerno() ; 
+	}
+	
+	@Override
+	@Transactional( rollbackFor = Exception.class ) 
+	public CommonMap insertMemo( HttpServletRequest request, BrokerMemoVo paramVo ) {
+		
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno());
+		paramVo.setBrkno(bvo.getBrokerno()); ; 
+		
+		int in_co = mapper.insertBrkMemo(paramVo) ; 
+		CommonMap in_map = new CommonMap() ; 
+		in_map.put("inco", in_co) ; 
+		return in_map ; 
+	}
+
+	@Override
+	@Transactional( readOnly = true ) 
+	public List<BrokerMemoVo> selectMemoList( HttpServletRequest request, BrokerMemoVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno());
+		paramVo.setBrkno(bvo.getBrokerno()); ; 
+		
+		List<BrokerMemoVo> mList = mapper.selectBrokerMemo(paramVo) ;
+		return mList ; 
+	}
+
+	@Override
+	@Transactional( readOnly = true ) 
+	public CommonMap selectMemoCount( HttpServletRequest request, BrokerMemoVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno());
+		paramVo.setBrkno(bvo.getBrokerno());
+		CommonMap memo = mapper.selectBrokerMemoCount(paramVo) ;
+		return memo ; 
 	}
 }

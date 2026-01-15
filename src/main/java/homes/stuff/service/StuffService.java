@@ -14,7 +14,7 @@ public interface StuffService {
 	public CommonMap selectBrkStuffList(HttpServletRequest request, StuffVo paramVo) ;
 	public List<CommonMap> selectFloorRoomInfo( StuffVo paramVo ) ; 
 	
-	public List<CommonMap> selectBrkStuff( StuffVo paramVo ) ; 	
+	public List<CommonMap> selectBrkStuff(HttpServletRequest request, StuffVo paramVo) ; 	
 	public List<CommonMap> selectBrkBlockList(HttpServletRequest request, StuffVo paramVo ) ; 	
 	public List<CommonMap> selectStuffOwnerList(StuffVo paramVo) ;
 

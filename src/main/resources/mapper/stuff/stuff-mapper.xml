@@ -32,7 +32,10 @@
 		INNER  JOIN TB_HBD_LEDGR_MSTR    MST ON STF.HTBDNO = MST.HTBDNO
 		INNER  JOIN TB_CM_COMMCODE       HPS ON HPS.MXTR_COMM_CD = STF.HPPSCD 
 		INNER  JOIN TB_CM_REGSTR_PPSCODE PPS ON MST.PPSCD   = PPS.PPS_CD
-		WHERE  OFFICENO = #{officeno}
+		WHERE  STF.OFFICENO = #{officeno}
+		<if test="htbdno != null and htbdno != ''">
+		AND    STF.HTBDNO = #{htbdno}
+		</if>
 	</select>
 	
 	<select id="selectBrkBlockList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
@@ -93,9 +96,15 @@
 		) 
 		, TB_ROOM AS ( 
 		    SELECT PSN.HBDNO, PSN.FLNO
-		           , GROUP_CONCAT(PSN.HPSNO   ORDER BY HPSNO   SEPARATOR '|') AS HPSNOS
-		           , GROUP_CONCAT(PSN.HOSILNM ORDER BY HOSILNM SEPARATOR '|') AS HOSILNMS
+		           , GROUP_CONCAT(PSN.HPSNO   ORDER BY PSN.HPSNO   SEPARATOR '|') AS HPSNOS
+		           , GROUP_CONCAT(PSN.HOSILNM ORDER BY PSN.HOSILNM SEPARATOR '|') AS HOSILNMS
+			       , GROUP_CONCAT(STF.STUFFNO ORDER BY STF.STUFFNO SEPARATOR '|') AS STUFFNOS
 		    FROM   TB_HBD_LEDGR_PSSION_AREA PSN
+			LEFT   JOIN TB_BRK_BULD_STUFF   STF ON ( PSN.HTBDNO = STF.HTBDNO
+			                                         AND PSN.HBDNO = STF.HBDNO 
+			                                         AND PSN.HPSNO = STF.HPSNO
+			                                         AND STF.OFFICENO  = #{officeno}
+			                                       ) 
 		    WHERE  PSN.HBDNO = #{hbdno} 
 		    AND    PSN.FLGBCD = #{flgbcd} 
 		    GROUP  BY PSN.HBDNO, PSN.FLNO
@@ -117,6 +126,7 @@
 		SELECT FL.HBDNO, FL.FLGBCD, FL.RN
 		       , NVL(RM.HPSNOS  , 'EMPTY') AS HPSNOS
 		       , NVL(RM.HOSILNMS, 'EMPTY') AS HOSILNMS
+		       , NVL(RM.STUFFNOS,       0) AS STUFFNOS
 		       , NVL(MR.MIN_ROOMCO,     0) AS MIN_ROOM_CO
 		       , NVL(MR.MAX_ROOMCO,     0) AS MAX_ROOM_CO
 		FROM   TB_FLOOR         FL

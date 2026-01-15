@@ -38,7 +38,7 @@
 		AND    BULDNM != '' /* 건물명 없는것들 일단 제외함 */
 		AND    INSTR(PPSETCNM, '다세대') = 0 
 		AND    MST.HSHLDCO <![CDATA[ > ]]> 14 /* 15세대 이상 */ 
-		ORDER  BY NVL(OFFICENO, 0) DESC, MST.BULDNM
+		ORDER  BY NVL(OFFICENO, 0) ASC, MST.BULDNM
 	</select>
 	
 	<insert id="insertBrokerStuff" parameterType="homes.broker.vo.BrokerStuffVo">	

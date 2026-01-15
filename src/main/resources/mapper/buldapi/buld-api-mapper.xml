@@ -138,7 +138,9 @@
 		       , A.CRDE
 		FROM   TB_HBD_LEDGR A
 		WHERE  A.ARCD = #{arcd}
+	    <if test="legcd != null and legcd != ''">
 		AND    A.LEGCD = #{legcd}
+	    </if>
 	    <if test="bunjib != null and bunjib != ''">
 	    AND    BUNJIB = #{bunjib}
 	    </if>
@@ -368,7 +370,9 @@
 		FROM   TB_HBD_TEMP_LEDGR       A
 		INNER  JOIN TB_HBD_BASE_SUMMRY B ON ( A.BULD_REGSTR_PK = B.BULD_REGSTR_PK ) 
 		WHERE  A.ARCD = #{arcd}
+	    <if test="legcd != null and legcd != ''">
 		AND    A.LEGCD = #{legcd}
+	    </if>
 	    <if test="bunjib != null and bunjib != ''">
 	    AND    A.BUNJIB = #{bunjib}
 	    </if>

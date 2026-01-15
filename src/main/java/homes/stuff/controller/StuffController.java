@@ -38,9 +38,7 @@ public class StuffController {
 	}
 	@PostMapping("/api/v1/stuff/brker-stuff")
 	public ResponseEntity<String> brkerStuff(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
-		int brkno = RequestUtil.getUserno(request) ; 
-		paramVo.setBrkno(brkno) ;
-		List<CommonMap> stuffList = service.selectBrkStuff(paramVo) ; 
+		List<CommonMap> stuffList = service.selectBrkStuff(request, paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(stuffList)) ;
 	}
 	

@@ -1,6 +1,5 @@
 package homes.stuff.service;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,6 @@ import homes.comm.util.ObjectUtil;
 import homes.comm.util.RequestUtil;
 import homes.comm.util.StringUtil;
 import homes.comm.vo.CommonMap;
-import homes.exception.HomesException;
 import homes.owner.vo.OwnerVo;
 import homes.stuff.mapper.StuffMapper;
 import homes.stuff.vo.StuffListVo;
@@ -58,8 +56,11 @@ public class StuffServiceImpl implements StuffService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonMap> selectBrkStuff(StuffVo paramVo) {
-		return mapper.selectBrkStuff(paramVo) ; 
+	public List<CommonMap> selectBrkStuff(HttpServletRequest request, StuffVo paramVo) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno());
+		Log.error("*** officeno: {}", bvo.getOfficeno()) ;
+		return mapper.selectBrkComplexList(paramVo) ; 
 	}
 	
 	@Override
