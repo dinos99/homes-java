@@ -93,8 +93,12 @@
 		       , DATE_FORMAT(MST.CONFDE, '%Y.%m.%d') AS PRMISSDE /* 승인일자 */ 
 		       , TIMESTAMPDIFF(YEAR, STR_TO_DATE(MST.CONFDE, '%Y%m%d'), CURDATE()) AS DIFFY /* 현재년도 - 승인년도 */ 
 		       , MST.HSHLDCO
-		       , MST.HSHLDCO
+		       , MST.FMLYCO
 		       , MST.BULDCO   AS DONGCO
+               , MST.TOP_FLOOR
+               , MST.BTM_UNDER
+               , MST.PARKNGCO
+               , FLOOR(MST.PLAT_AR) AS PLAT_AR
 		FROM   TB_BRK_STUFF_COMPLEX      STF
 		INNER  JOIN TB_HBD_LEDGR_MSTR MST ON MST.HTBDNO = STF.HTBDNO
 		WHERE  STF.HTBDNO = #{htbdno}
