@@ -2,7 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="homes.stuff.mapper.StuffMapper">
-
+	
+	<select id="getStuffCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.getStuffCount */
+		       COUNT(1) AS IS_STUFF
+		FROM   TB_BRK_BULD_STUFF
+		WHERE  STUFFNO  = #{stuffno} 
+		AND    OFFICENO = #{officeno} 
+	
+	</select>
+	
+	<select id="getStuffBuldCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.getStuffBuldCount */
+		       COUNT(1) AS IS_STUFF
+		FROM   TB_BRK_STUFF_BULD
+		WHERE  OFFICENO = #{officeno} 
+		AND    STUFFNO  = #{stuffno} 
+		AND    HTBDNO  = #{htbdno} 
+		AND    HBDNO  = #{hbdno} 
+	</select>
+	
+	<select id="getStuffBdRoomCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
+		SELECT /* homes.stuff.mapper.StuffMapper.getStuffBdRoomCount */
+		       COUNT(1) AS IS_STUFF
+		FROM   TB_BRK_STUFF_BDROOM
+		WHERE  OFFICENO = #{officeno} 
+		AND    STUFFNO  = #{stuffno} 
+		AND    HTBDNO  = #{htbdno} 
+		AND    HBDNO  = #{hbdno} 
+		AND    HPSNO  = #{hpsno} 
+	</select>
+	
 	<select id="selectRelatedJibunCount" parameterType="homes.stuff.vo.StuffVo" resultType="int">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectRelatedJibunCount 관련지번 포함여부 */
 		       COUNT(SHTBDNO) AS HAS_RELJIBUN
@@ -19,22 +49,23 @@
 
 	<select id="selectBrkComplexList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
 		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuffList 중개사 물건 목록 */
-		       STF.STUFFNO, STF.BRKNO, STF.HTBDNO
-		       , STF.HPPSCD
+		       STF.STUFFNO, STF.BRKNO, CPX.HTBDNO
+		       , CPX.HPPSCD
 		       , HPS.CODE_NM AS HPPSNM
 		       , DATE_FORMAT(STF.CREAT_DT, '%Y.%m.%d') AS CRDE
-		       , MST.ARCD, MST.LEGCD, MST.BDADDR
+		       , MST.ARCD, MST.LEGCD, MST.BDADDR, MST.BULDGB
 		       , MST.PPSCD
 		       , PPS.PPS_NM
 		       , MST.BULDNM, MST.HSHLDCO, MST.FMLYCO, MST.BULDCO
 		       , HPS.FILLER_V1 AS BGCOLOR
-		FROM   TB_BRK_BULD_STUFF         STF
-		INNER  JOIN TB_HBD_LEDGR_MSTR    MST ON STF.HTBDNO = MST.HTBDNO
+		FROM   TB_BRK_STUFF              STF
+		INNER  JOIN TB_BRK_STUFF_COMPLEX CPX ON ( STF.STUFFNO = CPX.STUFFNO AND STF.OFFICENO = CPX.OFFICENO )
+		INNER  JOIN TB_HBD_LEDGR_MSTR    MST ON CPX.HTBDNO = MST.HTBDNO
 		INNER  JOIN TB_CM_COMMCODE       HPS ON HPS.MXTR_COMM_CD = STF.HPPSCD 
 		INNER  JOIN TB_CM_REGSTR_PPSCODE PPS ON MST.PPSCD   = PPS.PPS_CD
 		WHERE  STF.OFFICENO = #{officeno}
 		<if test="htbdno != null and htbdno != ''">
-		AND    STF.HTBDNO = #{htbdno}
+		AND    CPX.HTBDNO = #{htbdno}
 		</if>
 	</select>
 	
@@ -49,11 +80,26 @@
 		       , CASE WHEN INSTR(LGR.DONGNM, '동') = 0 THEN 999999999999
 		              ELSE CONVERT(SUBSTR(LGR.DONGNM, 1, INSTR(LGR.DONGNM, '동') -1), UNSIGNED) 
 		         END  AS DONGNO 
-		FROM   TB_BRK_BULD_STUFF STF
+		       , ( LGR.RIDNG_ELVTR_CO + LGR.EMGR_ELVTR_CO ) AS ELVTCO
+		FROM   TB_BRK_STUFF_COMPLEX STF
 		INNER  JOIN TB_HBD_LEDGR LGR ON STF.HTBDNO = LGR.HTBDNO 
 		WHERE  STF.HTBDNO = #{htbdno}
 		AND    OFFICENO = #{officeno}
 		ORDER  BY DONGNM ASC 
+	</select>
+	
+	<select id="selectLedgrinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectLedgrinfo 건물(동)정보조회 */
+		       HTBDNO, HBDNO, BULDGB
+		       , ARCD, LEGCD, BUNJIB, BUNJIJ 
+		       , BULDNM, DONGNM
+		       , BDADDR, RDADDR
+		       , PPSCD, PPSETCNM, CFMVGB
+		       , ( RIDNG_ELVTR_CO + EMGR_ELVTR_CO ) AS ELVTRCO
+		       , GRNDCO, UNDERCO
+		       , HSHLDCO, FMLYCO, PARKNGCO
+		FROM   TB_HBD_LEDGR 
+		WHERE  HBDNO = #{hbdno}
 	</select>
 	
 	<select id="selectFloorCount" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
@@ -74,73 +120,47 @@
 	</select>
 	
 	<select id="selectFloorRoomList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
-		WITH RECURSIVE TB_MAX_FLOOR AS (
-		    SELECT 1 AS RN 
-		    UNION ALL
-		    SELECT RN + 1 FROM TB_MAX_FLOOR 
-		    WHERE  RN <![CDATA[ < ]]> FN_GET_MAX_FLOOR( #{hbdno}, #{flgbcd}) 
-		)
-		, TB_FLOOR AS ( 
-		    SELECT NVL(FLR.HBDNO , #{hbdno})    AS HBDNO 
-		           , NVL(FLR.FLGBCD, #{flgbcd}) AS FLGBCD 
-		           , MXF.RN                     AS RN 
-		           , NVL(FLR.FLNO  , 0)         AS FLNO 
-		    FROM   TB_MAX_FLOOR MXF
-		    LEFT   JOIN ( SELECT FLR.HTBDNO, FLR.HBDNO
-		                         , FLR.FLGBCD, FLR.FLNO
-		                         FROM   TB_HBD_LEDGR_FLOOR  FLR
-		                         WHERE  FLR.HBDNO  = #{hbdno} 
-		                         AND    FLR.FLGBCD = #{flgbcd} 
-		                ) FLR
-		           ON MXF.RN = FLR.FLNO 
-		) 
-		, TB_ROOM AS ( 
-		    SELECT PSN.HBDNO, PSN.FLNO
-		           , GROUP_CONCAT(PSN.HPSNO   ORDER BY PSN.HPSNO   SEPARATOR '|') AS HPSNOS
-		           , GROUP_CONCAT(PSN.HOSILNM ORDER BY PSN.HOSILNM SEPARATOR '|') AS HOSILNMS
-			       , GROUP_CONCAT(STF.STUFFNO ORDER BY STF.STUFFNO SEPARATOR '|') AS STUFFNOS
-		    FROM   TB_HBD_LEDGR_PSSION_AREA PSN
-			LEFT   JOIN TB_BRK_BULD_STUFF   STF ON ( PSN.HTBDNO = STF.HTBDNO
-			                                         AND PSN.HBDNO = STF.HBDNO 
-			                                         AND PSN.HPSNO = STF.HPSNO
-			                                         AND STF.OFFICENO  = #{officeno}
-			                                       ) 
-		    WHERE  PSN.HBDNO = #{hbdno} 
-		    AND    PSN.FLGBCD = #{flgbcd} 
-		    GROUP  BY PSN.HBDNO, PSN.FLNO
-		    ORDER  BY PSN.HPSNO ASC 
-		) 
-		, TB_MAX_ROOM AS ( 
-		    SELECT PSN.HBDNO
-		           , 1           AS MIN_ROOMCO
-		           , MAX(ROOMCO) AS MAX_ROOMCO
-		    FROM   ( SELECT PSN.HBDNO, PSN.FLNO
-		                    , COUNT(1) AS ROOMCO
-		             FROM   TB_HBD_LEDGR_PSSION_AREA PSN
-		             WHERE  PSN.HBDNO = #{hbdno} 
-		             AND    PSN.FLGBCD = #{flgbcd} 
-		             GROUP  BY PSN.HBDNO, PSN.FLNO
-		           ) PSN
-		    GROUP  BY PSN.HBDNO 
-		) 
-		SELECT FL.HBDNO, FL.FLGBCD, FL.RN
-		       , NVL(RM.HPSNOS  , 'EMPTY') AS HPSNOS
-		       , NVL(RM.HOSILNMS, 'EMPTY') AS HOSILNMS
-		       , NVL(RM.STUFFNOS,       0) AS STUFFNOS
-		       , NVL(MR.MIN_ROOMCO,     0) AS MIN_ROOM_CO
-		       , NVL(MR.MAX_ROOMCO,     0) AS MAX_ROOM_CO
-		FROM   TB_FLOOR         FL
-		LEFT   JOIN TB_ROOM     RM ON FL.FLNO  = RM.FLNO 
-		LEFT   JOIN TB_MAX_ROOM MR ON FL.HBDNO = MR.HBDNO 
-		<if test='"10".equals(flgbcd)'>
-		ORDER  BY FL.RN ASC
-		</if>  
-		<if test='"20".equals(flgbcd)'>
-		ORDER  BY FL.RN DESC
-		</if> 
-		<if test='"30".equals(flgbcd)'>
-		ORDER  BY FL.RN ASC
-		</if> 
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBuldStructinfo 각층별 호실정보조회 */
+		       CPLX.STUFFNO
+		       , CPLX.HTBDNO
+		       , LDGR.HBDNO 
+		       , PSAR.HPSNO 
+		       , BDRM.HPSNO AS STF_HPSNO 
+		       , PSAR.FLGBCD
+		       , PSAR.FLNO, PSAR.FLNM, PSAR.HSNO, PSAR.HOSILNM
+		       , PSAR.PPSCD
+		       , ( SELECT PPS_NM FROM TB_CM_REGSTR_PPSCODE WHERE PPS_CD = PSAR.PPSCD) AS PPSNM
+		       , CONCAT(SUBSTR(PSAR.PPSCD, 1, 2), '000') AS UP_PPSCD 
+		       , ( SELECT PPS_NM FROM TB_CM_REGSTR_PPSCODE WHERE PPS_CD = CONCAT(SUBSTR(PSAR.PPSCD, 1, 2), '000')) AS UP_PPSNM
+		       , PSAR.PPSETCNM
+		FROM   TB_BRK_STUFF_COMPLEX          CPLX
+		LEFT   JOIN TB_HBD_LEDGR             LDGR ON CPLX.HTBDNO = LDGR.HTBDNO
+		LEFT   JOIN TB_HBD_LEDGR_PSSION_AREA PSAR ON ( PSAR.HTBDNO = CPLX.HTBDNO
+		                                               AND PSAR.HBDNO = LDGR.HBDNO )
+		LEFT   JOIN TB_BRK_STUFF_BDROOM      BDRM ON ( CPLX.OFFICENO = BDRM.OFFICENO 
+		                                               AND CPLX.STUFFNO = BDRM.STUFFNO
+		                                               AND CPLX.HTBDNO  = BDRM.HTBDNO 
+                                                       AND PSAR.HPSNO = BDRM.HPSNO )
+		WHERE  CPLX.OFFICENO = #{officeno} 
+		AND    LDGR.HBDNO = #{hbdno} 
+		ORDER  BY FLGBCD DESC, PSAR.FLNO DESC, HOSILNM ASC 
+	</select>
+	
+	<select id="selectBuldStructinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBuldStructinfo 건물 층호실 구조조회 */
+		       FLGBCD
+		       , MAX_RMCO
+		       , MAX_FLCO
+		       , COUNT(FLNO) AS FLCO
+		FROM   ( SELECT FLGBCD, FLNO
+		                , FN_GET_MAX_ROOMCO( HBDNO, FLGBCD ) AS MAX_RMCO
+		                , FN_GET_MAX_ROOMCO( HBDNO, '' )     AS MAX_FLCO
+		         FROM   TB_HBD_LEDGR_PSSION_AREA
+		         WHERE  HBDNO = #{hbdno}
+		         GROUP  BY FLGBCD, FLNO
+		       ) A 
+		GROUP  BY FLGBCD, MAX_RMCO, MAX_FLCO
+		ORDER  BY FLGBCD DESC
 	</select>
 	
 	<select id="selectStuffOwnerList" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
@@ -486,6 +506,89 @@
 		</if> 
 	</select>
 	
+	<select id="selectBrkStuffBuld" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectBrkStuffBuld */ 
+		       STF.STUFFNO, STF.OFFICENO, STF.BRKNO, STF.HTBDNO
+		       , STF.HPPSCD
+		       , MST.PPSCD
+		       , CD.CODE_NM AS HPPSNM
+		       , MST.ARCD, MST.LEGCD
+		       , MST.BUNJIB, MST.BUNJIJ
+		       , MST.BULDGB
+		       , MST.BDADDR 
+		FROM   TB_BRK_STUFF_COMPLEX   STF
+		INNER  JOIN TB_HBD_LEDGR_MSTR MST ON MST.HTBDNO = STF.HTBDNO 
+		INNER  JOIN TB_CM_COMMCODE CD ON ( STF.HPPSCD = CD.MXTR_COMM_CD ) 
+		WHERE  STF.STUFFNO  = #{stuffno}
+		AND    STF.OFFICENO = #{officeno} 
+	</select>
+	
+	<select id="selectStuffBuldinfo" parameterType="homes.stuff.vo.StuffVo" resultType="commonMap">
+		SELECT /* homes.stuff.mapper.StuffMapper.selectStuffBuldinfo */
+		       SBD.OFFICENO, SBD.STUFFNO, SBD.HTBDNO, SBD.HBDNO
+		       , BDR.HPSNO
+		       , LGR.BULDNM
+		       , LGR.DONGNM
+		       , PAR.FLGBCD
+		       , PAR.FLNO
+		       , CONCAT(REPLACE(PAR.HOSILNM, '호', ''), '호') AS HOSILNM
+		       , PAR.PPSCD
+		       , PAR.PPSETCNM
+		       , FLOOR(PAR.PSSION_AR) AS PSSION_AR /* 전용_면적 */
+		       , FLOOR(PAR.PUBLIC_AR) AS PUBLIC_AR /* 공용_면적 */
+		       , FLOOR(PAR.SUPPLY_AR) AS SUPPLY_AR /** 공급_면적 */ 
+		       , BDR.BRKNO
+		       , BDR.HPPSCD
+		       , CD.CODE_NM AS HPPSNM
+		       , LGR.ARCD, LGR.LEGCD
+		       , LGR.BUNJIB, LGR.BUNJIJ
+		       , LGR.BULDGB
+		       , LGR.BDADDR 
+		       , ETC.OCCPGB
+		       , ETC.EXPIREDE
+		       , ETC.CRTC_YY        AS CRTCYY
+		       , ETC.CRTC_MM        AS CRTCMM
+		       , ETC.CRTC_AT
+		       , ETC.REQNO
+               , ETC.SCHDNO
+		FROM   TB_BRK_STUFF_BULD        SBD 
+		INNER  JOIN TB_HBD_LEDGR        LGR ON ( SBD.HTBDNO = LGR.HTBDNO AND SBD.HBDNO = LGR.HBDNO ) 
+		INNER  JOIN TB_BRK_STUFF_BDROOM BDR ON ( SBD.OFFICENO = BDR.OFFICENO 
+		                                         AND SBD.STUFFNO = BDR.STUFFNO
+		                                         AND SBD.HTBDNO = BDR.HTBDNO
+		                                         AND SBD.HBDNO = BDR.HBDNO ) 
+		INNER  JOIN TB_HBD_LEDGR_PSSION_AREA PAR ON ( BDR.HTBDNO = PAR.HTBDNO 
+		                                              AND BDR.HBDNO = PAR.HBDNO 
+		                                              AND BDR.HPSNO = PAR.HPSNO )
+		INNER  JOIN TB_CM_COMMCODE      CD  ON ( BDR.HPPSCD = CD.MXTR_COMM_CD ) 
+        LEFT   JOIN TB_BRK_BULD_ETC     ETC ON ( SBD.OFFICENO = ETC.OFFICENO AND PAR.HPSNO = ETC.HPSNO ) 
+		WHERE  SBD.OFFICENO = #{officeno} 
+		AND    SBD.STUFFNO = #{stuffno}
+		AND    SBD.HTBDNO = #{htbdno}
+		ORDER  BY LGR.DONGNM, PAR.FLNO, PAR.HOSILNM
+	</select>
+	
+	<insert id="insertBrkBuldStuff" parameterType="homes.stuff.vo.StuffVo">
+		INSERT /* homes.broker.mapper.StuffMapper.insertBrkBuldStuff 중개사 물건추가 */
+		INTO   TB_BRK_BULD_STUFF (
+			STUFFNO, OFFICENO, BRKNO, HTBDNO, HBDNO, HPSNO
+			, HPPSCD
+			, SFSTTUS
+			, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			FN_GET_STUFFNO(#{officeno}, #{buldgb}, #{arcd}, #{hppscd})
+			, #{officeno}
+			, #{brkno}
+			, #{htbdno}
+			, #{hbdno}
+			, #{hpsno}
+			, #{hppscd}
+			, #{sfsttus}
+			, #{brkno}
+			, #{brkno}
+		) 
+	</insert>
+	
 	<insert id="insertHbdRegstrMaster" parameterType="homes.api.buld.vo.RecapLedgrVo">
 		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertHbdRegstrMaster 홈즈_관리대장_총괄표제부 등록 */ 
 		TB_HBD_LEDGR_MASTER (
@@ -601,18 +704,44 @@
 			, #{brkno}
 		)
 	</insert>
-	<insert id="insertBrkStuff" parameterType="homes.stuff.vo.StuffVo">
-		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertBrkStuff 중개사 물건등록 */ 
-		TB_BRK_BULD_STUFF (
-			BRKNO, STUFFNO, SFSTTUS, CREAT_USER_NO, UPDT_USER_NO
+	
+	<insert id="insertBrkStuffBuld" parameterType="homes.stuff.vo.StuffVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertBrkStuffBuld 중개사 물건등록 */ 
+		TB_BRK_STUFF_BULD (
+			OFFICENO, STUFFNO, HTBDNO, HBDNO, BRKNO, HPPSCD
+			, CREAT_USER_NO
+			, UPDT_USER_NO
 		) VALUES (
-			#{brkno}
+			#{officeno}
 			, #{stuffno}
-			, #{sfsttus}
+			, #{htbdno}
+			, #{hbdno}
+			, #{brkno}
+			, #{hppscd}
 			, #{brkno}
 			, #{brkno}
 		)
 	</insert>
+	
+	<insert id="insertBrkStuffBdRoom" parameterType="homes.stuff.vo.StuffVo">
+		INSERT INTO /* homes.stuff.mapper.StuffMapper.insertBrkStuffBdRoom 중개사 물건등록 */ 
+		TB_BRK_STUFF_BDROOM (
+			OFFICENO, STUFFNO, HTBDNO, HBDNO, HPSNO, BRKNO, HPPSCD
+			, CREAT_USER_NO
+			, UPDT_USER_NO
+		) VALUES (
+			#{officeno}
+			, #{stuffno}
+			, #{htbdno}
+			, #{hbdno}
+			, #{hpsno}
+			, #{brkno}
+			, #{hppscd}
+			, #{brkno}
+			, #{brkno}
+		)
+	</insert>
+	
 	<insert id="insertBrkOwner" parameterType="homes.stuff.vo.StuffVo">
 		INSERT /* homes.stuff.mapper.StuffMapper.insertBrkOwner 소유주 등록 */
 		INTO   TB_BRK_BULD_OWNER (
@@ -643,6 +772,26 @@
 		WHERE  BRKNO = #{brkno}
 		AND    STUFFNO = #{stuffno}
 	</delete>
+	
+	
+	<update id="updateBrkBuldStuff" parameterType="homes.stuff.vo.StuffVo">
+		UPDATE /* homes.broker.mapper.StuffMapper.updateBrkBuldStuff 중개사 물건수정 */
+		TB_BRK_BULD_STUFF
+		SET    UPDT_DT = CURRENT_TIMESTAMP() 
+		       , UPDT_USER_NO = #{brkno}
+		       , SFSTTUS = #{sfsttus}
+		<if test="htbdno != null and htbdno != ''">
+		       , HTBDNO = #{htbdno}
+		</if>
+		<if test="hbdno != null and hbdno != ''">
+		       , HBDNO = #{hbdno}
+		</if>
+		<if test="hpsno != null and hpsno != ''">
+		       , HPSNO = #{hpsno}
+		</if>
+		WHERE  STUFFNO = #{stuffno}
+		AND    OFFICENO = #{officeno}
+	</update>
 	
 	<update id="updateBrkStuffSttus" parameterType="homes.stuff.vo.StuffVo">
 		UPDATE /* homes.stuff.mapper.StuffMapper.deleteBrkStuff 중개사 물건 상태변경 */

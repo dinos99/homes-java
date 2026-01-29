@@ -11,6 +11,11 @@ import homes.comm.vo.CommonMap;
 public interface BrokerStuffMapper {
 	/* 물건에 등록할 단지(공동주택)목록을 조회한다. */
 	List<CommonMap> selectPublicHouseList ( BrokerStuffVo paramVo ) ; 
+	
 	/* 중개사무소 물건에 단지(공동주택)을 추가한다. */
-	int insertBrokerStuff ( BrokerStuffVo paramVo ) ; 
+	int insertBrokerStuff ( BrokerStuffVo paramVo ) ;  /* 중개사 물건등록 */
+	int insertStuffComplex ( BrokerStuffVo paramVo ) ; /* 중개사 단지물건등록 */ 
+	
+	/* stuffno 채번 */ 
+	String getStuffno ( BrokerStuffVo paramVo ) ; 
 }

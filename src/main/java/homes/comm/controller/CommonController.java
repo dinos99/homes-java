@@ -17,6 +17,7 @@ import homes.comm.constants.EnumError;
 import homes.comm.service.CommCodeService;
 import homes.comm.service.CommonService;
 import homes.comm.util.JsonUtil;
+import homes.comm.vo.CommCode;
 import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommCodeVo;
 import homes.comm.vo.CommReqVo;
@@ -105,7 +106,7 @@ public class CommonController {
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(codeList)) ;
 	}
 	
-
+	/*
 	@GetMapping("/api/v1/commcode/{grpcd}")
 	public ResponseEntity<String> getCommCodeList(@PathVariable String grpcd) {
 		Log.info("*** grpcd: {}", grpcd) ;
@@ -116,6 +117,15 @@ public class CommonController {
 		codeList = commCodeService.getCommCodeList(paramVo) ;
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(codeList)) ;
 	}
+	*/
+
+	@GetMapping("/api/v1/commcode/{groupCode}")
+	public ResponseEntity<String> getCommCodeList(@PathVariable String groupCode) {
+		Log.info("*** groupCode: {}", groupCode) ;
+		List<CommCode> codeList = commCodeService.getCommCodeList(groupCode) ;
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(codeList)) ;
+	}
+	
 
 	@GetMapping("/api/v1/commcode/ppsList")
 	public ResponseEntity<String> getPpsCdList(HttpServletRequest request) {

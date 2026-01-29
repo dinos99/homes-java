@@ -64,19 +64,20 @@ public class ManagerController {
 	
 	@PostMapping("/api/v1/manager/todoList")
 	public ResponseEntity<String> todoList(HttpServletRequest request, @RequestBody TodoVo todoVo) {
+		todoVo.setMngrno(17);
 		List<TodoVo> todoList = service.getTodoList(todoVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(todoList)) ;
 	}
 
 	@PostMapping("/api/v1/manager/saveTodoList")
 	public ResponseEntity<String> saveTodoList(HttpServletRequest request, @RequestBody List<TodoVo> todoListVo ) {
-		CommonMap insMap = service.saveTodoList(0l, todoListVo) ; 
+		CommonMap insMap = service.saveTodoList(17l, todoListVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(insMap)) ;
 	}
 	
 	@PostMapping("/api/v1/manager/updateTodoList")
 	public ResponseEntity<String> updateTodoList(HttpServletRequest request, @RequestBody TodoVo todoVo ) {
-		CommonMap udMap = service.updateTodoList(0l, todoVo) ; 
+		CommonMap udMap = service.updateTodoList(17l, todoVo) ; 
 		return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(udMap)) ;
 	}
 	

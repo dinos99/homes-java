@@ -49,15 +49,24 @@ public class StuffController {
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(blockList)) ;
 	}
 
-	@PostMapping("/api/v1/stuff/floorList")
-	public ResponseEntity<String> floorList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+	@PostMapping("/api/v1/stuff/buld-struct")
+	public ResponseEntity<String> buldStruct(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
 		BrokerVo bvo = RequestUtil.getBroker(request) ; 
 		paramVo.setBrkno(bvo.getBrokerno()) ;
 		paramVo.setOfficeno(bvo.getOfficeno()) ; 
-		List<CommonMap> flinfo = service.selectFloorRoomInfo(paramVo) ; 
+		CommonMap flinfo = service.selectFloorRoomInfo(paramVo) ; 
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(flinfo)) ;
+	}	
+	@PostMapping("/api/v1/stuff/buld-Ledgr-info")
+	public ResponseEntity<String> buldLedgrinfo(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setBrkno(bvo.getBrokerno()) ;
+		paramVo.setOfficeno(bvo.getOfficeno()) ; 
+		CommonMap bdinfo = service.selectLedgrinfo(paramVo) ;  
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(bdinfo)) ;
 	}
 
+	
 	@PostMapping("/api/v1/stuff/ownerList") 
 	public ResponseEntity<String> ownerList(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
 		int brkno = RequestUtil.getUserno(request) ; 
@@ -129,5 +138,23 @@ public class StuffController {
 		buldinfo.put("recap"    , recapVo) ;        /* 홈즈_관리대장_총괄표제부 */
 		buldinfo.put("titleList", titleLedgrList) ; /* 홈즈_관리대장_표제부 */
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(buldinfo)) ;
+	}
+
+	@PostMapping("/api/v1/stuff/insert-stuff") 
+	public ResponseEntity<String> insertStuff(HttpServletRequest request, @RequestBody StuffVo[] paramVo ) {
+		CommonMap ins_map = service.insertStuff(request, paramVo) ;
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(ins_map)) ;
+	}
+	
+	@PostMapping("/api/v1/stuff/stuff-info")
+	public ResponseEntity<String> stuffInfo(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		CommonMap bdstuff = service.selectBrkStuffBuld(request, paramVo) ;
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(bdstuff)) ;
+	}
+
+	@PostMapping("/api/v1/stuff/stuff-buld-info")
+	public ResponseEntity<String> stuffBuldInfo(HttpServletRequest request, @RequestBody StuffVo paramVo ) {
+		List<CommonMap> bdstuff = service.selectStuffBuldinfo(request, paramVo) ;
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(bdstuff)) ;
 	}
 }

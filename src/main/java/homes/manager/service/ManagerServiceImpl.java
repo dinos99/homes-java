@@ -164,8 +164,8 @@ public class ManagerServiceImpl implements ManagerService {
 	public CommonMap saveTodoList( Long mngrno,   List<TodoVo> paramVo ) {
 		int in_co = 0 ; 
 		for ( TodoVo todoVo : paramVo) {
-			todoVo.setMngrno(0);
-			todoVo.setUserno(0);
+			todoVo.setMngrno(17);
+			todoVo.setUserno(17);
 			String wkid = todoVo.getWkid() ; 
 			int wk_co  = mapper.getWkidCount(todoVo) + 1 ;
 			String idx = StringUtil.strLpad(String.valueOf(wk_co), 3, '0') ;
@@ -183,7 +183,7 @@ public class ManagerServiceImpl implements ManagerService {
 	public CommonMap updateTodoList( Long mngrno,  TodoVo paramVo ) {
 		int up_co = 0 ; 
 		CommonMap insMap = new CommonMap() ; 
-		paramVo.setMngrno(0);
+		paramVo.setMngrno(17);
 		up_co = mapper.updateTodoList(paramVo) ; 
 		insMap.put("upco"   , up_co) ; 
 		insMap.put("message", up_co + "건이 수정되었습니다.") ;

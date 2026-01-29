@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import homes.broker.service.BrokerStuffService;
+import homes.broker.vo.BrokerBuldVo;
 import homes.broker.vo.BrokerStuffVo;
 import homes.broker.vo.BrokerVo;
 import homes.comm.util.DateTimeUtil;
@@ -54,5 +55,16 @@ public class BrokerStuffController {
         return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(cmap)) ;
 	}
 	
+	@PostMapping("/api/v1/broker/buld/update-buld-info")
+	public ResponseEntity<String> updateBuldInfo(HttpServletRequest request, @RequestBody BrokerBuldVo paramVo ) {
+		BrokerVo brkVo = RequestUtil.getBroker(request) ; 
+		paramVo.setBrkno(brkVo.getBrokerno()) ;
+		paramVo.setOfficeno(brkVo.getOfficeno()) ; 
+		paramVo.setMngrno(brkVo.getBrokerno()) ; 
+
+		CommonMap cmap = service.updateBuldInfo(paramVo) ;
+        return ResponseEntity.status(HttpStatus.OK).body(JsonUtil.getJson(cmap)) ;
+		
+	}
 	
 }

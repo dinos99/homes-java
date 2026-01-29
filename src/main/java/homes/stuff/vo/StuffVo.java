@@ -19,11 +19,16 @@ public class StuffVo {
 	int userno ; 
 	int custno ;  
 	
+	
+	String stuffno ; /* key */ 
+	
 	String htbdno ; /* 홈즈_건물관리대장_마스터_PK */ 
-	String hbdno  ; /* 홈즈_건물관리대장_표제부_PK */  
+	String hbdno  ; /* 홈즈_건물관리대장_표제부_PK */
+	String hpsno  ; /* 홈즈_건물관리대정_전유부_PK */ 
 	String flgbcd ; /* 건물구분 */
 	
-	String stuffno ; 
+	String hppscd ; 
+	
 	String cplxno ;
 	String pssionno ;
 	String owno ; 

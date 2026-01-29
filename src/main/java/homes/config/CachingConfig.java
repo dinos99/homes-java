@@ -16,7 +16,7 @@ public class CachingConfig {
     CacheManager cacheManager() {
         ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
         cacheManager.setAllowNullValues(false);
-        cacheManager.setCacheNames(List.of("CommCode"));
+        cacheManager.setCacheNames(List.of("commCode"));
         return cacheManager;
     }
 }

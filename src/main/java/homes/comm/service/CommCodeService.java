@@ -2,6 +2,7 @@ package homes.comm.service;
 
 import java.util.List;
 
+import homes.comm.vo.CommCode;
 import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommCodeVo;
 import homes.comm.vo.CommonMap;
@@ -10,9 +11,10 @@ public interface CommCodeService {
 
 	public CommCodeListVo getCodeAllList(String grpcd) ; 
 	public CommCodeListVo getCodeGroupList(String grpcd) ;
+
+	public List<CommCode> getCommCodeList(String grpCd) ;
 	
-	public List<CommonMap> getCommCodeList(CommCodeVo paramVo) ;
-	
+	public List<CommonMap> getCommCodeList(CommCodeVo paramVo) ;	
 	public List<CommonMap> getCodeListbyUpcode(String upcd) ;
 	
 	/* 부동산구분 코드목록조회 ( GRP_CD = 'EST' )  */ 

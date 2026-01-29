@@ -20,6 +20,10 @@ public interface StuffMapper {
 	public List<CommonMap> selectStuffOwnerList(StuffVo paramVo) ; 
 	public List<CommonMap> selectRelatedbunji(StuffVo paramVo) ; /* 관련지번 조회 */ 
 	
+	public List<CommonMap> selectBuldStructinfo(StuffVo paramVo) ; /* 건물 층호실 구조조회 */
+	
+	public CommonMap selectLedgrinfo(StuffVo paramVo) ; /* 건물(동) 정보조회 */  
+	
 	public CommonMap selectFloorCount(StuffVo paramVo) throws SQLException ;
 	public CommonMap selectPostcodeBuld(StuffVo paramVo) ; 
 	public CommonMap selectBuldGroup(StuffVo paramVo) ; /* 집합건물 정보조회 */ 
@@ -28,6 +32,9 @@ public interface StuffMapper {
 	public CommonMap selectStuffPPscd( String ppscd ) ; 
 	public CommonMap isExistsOwner(StuffVo paramVo) ;
 	public CommonMap selectMasterbunji( StuffVo paramVo ) ; /* 대표지번 조회 */ 
+	
+	public CommonMap selectBrkStuffBuld( StuffVo paramVo ) ; 
+	public List<CommonMap> selectStuffBuldinfo( StuffVo paramVo ) ; 
 	
 	public RecapLedgrVo selectHbdRegstrMaster(StuffVo paramVo) ; /* 홈즈_관리대장_총괄표제부 조회 */
 	public List<TitleLedgrVo> selectHbdLedgr(StuffVo paramVo) ;        /* 홈즈_관리대장_표제부 조회 */ 
@@ -41,7 +48,8 @@ public interface StuffMapper {
 	public String getBuldno(StuffVo paramVo) ; /* 홈즈_관리대장_표제부 Key 채번 */ 
 
 	public int insertHbdStuff(StuffVo paramVo) ;
-	public int insertBrkStuff(StuffVo paramVo) ;
+	public int insertBrkStuffBuld(StuffVo paramVo) ; /* TB_BRK_STUFF_BULD 물건_건물등록 */
+	public int insertBrkStuffBdRoom(StuffVo paramVo) ; /* TB_BRK_STUFF_BDROOM 물건_호실등록 */
 	public int insertBrkOwner(StuffVo paramVo) ;	
 	public int insertHbdRegstrMaster(RecapLedgrVo paramVo) ; /* 홈즈_관리대장_마스터 등록 */
 	public int insertHbdLedgr(TitleLedgrVo paramVo) ;        /* 홈즈_관리대장_표제부 등록 */
@@ -52,5 +60,10 @@ public interface StuffMapper {
 	public int getLedgrCount(StuffVo paramVo) ; /* 홈즈_관리대장_표제부_카운트 */ 
 	public int getHbdTitleLedgrCount(StuffVo paramVo) ; /* 홈즈건물_표제부 등록여부 확인 */	
 	public int selectRelatedJibunCount(StuffVo paramVo) ; /* 관련지번 포함여부 */
-	
+
+	public int getStuffCount( StuffVo paramVo ) ; 
+	public int getStuffBuldCount( StuffVo paramVo ) ; 
+	public int getStuffBdRoomCount( StuffVo paramVo ) ; 
+	public int insertBrkBuldStuff( StuffVo paramVo ) ; 
+	public int updateBrkBuldStuff( StuffVo paramVo ) ; 
 }

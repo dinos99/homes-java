@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import homes.comm.mapper.CommCodeMapper;
+import homes.comm.vo.CommCode;
 import homes.comm.vo.CommCodeListVo;
 import homes.comm.vo.CommCodeVo;
 import homes.comm.vo.CommonMap;
@@ -63,6 +64,11 @@ public class CommCodeServiceImpl implements CommCodeService {
     public List<CommonMap> getCommCodeList(CommCodeVo paramVo) {
     	return mapper.getCommCodeList(paramVo) ; 
     }
+	@Transactional(readOnly = true)
+    @Cacheable(value = "commCode", key = "#groupCode")
+    public List<CommCode> getCommCodeList(String groupCode) {
+    	return mapper.getCommCode(groupCode) ; 
+    }
 	
 	@Transactional(readOnly = true)
 	public List<CommonMap> getCodeListbyUpcode(String upcd) {
@@ -82,10 +88,8 @@ public class CommCodeServiceImpl implements CommCodeService {
     	return mapper.getppsCodeList(ppscd) ;
     }
     
-    @Cacheable(key = "'hppsCdList'")
     @Transactional(readOnly = true)
     public List<CommonMap> gethppsCodeList( String upHppscd ) {
-    	Log.error("*** Execute Cacheable within key *************************************");
     	return mapper.gethppsCodeList(upHppscd) ;
     }
 }

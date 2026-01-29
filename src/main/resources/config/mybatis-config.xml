@@ -31,6 +31,7 @@
         <mapper resource="mapper/common/common-code-mapper.xml"/>
         <mapper resource="mapper/broker/broker-mapper.xml"/>
         <mapper resource="mapper/broker/broker-stuff-mapper.xml"/>
+        <mapper resource="mapper/broker/broker-build-mapper.xml"/>
         <mapper resource="mapper/broker/broker-complex-mapper.xml"/>
         <mapper resource="mapper/stuff/stuff-mapper.xml"/>
         <mapper resource="mapper/buld/buld-mapper.xml"/>

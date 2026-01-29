@@ -75,30 +75,14 @@ public class StuffServiceImpl implements StuffService {
 
 	@Override
 	@Transactional(readOnly = true) 
-	public List<CommonMap> selectFloorRoomInfo( StuffVo paramVo ) {
-		/* 지상/지하/옥탑 층수 및 방정보 조회 */ 
-		/* 옥탑조회 */
-		paramVo.setFlgbcd("10"); 
-		List<CommonMap> topList = mapper.selectFloorRoomList(paramVo) ; 
-		/* 지상층조회 */ 
-		paramVo.setFlgbcd("20"); 
-		List<CommonMap> grndList = mapper.selectFloorRoomList(paramVo) ;
-		/* 지하층조회 */ 
-		paramVo.setFlgbcd("30"); 
-		List<CommonMap> undrList = mapper.selectFloorRoomList(paramVo) ;
-		
-		List<CommonMap> f_List = new ArrayList<CommonMap>() ; 
-
-		if ( undrList !=null && undrList.size() > 0 ) {
-			for ( CommonMap under: undrList ) f_List.add(under) ;
-		}
-		if ( grndList !=null && grndList.size() > 0 ) {
-			for ( CommonMap ground: grndList ) f_List.add(ground) ;
-		}
-		if ( topList !=null && topList.size() > 0 ) {
-			for ( CommonMap top: topList ) f_List.add(top) ;
-		}
-		return f_List ; 
+	public CommonMap selectFloorRoomInfo( StuffVo paramVo ) {
+		CommonMap flinfo = new CommonMap() ;
+		/* 층별개요 조회 */
+		List<CommonMap> stList = mapper.selectBuldStructinfo(paramVo) ; 
+		List<CommonMap> sfList = mapper.selectFloorRoomList(paramVo) ; 
+		flinfo.put("stList", stList) ; 
+		flinfo.put("sfList", sfList) ; 
+		return flinfo ; 
 	}
 
 	@Override
@@ -125,6 +109,50 @@ public class StuffServiceImpl implements StuffService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class) 
+	public CommonMap insertStuff(HttpServletRequest request, StuffVo[] paramVo) {
+		CommonMap cmap = new CommonMap() ;
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		int brkno = bvo.getBrokerno() ; 
+		int officeno = bvo.getOfficeno() ; 
+		
+		int ins_co = 0 ; 
+		
+		for ( StuffVo svo : paramVo ) {
+			svo.setBrkno(brkno);
+			svo.setOfficeno(officeno);
+			int is_buld = mapper.getStuffBuldCount(svo) ; 
+			/* 물건이 이미 등록되어있다면 등록하지 않음 */
+			if ( is_buld == 0 ) {
+				/* TB_BRK_STUFF_BULD 물건_건물등록 */
+				ins_co = ins_co + mapper.insertBrkStuffBuld(svo) ;
+			} 
+			int is_bdroom = mapper.getStuffBdRoomCount(svo) ; 
+			if ( is_bdroom == 0 ) {
+				/* TB_BRK_STUFF_BDROOM 물건_호실등록 */
+				ins_co = ins_co + mapper.insertBrkStuffBdRoom(svo) ;
+			} 
+		}
+		
+		cmap.put("insco", ins_co) ; 
+		
+		return cmap ; 
+	}
+	@Override
+	@Transactional( readOnly = true ) 
+	public CommonMap selectBrkStuffBuld( HttpServletRequest request, StuffVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno()) ; 
+		return mapper.selectBrkStuffBuld(paramVo) ; 
+	}
+	@Override
+	@Transactional( readOnly = true ) 
+	public List<CommonMap> selectStuffBuldinfo( HttpServletRequest request, StuffVo paramVo ) {
+		BrokerVo bvo = RequestUtil.getBroker(request) ; 
+		paramVo.setOfficeno(bvo.getOfficeno()) ; 
+		return mapper.selectStuffBuldinfo(paramVo) ; 
+	}
+	@Override
+	@Transactional(rollbackFor = Exception.class) 
 	public List<CommonMap> insertStuff(StuffVo paramVo) {
 		/* 해당물건이 존재하는지 확인 */ 
 		String is_stuff = mapper.isExistsStuff(paramVo) ;
@@ -139,7 +167,7 @@ public class StuffServiceImpl implements StuffService {
 		}
 		String sfsttus = paramVo.getSfsttus() ; 
 		if ( "T".equals(sfsttus)) {
-			mapper.insertBrkStuff(paramVo) ;
+//			mapper.insertBrkStuff(paramVo) ;
 		}
 		CommonMap omap = mapper.isExistsOwner(paramVo) ; 
 		Log.info("omap: {}", omap) ;
@@ -354,4 +382,20 @@ public class StuffServiceImpl implements StuffService {
 		paramVo.setHasRelcount(has_cnt);
 		return mapper.selectHbdLedgr(paramVo);
 	}
+
+	@Override
+	@Transactional( readOnly = true )
+	public CommonMap selectLedgrinfo(StuffVo paramVo) {
+		return mapper.selectLedgrinfo(paramVo) ;
+	}
+	
+	@Override
+	@Transactional( readOnly = true ) 
+	public CommonMap selectBuldStruct( HttpServletRequest request, StuffVo paramVo ) {
+		CommonMap struct = new CommonMap() ;
+		/* 층별개요 조회 */ 
+		
+		return struct ;
+	}
+	
 }

@@ -10,8 +10,6 @@
 		       , MST.CPLX_AT
 		       , NVL(STF.OFFICENO,   0) AS OFFICENO 
 		       , NVL(STF.BRKNO   ,   0) AS BRKNO 
-		       , NVL(STF.CUSTNO  ,   0) AS CUSTNO
-		       , NVL(STF.SFSTTUS , 'N') AS SFSTTUS 
 		       , NVL(STF.HPPSCD  , MST.HPPSCD) AS HPPSCD
 		       , ( SELECT CODE_NM FROM   TB_CM_COMMCODE 
 		           WHERE  GRP_CD = 'HPS'
@@ -26,31 +24,51 @@
 		       , MST.ARCD, MST.LEGCD, MST.BUNJIB, MST.BUNJIJ
 		       , MST.BDADDR, MST.RDADDR 
 		       , DATE_FORMAT(STF.CREAT_DT, '%Y.%m.%d') AS CRDE
+		       , NVL(STF.BRKNO, 0)                     AS BRKNO
 		FROM   TB_HBD_LEDGR_MSTR         MST
 		INNER  JOIN TB_CM_REGSTR_PPSCODE PPS ON MST.PPSCD   = PPS.PPS_CD
-		LEFT   JOIN TB_BRK_BULD_STUFF    STF ON ( MST.HTBDNO = STF.HTBDNO 
-		                                          AND STF.OFFICENO = #{officeno} 
-		                                          AND STF.BRKNO = #{brkno} ) 
-		WHERE  ARCD = #{arcd}
-		AND    LEGCD = #{legcd} 
-		AND    BULDGB = #{buldgb} 
-		AND    MST.PPSCD = '02000' /* 공동주택만 조회 */
-		AND    BULDNM != '' /* 건물명 없는것들 일단 제외함 */
-		AND    INSTR(PPSETCNM, '다세대') = 0 
-		AND    MST.HSHLDCO <![CDATA[ > ]]> 14 /* 15세대 이상 */ 
-		ORDER  BY NVL(OFFICENO, 0) ASC, MST.BULDNM
+		LEFT   JOIN TB_BRK_STUFF_COMPLEX STF ON ( MST.HTBDNO = STF.HTBDNO 
+		                                          AND STF.OFFICENO = 1 
+		                                          AND STF.BRKNO = 17 ) 
+		WHERE  MST.ARCD = #{arcd}
+		AND    MST.LEGCD = #{legcd} 
+		AND    MST.BULDGB = #{buldgb} 
+--		AND    MST.PPSCD = '02000' /* 공동주택만 조회 */
+		AND    MST.BULDNM != '' /* 건물명 없는것들 일단 제외함 */
+		AND    INSTR(MST.PPSETCNM, '다세대') = 0 /* 다세대 제외 */ 
+		AND    MST.HSHLDCO <![CDATA[ > ]]> 9 /* 10세대 이상 */ 
+		ORDER  BY NVL(STF.OFFICENO, 0) ASC, MST.BULDNM
+	</select>
+	
+	<select id="getStuffno" parameterType="homes.broker.vo.BrokerStuffVo" resultType="string">
+		SELECT /* homes.broker.mapper.BrokerPublicMapper.getStuffno 물건번호채번 */
+		       FN_GET_STUFFNO(#{officeno}, #{brkno},  #{buldgb}, #{arcd}) AS STUFFNO 
+		FROM   DUAL 
 	</select>
 	
 	<insert id="insertBrokerStuff" parameterType="homes.broker.vo.BrokerStuffVo">	
-		INSERT /* homes.broker.mapper.BrokerPublicMapper.insertBrokerStuff 중개사 단지물건 추가 */
-		INTO   TB_BRK_BULD_STUFF (
-			STUFFNO, OFFICENO, BRKNO, HTBDNO, SFSTTUS, HPPSCD, CREAT_USER_NO, UPDT_USER_NO
+		INSERT /* homes.broker.mapper.BrokerPublicMapper.insertBrokerStuff 중개사 물건(만) 추가 */
+		INTO   TB_BRK_STUFF (
+			OFFICENO, STUFFNO, BRKNO, HPPSCD, CREAT_USER_NO, UPDT_USER_NO
 		) VALUES (
-			FN_GET_STUFFNO(#{officeno}, #{buldgb}, #{arcd}, #{hppscd})
-			, #{officeno}
+			#{officeno}
+			, #{stuffno}
+			, #{brkno}
+			, #{hppscd}
+			, #{brkno}
+			, #{brkno}
+		) 
+	</insert>
+	
+	<insert id="insertStuffComplex" parameterType="homes.broker.vo.BrokerStuffVo">	
+		INSERT /* homes.broker.mapper.BrokerPublicMapper.insertStuffComplex 중개사 물건_닩 추가 */
+		INTO   TB_BRK_STUFF_COMPLEX (
+			OFFICENO, STUFFNO, BRKNO, HTBDNO, HPPSCD, CREAT_USER_NO, UPDT_USER_NO
+		) VALUES (
+			#{officeno}
+			, #{stuffno}
 			, #{brkno}
 			, #{htbdno}
-			, #{sfsttus}
 			, #{hppscd}
 			, #{brkno}
 			, #{brkno}

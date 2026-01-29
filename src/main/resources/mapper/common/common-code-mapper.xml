@@ -58,7 +58,19 @@
 			#{grpcd}
 		</foreach>
 		AND    USE_YN = 'Y' 
-		ORDER  BY GRPCD, CD_ORDR
+		ORDER  BY GRP_CD, CD_ORDR
+    </select>
+    
+    <select id="getCommCode" parameterType="string" resultType="homes.comm.vo.CommCode">
+    	SELECT /* homes.common.mapper.CommonMapper.getCommCode 공통코드조회  */
+    	       MXTR_COMM_CD   AS CODE
+    	       , COMM_CD      AS COMM_CODE
+    	       , GRP_CD       AS GROUP_CODE
+    	       , CODE_NM      AS CODENAME
+		FROM   TB_CM_COMMCODE
+		WHERE  GRP_CD = #{grpCd}
+		AND    USE_YN = 'Y' 
+		ORDER  BY GRP_CD, CD_ORDR
     </select>
     
     <select id="getPpsCdList" parameterType="string" resultType="commonMap">
